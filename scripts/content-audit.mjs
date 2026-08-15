@@ -1,5 +1,6 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { extname, join, resolve } from 'node:path';
+import { auditPromptQuality } from './prompt-quality.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const contentRoot = join(root, 'src', 'data');
@@ -20,7 +21,7 @@ function recordsFromSource(text) {
   const matches = [...text.matchAll(/\bid:\s*'([^']+)'/g)];
   return matches.map((match, index) => ({
     id: match[1],
-    block: text.slice(match.index, matches[index + 1]?.index ?? text.length),
+    block: text.slice(text.lastIndexOf('{', match.index), matches[index + 1] ? text.lastIndexOf('{', matches[index + 1].index) : text.length),
   }));
 }
 
@@ -99,6 +100,8 @@ const duplicateSlugs = [
 const recordsWithProvenance = allRecords.filter((record) => ['prompts', 'tools', 'notebooks', 'guides'].includes(record.type));
 const missingSourceUrl = recordsWithProvenance.filter((record) => !fieldValue(record.block, 'sourceUrl')).length;
 const needsReview = allRecords.filter((record) => /\bneedsReview:\s*true\b/.test(record.block)).length;
+const promptQuality = auditPromptQuality(groupRecords.prompts);
+const formatMetrics = (metrics) => Object.entries(metrics).map(([key, value]) => `${key}=${value}`).join(', ');
 
 const lines = [
   `Prompts: ${groupRecords.prompts.length}`,
@@ -109,6 +112,20 @@ const lines = [
   `Prompt categories: ${registryMap.prompt.size}`,
   `Source categories: ${registryMap.source.size}`,
   `Guide categories: ${registryMap.guide.size}`,
+  `Prompts by category: ${formatMetrics(promptQuality.metrics.byCategory)}`,
+  `Prompts by target: ${formatMetrics(promptQuality.metrics.byTarget)}`,
+  `Prompts by audience: ${formatMetrics(promptQuality.metrics.byAudience)}`,
+  `Prompts by complexity: ${formatMetrics(promptQuality.metrics.byComplexity)}`,
+  `Featured prompts: ${promptQuality.metrics.featured}`,
+  `Original Notebook Hub CZ: ${promptQuality.metrics.original}`,
+  `External attributed prompts: ${promptQuality.metrics.externalAttributed}`,
+  `Prompt quality: ${promptQuality.errors.length ? 'FAIL' : 'PASS'}`,
+  `Prompt quality missing description: ${promptQuality.metrics.missingDescription}`,
+  `Prompt quality missing prompt: ${promptQuality.metrics.missingPrompt}`,
+  `Prompt quality missing author: ${promptQuality.metrics.missingAuthor}`,
+  `Prompt quality missing provenance: ${promptQuality.metrics.missingProvenance}`,
+  `Prompt quality duplicate titles: ${promptQuality.duplicateTitles.length ? promptQuality.duplicateTitles.join(', ') : 'none'}`,
+  `Prompt quality duplicate normalized titles: ${promptQuality.duplicateNormalizedTitles.length ? promptQuality.duplicateNormalizedTitles.join(', ') : 'none'}`,
   `needsReview: ${needsReview}`,
   `Missing sourceUrl: ${missingSourceUrl}`,
   `Duplicate IDs: ${duplicateIds.length ? duplicateIds.join(', ') : 'none'}`,
@@ -117,7 +134,7 @@ const lines = [
 ];
 console.log(lines.join('\n'));
 
-const errors = [...structuralIssues, ...duplicateIds.map((id) => `duplicate id: ${id}`), ...duplicateSlugs.map((slug) => `duplicate slug: ${slug}`), ...invalidUrls.map((url) => `invalid url: ${url}`)];
+const errors = [...structuralIssues, ...promptQuality.errors, ...duplicateIds.map((id) => `duplicate id: ${id}`), ...duplicateSlugs.map((slug) => `duplicate slug: ${slug}`), ...invalidUrls.map((url) => `invalid url: ${url}`)];
 if (errors.length) {
   console.error(`\nContent audit failed:\n${errors.map((error) => `- ${error}`).join('\n')}`);
   process.exitCode = 1;

@@ -9,6 +9,7 @@ export const promptCategories: PromptCategory[] = [
   { id: 'writing-content', label: 'Psaní a tvorba obsahu', eyebrow: 'Napsat', description: 'Tvořte texty pevně ukotvené v dodaných zdrojích.', color: 'teal' },
   { id: 'strategy-decisions', label: 'Strategie a rozhodování', eyebrow: 'Rozhodnout', description: 'Oddělte fakta, varianty, rizika a další kroky.', color: 'orange' },
   { id: 'workflows', label: 'Workflow', eyebrow: 'Opakovat', description: 'Sestavte z více kroků spolehlivý pracovní postup.', color: 'slate' },
+  { id: 'teaching', label: 'Pro učitele', eyebrow: 'Vyučovat', description: 'Připravte hodinu, materiály a hodnocení ukotvené ve zdrojích.', color: 'plum' },
 ];
 
 export const sourceCategories: SourceCategory[] = [

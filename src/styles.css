@@ -124,6 +124,7 @@ button { cursor: pointer; }
 .badge-sage { background: #e6ecdf; color: #5d7551; }
 .badge-amber, .badge-orange { background: #fff0d4; color: #946017; }
 .badge-rose { background: #f5e4e1; color: #9a615a; }
+.badge-plum { background: #eee4ee; color: #805c7d; }
 .badge-violet { background: #eee9f4; color: #75638c; }
 .badge-teal { background: #dcece8; color: #4c786e; }
 .badge-slate { background: #e6eaea; color: #5f6d6b; }
@@ -145,7 +146,7 @@ button { cursor: pointer; }
 .category-card strong { max-width: 160px; margin-top: 25px; font-size: 1.08rem; line-height: 1.05; letter-spacing: -.04em; }
 .category-card small { margin-top: auto; color: var(--ink-soft); font-size: .72rem; }
 .category-card i { position: absolute; right: 19px; bottom: 16px; color: var(--accent-deep); font-style: normal; }
-.category-sage { border-top: 4px solid var(--sage); }.category-blue { border-top: 4px solid var(--blue); }.category-amber { border-top: 4px solid var(--accent); }.category-rose { border-top: 4px solid var(--rose); }.category-violet { border-top: 4px solid var(--violet); }.category-teal { border-top: 4px solid var(--teal); }.category-orange { border-top: 4px solid #cc8c55; }.category-slate { border-top: 4px solid #899a95; }
+.category-sage { border-top: 4px solid var(--sage); }.category-blue { border-top: 4px solid var(--blue); }.category-amber { border-top: 4px solid var(--accent); }.category-rose { border-top: 4px solid var(--rose); }.category-violet { border-top: 4px solid var(--violet); }.category-teal { border-top: 4px solid var(--teal); }.category-orange { border-top: 4px solid #cc8c55; }.category-slate { border-top: 4px solid #899a95; }.category-plum { border-top: 4px solid #aa7fa5; }
 .split-sections { display: grid; grid-template-columns: 1fr 1fr; gap: 58px; }
 .mini-list { border-top: 1px solid var(--line-strong); }
 .mini-list a { display: flex; align-items: center; gap: 12px; padding: 15px 0; border-bottom: 1px solid var(--line); }

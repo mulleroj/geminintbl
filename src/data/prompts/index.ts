@@ -6,6 +6,7 @@ import { strategyDecisionPrompts } from './strategy-decisions';
 import { studyExamPrepPrompts } from './study-exam-prep';
 import { workflowPrompts } from './workflows';
 import { writingContentPrompts } from './writing-content';
+import { teachingPrompts } from './teaching';
 
 export const prompts = [
   ...deepAnalysisPrompts,
@@ -16,4 +17,5 @@ export const prompts = [
   ...writingContentPrompts,
   ...strategyDecisionPrompts,
   ...workflowPrompts,
+  ...teachingPrompts,
 ];

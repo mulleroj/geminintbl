@@ -1,6 +1,7 @@
 import type { Audience, EducationLevel, Provenance } from './common';
 
 export type PromptTarget = 'chat' | 'chat-settings' | 'audio' | 'slides' | 'infographic' | 'video' | 'other';
+export type PromptComplexity = 'quick' | 'standard' | 'advanced';
 
 export interface Prompt extends Provenance {
   id: string;
@@ -11,6 +12,7 @@ export interface Prompt extends Provenance {
   category: string;
   tags: string[];
   target: PromptTarget;
+  complexity: PromptComplexity;
   featured?: boolean;
   createdAt?: string;
   updatedAt?: string;

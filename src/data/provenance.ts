@@ -5,4 +5,5 @@ export const projectProvenance: Provenance = {
   sourceLabel: 'Originální obsah projektu',
   retrievedAt: '2026-08-15',
   license: 'CC BY-NC 4.0 — obsah projektu',
+  needsReview: false,
 };
