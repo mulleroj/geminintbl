@@ -30,4 +30,10 @@ Audit proběhl nad lokálním Vite preview po úpravě homepage hero a katalogu 
 
 ## Netlify stav
 
-Nasazení se doplní po lokálních gate testech a ověření stejného existujícího Netlify projektu.
+Nasazeno do existujícího Netlify site `geminintbl`, bez vytvoření nového projektu.
+
+- Veřejná URL: `https://geminintbl.netlify.app/`
+- Branch preview: `https://feat-notebook-hub-cz--geminintbl.netlify.app/`
+- Branch: `feat/notebook-hub-cz`
+- Deployed commit: `d66dbe222b789eeb197835fd3dc47423c7296b58`
+- Stav deploye: `ready`
