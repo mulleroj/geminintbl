@@ -6,7 +6,8 @@ Trusted Sources v1 je katalog 175 zdrojů pro český Notebook Hub CZ. Nejde o k
 Version: 1.0
 Total sources: 175
 Czech/CZ-relevant: 118 (67 %)
-International: 61 (EU 29, GLOBAL 32)
+International region labels: 61 (EU 29, GLOBAL 32; 4 records also carry CZ)
+Unique non-CZ sources: 57
 Categories: 10
 Featured: 10
 Verified date: 2026-08-15
