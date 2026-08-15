@@ -1,15 +1,23 @@
 import { czechEducationSources } from './czech-education';
-import { czechGovernmentSources } from './czech-government';
-import { internationalSources } from './international';
-import { miscellaneousSources } from './misc';
-import { scienceSources } from './science';
-import { statisticsSources } from './statistics';
+import { czechLanguageSources } from './czech-language';
+import { economicsSources } from './economics';
+import { euSources } from './eu';
+import { historyArchiveSources } from './history-archives';
+import { internationalSources } from './international-sources';
+import { journalismFactCheckSources } from './journalism-fact-check';
+import { legislationSources } from './legislation';
+import { scienceResearchSources } from './science-research';
+import { statisticsDataSources } from './statistics-data';
 
 export const sources = [
-  ...statisticsSources,
-  ...czechGovernmentSources,
   ...czechEducationSources,
-  ...scienceSources,
-  ...miscellaneousSources,
+  ...legislationSources,
+  ...statisticsDataSources,
+  ...economicsSources,
+  ...scienceResearchSources,
+  ...historyArchiveSources,
+  ...czechLanguageSources,
+  ...euSources,
   ...internationalSources,
+  ...journalismFactCheckSources,
 ];

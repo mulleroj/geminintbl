@@ -13,14 +13,16 @@ export const promptCategories: PromptCategory[] = [
 ];
 
 export const sourceCategories: SourceCategory[] = [
-  { id: 'statistics', label: 'Statistiky', description: 'Oficiální statistiky, datové řady a metodiky.' },
-  { id: 'open-data', label: 'Otevřená data', description: 'Katalogy datasetů a veřejná data pro vlastní analýzu.' },
   { id: 'education', label: 'Školství', description: 'Instituce, zprávy a podklady pro české vzdělávání.' },
   { id: 'legislation', label: 'Legislativa', description: 'Parlamentní a právní dokumenty s dohledatelným kontextem.' },
+  { id: 'statistics', label: 'Statistiky a data', description: 'Oficiální statistiky, datové řady, otevřená data a metodiky.' },
   { id: 'economics', label: 'Ekonomika', description: 'Ekonomická data, zprávy a měnové souvislosti.' },
-  { id: 'science', label: 'Věda', description: 'Výzkumné instituce, archivy a odborné publikace.' },
-  { id: 'czech-language', label: 'Český jazyk', description: 'Katalogy, autority a zdroje pro práci s češtinou.' },
-  { id: 'research', label: 'Výzkum', description: 'Vyhledávače odborné literatury a výzkumné workflow.' },
+  { id: 'science', label: 'Věda a výzkum', description: 'Výzkumné instituce, repozitáře a odborné publikace.' },
+  { id: 'history-archives', label: 'Historie a archivy', description: 'Archivní fondy, digitální knihovny a kulturní dědictví.' },
+  { id: 'czech-language', label: 'Český jazyk a literatura', description: 'Slovníky, korpusy, katalogy a zdroje pro práci s češtinou.' },
+  { id: 'eu', label: 'Evropská unie', description: 'Právo, data, výzkum a instituce Evropské unie.' },
+  { id: 'international', label: 'Mezinárodní zdroje', description: 'Globální data, instituce a odborné referenční zdroje.' },
+  { id: 'journalism-fact-check', label: 'Žurnalistika a ověřování', description: 'Redakční zdroje, fact-checking a dohledatelné veřejné databáze.' },
 ];
 
 export const guideCategories: GuideCategory[] = [

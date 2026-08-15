@@ -1,16 +1,29 @@
 # Content inventory
 
-Stav po etapě M-CONTENT-1A2. Číselný výpis je ověřován skriptem `npm run content:audit`.
+Stav po etapě M-CONTENT-1B. Číselný výpis je ověřován skriptem `npm run content:audit`.
 
 ```text
 Prompts: 95
-Sources: 10
+Sources: 175
 Tools: 8
 Notebooks: 6
 Guides: 5
 Prompt categories: 9
 Guide categories: 6
 ```
+
+## Trusted Sources v1
+
+```text
+Source categories: 10
+CZ-region sources: 119 (68 %)
+Sources with import tip: 175 (100 %)
+Featured sources: 10
+Duplicate IDs: none
+Duplicate canonical URLs: none
+```
+
+Rozdělení zdrojů a metadata jsou v `docs/source-quality-audit.md`; živé výsledky URL jsou v `docs/source-link-check.md`.
 
 ## Prompty podle kategorie
 
@@ -83,4 +96,4 @@ needsReview (whole catalog): 1
 
 Jeden historický záznam `n-otevrena-data` zůstává `needsReview: true`, protože veřejný notebook nebyl ověřen. Originální promptová knihovna a interní katalogové záznamy mají legitimně `sourceUrl` nepoužito.
 
-Sources, Tools, Notebooks a Guides se v této etapě obsahově nerozšiřovaly. Reference audit sloužil pouze jako benchmark rozsahu a typů použití.
+Tools, Notebooks a Guides se v této etapě obsahově nerozšiřovaly. Prompt Library zůstává uzamčená na 95 záznamech. Reference audit sloužil pouze jako benchmark rozsahu a typů použití; Trusted Sources v1 používá vlastní, ověřené záznamy.

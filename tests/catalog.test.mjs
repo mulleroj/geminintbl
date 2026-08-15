@@ -31,12 +31,12 @@ test('content audit reports the current catalog inventory deterministically', as
   const promptCount = Number(stdout.match(/^Prompts: (\d+)$/m)?.[1]);
   assert.ok(promptCount >= 90 && promptCount <= 100, `expected 90-100 prompts, got ${promptCount}`);
   for (const line of [
-    'Sources: 10',
+    'Sources: 175',
     'Tools: 8',
     'Notebooks: 6',
     'Guides: 5',
     'Prompt categories: 9',
-    'Source categories: 8',
+    'Source categories: 10',
     'Guide categories: 6',
     'Prompts by category: audio-overviews=6, deep-analysis=10, setup-accuracy=8, slides-video-infographics=7, strategy-decisions=8, study-exam-prep=10, teaching=29, workflows=9, writing-content=8',
     'Prompts by target: audio=5, chat=79, chat-settings=4, infographic=2, slides=4, video=1',

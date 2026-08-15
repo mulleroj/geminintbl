@@ -162,7 +162,7 @@ function promptCard(prompt: Prompt, compact = false, enableExpansion = false, vi
 }
 
 function sourceCard(source: Source): string {
-  return `<article class="card source-card"><div class="card-top"><span class="source-icon">${esc(source.domain.slice(0, 1).toUpperCase())}</span>${badge(sourceCategory(source.category).label, 'light')}<span class="spacer"></span>${favoriteButton('source', source.id)}</div><h3><a href="${esc(source.url)}" target="_blank" rel="noopener noreferrer">${esc(source.title)} ${icon('external')}</a></h3><p>${esc(source.description)}</p><div class="domain">${esc(source.domain)}</div><div class="card-actions">${copyButton(source.url, 'Kopírovat odkaz')}</div></article>`;
+  return `<article class="card source-card"><div class="card-top"><span class="source-icon">${esc(source.domain.slice(0, 1).toUpperCase())}</span>${badge(sourceCategory(source.category).label, 'light')}<span class="spacer"></span>${favoriteButton('source', source.id)}</div><h3><a href="${esc(source.url)}" target="_blank" rel="noopener noreferrer">${esc(source.title)} ${icon('external')}</a></h3><p>${esc(source.description)}</p><div class="card-meta"><span>${esc(sourceTypeLabels[source.sourceType])}</span><span>${esc(sourceSuitabilityLabels[source.notebookSuitability])}</span><span>${esc(sourceAccessLabels[source.access])}</span></div><p class="source-import-tip"><strong>Tip pro import:</strong> ${esc(source.importTip)}</p><div class="domain">${esc(source.domain)}</div><div class="card-actions">${copyButton(source.url, 'Kopírovat odkaz')}</div></article>`;
 }
 
 function toolCard(tool: Tool): string {
@@ -177,6 +177,19 @@ function notebookCard(notebook: PublicNotebook): string {
 function guideCard(guide: Guide): string {
   return `<article class="card guide-card"><div class="card-top"><span class="guide-number">${esc(guide.readingMinutes)} min</span>${badge(guideCategory(guide.category).label, 'light')}<span class="spacer"></span>${favoriteButton('guide', guide.id)}</div><h3>${link(`/pruvodci/${guide.slug}`, esc(guide.title))}</h3><p>${esc(guide.excerpt)}</p><div class="card-meta"><span>Aktualizováno ${esc(guide.updatedAt)}</span><span>${esc(guide.tags.join(' · '))}</span></div><div class="card-actions">${link(`/pruvodci/${guide.slug}`, 'Číst průvodce →', 'text-link')}</div></article>`;
 }
+
+const sourceTypeLabels: Record<Source['sourceType'], string> = {
+  official: 'Oficiální', academic: 'Akademický', 'open-data': 'Otevřená data', library: 'Knihovna',
+  archive: 'Archiv', reference: 'Referenční', journalism: 'Žurnalistika', 'fact-check': 'Fact-check',
+};
+
+const sourceSuitabilityLabels: Record<Source['notebookSuitability'], string> = {
+  high: 'Vysoká vhodnost', medium: 'Střední vhodnost', limited: 'Omezená vhodnost',
+};
+
+const sourceAccessLabels: Record<Source['access'], string> = {
+  free: 'Volně dostupné', freemium: 'Freemium', paid: 'Placené', institutional: 'Institucionální přístup',
+};
 
 function home(): string {
   meta('Přehled', 'Česká knihovna promptů, zdrojů, nástrojů a návodů pro NotebookLM.');
@@ -213,7 +226,27 @@ function sourceLibrary(): string {
   const query = params.get('q') ?? '';
   const active = params.get('kategorie') ?? '';
   const categories = sourceCategories;
-  const filtered = sources.filter((source) => (!active || source.category === active) && matchesSearch([source.title, source.description, source.domain, sourceCategory(source.category).label], query));
+  const filtered = sources.filter((source) => (!active || source.category === active) && matchesSearch([
+    source.title,
+    source.description,
+    source.domain,
+    sourceCategory(source.category).label,
+    source.importTip,
+    source.sourceType,
+    source.notebookSuitability,
+    source.language.join(' '),
+    source.region.join(' '),
+    source.sourceLabel,
+    source.category === 'legislation' ? 'zákony právo' : '',
+    source.category === 'statistics' ? 'statistiky data' : '',
+    source.category === 'science' ? 'věda výzkum' : '',
+    source.category === 'history-archives' ? 'historie archiv' : '',
+    source.category === 'czech-language' ? 'čeština český jazyk' : '',
+    source.category === 'economics' ? 'ekonomika' : '',
+    source.category === 'education' ? 'školství vzdělávání' : '',
+    source.category === 'eu' ? 'EU evropská unie' : '',
+    source.category === 'journalism-fact-check' ? 'žurnalistika ověřování' : '',
+  ], query));
   meta('Důvěryhodné zdroje', `${filtered.length} zdrojů, které můžete přidat do notebooku.`);
   return shell(`${pageIntro('Knihovna zdrojů', 'Začněte u zdroje, kterému rozumíte.', 'Ověřené instituce, archivy a datové katalogy s krátkým tipem, jak je přidat do NotebookLM.', `<span class="count-stamp"><strong>${filtered.length}</strong><small>z ${sources.length} zdrojů</small></span>`)}<section class="library-controls wrap">${searchBox('Hledat ve zdrojích…', query, 'Hledat ve zdrojích')}<div class="chip-row" aria-label="Kategorie zdrojů">${link('/zdroje', 'Všechny', `chip${!active ? ' is-active' : ''}`)}${categories.map((category) => link(`/zdroje?kategorie=${encodeURIComponent(category.id)}`, `${esc(category.label)} <small>${sources.filter((source) => source.category === category.id).length}</small>`, `chip${active === category.id ? ' is-active' : ''}`)).join('')}</div></section><section class="section wrap list-section"><div class="list-heading"><p>${filtered.length} zdrojů</p>${active ? link('/zdroje', 'Zrušit filtr ×', 'text-link') : ''}</div><div class="source-category-note"><span>${icon('spark')}</span><p><strong>Tip pro import:</strong> kopírujte konkrétní URL zdroje, ne jen obecný dotaz. U citlivých nebo placených materiálů si nejprve ověřte přístupová práva.</p></div><div class="card-grid source-grid">${filtered.map(sourceCard).join('')}</div>${filtered.length ? `<div class="bulk-copy-row"><span>Kategorie ${active ? esc(sourceCategory(active).label) : 'všechny zdroje'}</span>${copyButton(filtered.map((source) => source.url).join('\n'), 'Kopírovat všechny odkazy')}</div>` : `<div class="empty-state"><h2>Nic nenalezeno</h2><p>Zkuste název instituce, doménu nebo kategorii.</p></div>`}</section>`, 'zdroje');
 }

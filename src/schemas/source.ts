@@ -1,6 +1,8 @@
 import type { Provenance } from './common';
 
 export type SourceAccess = 'free' | 'freemium' | 'paid' | 'institutional';
+export type SourceType = 'official' | 'academic' | 'open-data' | 'library' | 'archive' | 'reference' | 'journalism' | 'fact-check';
+export type NotebookSuitability = 'high' | 'medium' | 'limited';
 
 export interface Source extends Provenance {
   id: string;
@@ -9,10 +11,13 @@ export interface Source extends Provenance {
   domain: string;
   category: string;
   description: string;
-  importTip?: string;
+  importTip: string;
   access: SourceAccess;
-  language?: string[];
-  region?: string[];
+  sourceType: SourceType;
+  notebookSuitability: NotebookSuitability;
+  verifiedAt: string;
+  language: string[];
+  region: string[];
   featured?: boolean;
 }
 
