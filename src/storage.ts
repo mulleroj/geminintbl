@@ -6,6 +6,9 @@ export interface Favorite {
 }
 
 const STORAGE_KEY = 'notebook-hub-cz:favorites';
+const PROMPT_VIEW_KEY = 'notebook-hub-cz-prompt-view';
+
+export type PromptViewMode = 'cards' | 'compact';
 
 export function readFavorites(): Favorite[] {
   try {
@@ -30,4 +33,20 @@ export function toggleFavorite(type: FavoriteType, id: string): boolean {
   else favorites.push({ type, id });
   localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites));
   return index < 0;
+}
+
+export function readPromptViewMode(): PromptViewMode {
+  try {
+    return localStorage.getItem(PROMPT_VIEW_KEY) === 'compact' ? 'compact' : 'cards';
+  } catch {
+    return 'cards';
+  }
+}
+
+export function savePromptViewMode(mode: PromptViewMode): void {
+  try {
+    localStorage.setItem(PROMPT_VIEW_KEY, mode);
+  } catch {
+    // View preference is optional when storage is unavailable.
+  }
 }

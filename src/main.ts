@@ -20,12 +20,13 @@ import {
   type PublicNotebook,
 } from './data';
 import { matchesSearch } from './search';
-import { hasFavorite, readFavorites, toggleFavorite } from './storage';
+import { hasFavorite, readFavorites, readPromptViewMode, savePromptViewMode, toggleFavorite, type PromptViewMode } from './storage';
 import './styles.css';
 
 const app = document.querySelector<HTMLDivElement>('#app');
 if (!app) throw new Error('Aplikace nenalezena');
 const appRoot: HTMLDivElement = app;
+const expandedPromptIds = new Set<string>();
 
 const esc = (value: string | number | undefined): string => String(value ?? '')
   .replaceAll('&', '&amp;')
@@ -133,9 +134,31 @@ function stat(value: number, label: string, detail: string): string {
   return `<div class="stat"><strong>${value}</strong><span>${esc(label)}</span><small>${esc(detail)}</small></div>`;
 }
 
-function promptCard(prompt: Prompt, compact = false): string {
+function promptExpandButton(prompt: Prompt, expanded: boolean): string {
+  const panelId = `prompt-preview-${prompt.id}`;
+  const label = expanded ? 'Skrýt prompt ↑' : 'Zobrazit prompt ↓';
+  return button(label, `expand-prompt:${prompt.id}`, 'button button-quiet prompt-expand', ` id="prompt-toggle-${prompt.id}" aria-expanded="${expanded}" aria-controls="${panelId}"`);
+}
+
+function promptPreview(prompt: Prompt, expanded: boolean): string {
+  const panelId = `prompt-preview-${prompt.id}`;
+  return `<div id="${panelId}" class="prompt-preview" role="region" aria-labelledby="prompt-toggle-${prompt.id}"${expanded ? '' : ' hidden'}><span class="prompt-preview-label">Prompt</span><pre>${esc(prompt.prompt)}</pre><div class="prompt-preview-actions">${copyButton(prompt.prompt, 'Kopírovat prompt')}${link(`/prompty/${prompt.category}/${prompt.slug}`, 'Detail →', 'text-link')}</div></div>`;
+}
+
+function compactPromptRow(prompt: Prompt): string {
   const category = promptCategory(prompt.category);
-  return `<article class="card prompt-card${compact ? ' compact' : ''}"><div class="card-top"><span class="index-mark">${icon('spark')}</span>${badge(category.label, category.color)}<span class="spacer"></span>${favoriteButton('prompt', prompt.id)}</div><h3>${link(`/prompty/${prompt.category}/${prompt.slug}`, esc(prompt.title))}</h3><p>${esc(prompt.description)}</p><div class="card-meta"><span>${esc(prompt.target === 'chat-settings' ? 'Nastavení chatu' : prompt.target === 'chat' ? 'Chat' : prompt.target === 'audio' ? 'Audio' : prompt.target === 'slides' ? 'Slidy' : 'Vizuální výstup')}</span><span>${esc(prompt.tags.slice(0, 2).join(' · '))}</span></div><div class="card-actions">${copyButton(prompt.prompt)}${link(`/prompty/${prompt.category}/${prompt.slug}`, 'Detail →', 'text-link')}</div></article>`;
+  const expanded = expandedPromptIds.has(prompt.id);
+  return `<article class="card prompt-card compact-row"><div class="card-top">${badge(category.label, category.color)}<span class="spacer"></span>${favoriteButton('prompt', prompt.id)}</div><h3>${link(`/prompty/${prompt.category}/${prompt.slug}`, esc(prompt.title))}</h3><p>${esc(prompt.description)}</p><div class="card-meta"><span>${esc(prompt.target === 'chat-settings' ? 'Nastavení chatu' : prompt.target === 'chat' ? 'Chat' : prompt.target === 'audio' ? 'Audio' : prompt.target === 'slides' ? 'Slidy' : 'Vizuální výstup')}</span><span>${esc(prompt.tags.slice(0, 2).join(' · '))}</span></div><div class="card-actions">${copyButton(prompt.prompt)}${promptExpandButton(prompt, expanded)}${link(`/prompty/${prompt.category}/${prompt.slug}`, 'Detail →', 'text-link')}</div>${expanded ? promptPreview(prompt, true) : promptPreview(prompt, false)}</article>`;
+}
+
+function promptCard(prompt: Prompt, compact = false, enableExpansion = false, viewMode: PromptViewMode = 'cards'): string {
+  if (enableExpansion && viewMode === 'compact') return compactPromptRow(prompt);
+  const category = promptCategory(prompt.category);
+  const expanded = enableExpansion && expandedPromptIds.has(prompt.id);
+  const actions = enableExpansion
+    ? (expanded ? promptExpandButton(prompt, true) : `${copyButton(prompt.prompt)}${promptExpandButton(prompt, false)}${link(`/prompty/${prompt.category}/${prompt.slug}`, 'Detail →', 'text-link')}`)
+    : `${copyButton(prompt.prompt)}${link(`/prompty/${prompt.category}/${prompt.slug}`, 'Detail →', 'text-link')}`;
+  return `<article class="card prompt-card${compact ? ' compact' : ''}"><div class="card-top"><span class="index-mark">${icon('spark')}</span>${badge(category.label, category.color)}<span class="spacer"></span>${favoriteButton('prompt', prompt.id)}</div><h3>${link(`/prompty/${prompt.category}/${prompt.slug}`, esc(prompt.title))}</h3><p>${esc(prompt.description)}</p><div class="card-meta"><span>${esc(prompt.target === 'chat-settings' ? 'Nastavení chatu' : prompt.target === 'chat' ? 'Chat' : prompt.target === 'audio' ? 'Audio' : prompt.target === 'slides' ? 'Slidy' : 'Vizuální výstup')}</span><span>${esc(prompt.tags.slice(0, 2).join(' · '))}</span></div><div class="card-actions">${actions}</div>${enableExpansion ? promptPreview(prompt, expanded) : ''}</article>`;
 }
 
 function sourceCard(source: Source): string {
@@ -166,11 +189,14 @@ function promptLibrary(categoryId = ''): string {
   const query = params.get('q') ?? '';
   const activeCategory = categoryId || params.get('kategorie') || '';
   const category = activeCategory ? promptCategory(activeCategory) : undefined;
+  const viewMode = readPromptViewMode();
   const filtered = prompts.filter((prompt) => (!activeCategory || prompt.category === activeCategory) && matchesSearch([prompt.title, prompt.description, prompt.prompt, prompt.tags.join(' '), prompt.author], query));
   meta(category ? category.label : 'Prompty', `${filtered.length} promptů v české knihovně Notebook Hub CZ.`);
   const heading = category ? `${category.label}` : 'Prompty pro práci, studium i výzkum';
   const description = category ? category.description : 'Vyberte si výchozí bod, zkopírujte prompt a přizpůsobte jej svému notebooku.';
-  return shell(`${pageIntro('Knihovna promptů', heading, description, `<span class="count-stamp"><strong>${filtered.length}</strong><small>z ${prompts.length} promptů</small></span>`)}<section class="library-controls wrap">${searchBox('Hledat v promptech…', query, 'Hledat v promptech')}${categoryChips(activeCategory)}</section><section class="section wrap list-section"><div class="list-heading"><p>${filtered.length ? `Zobrazeno ${filtered.length} ${filtered.length === 1 ? 'položka' : 'položek'}` : 'Nic nenalezeno'}</p>${activeCategory ? link('/prompty', 'Zrušit filtr ×', 'text-link') : ''}</div>${filtered.length ? `<div class="card-grid prompt-grid">${filtered.map((prompt) => promptCard(prompt)).join('')}</div>` : `<div class="empty-state"><span>${icon('search')}</span><h2>Zkuste jiná slova</h2><p>Hledání rozumí české diakritice. Zkuste například „učitel“, „zdroje“ nebo „zkouška“.</p>${link('/prompty', 'Zobrazit všechny prompty', 'button button-secondary')}</div>`}</section>`, 'prompty');
+  const viewSwitch = `<div class="library-control-row"><span class="view-switch-label">Zobrazení</span><div class="view-switch" role="group" aria-label="Zobrazení katalogu">${button('Karty', 'view-mode:cards', `view-switch-button${viewMode === 'cards' ? ' is-active' : ''}`, ` aria-pressed="${viewMode === 'cards'}"`)}${button('Kompaktní', 'view-mode:compact', `view-switch-button${viewMode === 'compact' ? ' is-active' : ''}`, ` aria-pressed="${viewMode === 'compact'}"`)}</div></div>`;
+  const renderedPrompts = filtered.map((prompt) => promptCard(prompt, false, true, viewMode)).join('');
+  return shell(`${pageIntro('Knihovna promptů', heading, description, `<span class="count-stamp"><strong>${filtered.length}</strong><small>z ${prompts.length} promptů</small></span>`)}<section class="library-controls wrap">${searchBox('Hledat v promptech…', query, 'Hledat v promptech')}${viewSwitch}${categoryChips(activeCategory)}</section><section class="section wrap list-section"><div class="list-heading"><p>${filtered.length ? `Zobrazeno ${filtered.length} ${filtered.length === 1 ? 'položka' : 'položek'}` : 'Nic nenalezeno'}</p>${activeCategory ? link('/prompty', 'Zrušit filtr ×', 'text-link') : ''}</div>${filtered.length ? `<div class="card-grid prompt-grid prompt-results ${viewMode === 'compact' ? 'is-compact' : ''}">${renderedPrompts}</div>` : `<div class="empty-state"><span>${icon('search')}</span><h2>Zkuste jiná slova</h2><p>Hledání rozumí české diakritice. Zkuste například „učitel“, „zdroje“ nebo „zkouška“.</p>${link('/prompty', 'Zobrazit všechny prompty', 'button button-secondary')}</div>`}</section>`, 'prompty');
 }
 
 function promptDetail(categoryId: string, slug: string): string {
@@ -324,6 +350,24 @@ function bindPageEvents(): void {
       if (menu && toggle) { menu.hidden = action === 'menu-close'; toggle.setAttribute('aria-expanded', String(!menu.hidden)); }
       return;
     }
+    if (action.startsWith('expand-prompt:')) {
+      const id = action.slice('expand-prompt:'.length);
+      const expanded = !expandedPromptIds.has(id);
+      if (expanded) expandedPromptIds.add(id); else expandedPromptIds.delete(id);
+      const panel = document.querySelector<HTMLElement>(`#prompt-preview-${CSS.escape(id)}`);
+      const toggle = document.querySelector<HTMLButtonElement>(`#prompt-toggle-${CSS.escape(id)}`);
+      if (panel && toggle) {
+        panel.hidden = !expanded;
+        toggle.setAttribute('aria-expanded', String(expanded));
+        toggle.innerHTML = expanded ? 'Skrýt prompt ↑' : 'Zobrazit prompt ↓';
+      }
+      return;
+    }
+    if (action.startsWith('view-mode:')) {
+      const mode = action.slice('view-mode:'.length) as PromptViewMode;
+      if (mode === 'cards' || mode === 'compact') { savePromptViewMode(mode); render(); }
+      return;
+    }
     if (action.startsWith('favorite:')) {
       const [, type, id] = action.split(':') as ['', FavoriteType, string];
       toggleFavorite(type, id);
@@ -340,7 +384,16 @@ function bindPageEvents(): void {
       const url = new URL(window.location.href);
       const query = input.value.trim();
       if (query) url.searchParams.set('q', query); else url.searchParams.delete('q');
-      navigate(`${url.pathname}${url.search}`);
+      const wasFocused = document.activeElement === input;
+      const selectionEnd = input.selectionEnd ?? input.value.length;
+      window.history.replaceState({}, '', `${url.pathname}${url.search}`);
+      render();
+      if (wasFocused) {
+        const nextInput = document.querySelector<HTMLInputElement>('[data-search]');
+        nextInput?.focus();
+        const nextPosition = Math.min(selectionEnd, nextInput?.value.length ?? selectionEnd);
+        nextInput?.setSelectionRange(nextPosition, nextPosition);
+      }
     }, 220);
   }));
   document.querySelectorAll<HTMLInputElement>('input[name="contentType"]').forEach((radio) => radio.addEventListener('change', () => {

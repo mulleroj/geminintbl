@@ -49,3 +49,27 @@ test('SEO infrastructure is present', async () => {
   assert.match(robots, /Sitemap:/);
   assert.match(sitemap, /<urlset/);
 });
+
+test('prompt browsing exposes expansion, view persistence and compatible filters', async () => {
+  const [main, storage, styles] = await Promise.all([
+    readFile('src/main.ts', 'utf8'),
+    readFile('src/storage.ts', 'utf8'),
+    readFile('src/styles.css', 'utf8'),
+  ]);
+  for (const pattern of [
+    /expand-prompt:/,
+    /aria-expanded=/,
+    /aria-controls=/,
+    /prompt-preview-/,
+    /view-mode:cards/,
+    /view-mode:compact/,
+    /promptCard\(prompt, false, true, viewMode\)/,
+    /history\.replaceState/,
+    /categoryChips\(activeCategory\)/,
+    /matchesSearch\(/,
+  ]) assert.match(main, pattern);
+  assert.match(storage, /notebook-hub-cz-prompt-view/);
+  assert.match(storage, /readPromptViewMode/);
+  assert.match(storage, /savePromptViewMode/);
+  assert.match(styles, /prompt-results\.is-compact/);
+});
