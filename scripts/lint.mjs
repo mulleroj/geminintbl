@@ -1,6 +1,13 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
+import { join } from 'node:path';
 
-const files = ['index.html', 'src/main.ts', 'src/data.ts', 'src/search.ts', 'src/storage.ts', 'src/styles.css'];
+async function sourceFiles(directory) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const nested = await Promise.all(entries.map((entry) => entry.isDirectory() ? sourceFiles(join(directory, entry.name)) : []));
+  return entries.filter((entry) => entry.isFile() && /\.(ts|mjs|css|html)$/.test(entry.name)).map((entry) => join(directory, entry.name)).concat(nested.flat());
+}
+
+const files = ['index.html', 'src/styles.css', ...(await sourceFiles('src')), ...(await sourceFiles('scripts')).filter((file) => !file.replaceAll('\\', '/').endsWith('scripts/lint.mjs'))].sort();
 const forbidden = [/lorem ipsum/i, /target\s*=\s*["']_blank["'](?![^>]*rel=["'][^"']*noopener)/i];
 const errors = [];
 for (const file of files) {

@@ -1,6 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { execFile } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
+import { promisify } from 'node:util';
+
+const run = promisify(execFile);
 
 test('parity matrix documents every requested primary area', async () => {
   const text = await readFile('docs/reference-parity.md', 'utf8');
@@ -10,13 +14,32 @@ test('parity matrix documents every requested primary area', async () => {
   assert.doesNotMatch(text, /\| TODO \|/);
 });
 
-test('static app contains all major Czech routes and provenance fields', async () => {
+test('static app contains all major Czech routes and shared provenance fields', async () => {
   const main = await readFile('src/main.ts', 'utf8');
-  const data = await readFile('src/data.ts', 'utf8');
+  const schemas = await readFile('src/schemas/common.ts', 'utf8');
   for (const route of ['/prompty', '/zdroje', '/nastroje', '/notebooky', '/pruvodci', '/oblibene', '/pridat']) assert.match(main, new RegExp(route.replace('/', '\\/')));
-  for (const field of ['sourceUrl', 'sourceLabel', 'retrievedAt', 'license', 'needsReview']) assert.match(data, new RegExp(field));
+  for (const field of ['sourceUrl', 'sourceLabel', 'retrievedAt', 'license', 'needsReview']) assert.match(schemas, new RegExp(field));
   assert.match(main, /navigator\.clipboard/);
   assert.match(main, /navigator\.share/);
+});
+
+test('content audit reports the current catalog inventory deterministically', async () => {
+  const { stdout } = await run('node', ['scripts/content-audit.mjs'], { encoding: 'utf8' });
+  for (const line of [
+    'Prompts: 12',
+    'Sources: 10',
+    'Tools: 8',
+    'Notebooks: 6',
+    'Guides: 5',
+    'Prompt categories: 8',
+    'Source categories: 8',
+    'Guide categories: 6',
+    'needsReview: 2',
+    'Missing sourceUrl: 30',
+    'Duplicate IDs: none',
+    'Duplicate slugs: none',
+    'Invalid URLs: none',
+  ]) assert.match(stdout, new RegExp(`^${line.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'm'));
 });
 
 test('SEO infrastructure is present', async () => {

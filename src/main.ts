@@ -1,5 +1,6 @@
 import {
   guideBySlug,
+  guideCategory,
   guideCategories,
   guides,
   notebooks,
@@ -7,6 +8,8 @@ import {
   promptCategories,
   promptCategory,
   prompts,
+  sourceCategories,
+  sourceCategory,
   sources,
   tools,
   type FavoriteType,
@@ -136,7 +139,7 @@ function promptCard(prompt: Prompt, compact = false): string {
 }
 
 function sourceCard(source: Source): string {
-  return `<article class="card source-card"><div class="card-top"><span class="source-icon">${esc(source.domain.slice(0, 1).toUpperCase())}</span>${badge(source.category, 'light')}<span class="spacer"></span>${favoriteButton('source', source.id)}</div><h3><a href="${esc(source.url)}" target="_blank" rel="noopener noreferrer">${esc(source.title)} ${icon('external')}</a></h3><p>${esc(source.description)}</p><div class="domain">${esc(source.domain)}</div><div class="card-actions">${copyButton(source.url, 'Kopírovat odkaz')}</div></article>`;
+  return `<article class="card source-card"><div class="card-top"><span class="source-icon">${esc(source.domain.slice(0, 1).toUpperCase())}</span>${badge(sourceCategory(source.category).label, 'light')}<span class="spacer"></span>${favoriteButton('source', source.id)}</div><h3><a href="${esc(source.url)}" target="_blank" rel="noopener noreferrer">${esc(source.title)} ${icon('external')}</a></h3><p>${esc(source.description)}</p><div class="domain">${esc(source.domain)}</div><div class="card-actions">${copyButton(source.url, 'Kopírovat odkaz')}</div></article>`;
 }
 
 function toolCard(tool: Tool): string {
@@ -149,7 +152,7 @@ function notebookCard(notebook: PublicNotebook): string {
 }
 
 function guideCard(guide: Guide): string {
-  return `<article class="card guide-card"><div class="card-top"><span class="guide-number">${esc(guide.readingMinutes)} min</span>${badge(guide.category, 'light')}<span class="spacer"></span>${favoriteButton('guide', guide.id)}</div><h3>${link(`/pruvodci/${guide.slug}`, esc(guide.title))}</h3><p>${esc(guide.excerpt)}</p><div class="card-meta"><span>Aktualizováno ${esc(guide.updatedAt)}</span><span>${esc(guide.tags.join(' · '))}</span></div><div class="card-actions">${link(`/pruvodci/${guide.slug}`, 'Číst průvodce →', 'text-link')}</div></article>`;
+  return `<article class="card guide-card"><div class="card-top"><span class="guide-number">${esc(guide.readingMinutes)} min</span>${badge(guideCategory(guide.category).label, 'light')}<span class="spacer"></span>${favoriteButton('guide', guide.id)}</div><h3>${link(`/pruvodci/${guide.slug}`, esc(guide.title))}</h3><p>${esc(guide.excerpt)}</p><div class="card-meta"><span>Aktualizováno ${esc(guide.updatedAt)}</span><span>${esc(guide.tags.join(' · '))}</span></div><div class="card-actions">${link(`/pruvodci/${guide.slug}`, 'Číst průvodce →', 'text-link')}</div></article>`;
 }
 
 function home(): string {
@@ -183,10 +186,10 @@ function sourceLibrary(): string {
   const params = new URLSearchParams(window.location.search);
   const query = params.get('q') ?? '';
   const active = params.get('kategorie') ?? '';
-  const categories = [...new Set(sources.map((source) => source.category))];
-  const filtered = sources.filter((source) => (!active || source.category === active) && matchesSearch([source.title, source.description, source.domain, source.category], query));
+  const categories = sourceCategories;
+  const filtered = sources.filter((source) => (!active || source.category === active) && matchesSearch([source.title, source.description, source.domain, sourceCategory(source.category).label], query));
   meta('Důvěryhodné zdroje', `${filtered.length} zdrojů, které můžete přidat do notebooku.`);
-  return shell(`${pageIntro('Knihovna zdrojů', 'Začněte u zdroje, kterému rozumíte.', 'Ověřené instituce, archivy a datové katalogy s krátkým tipem, jak je přidat do NotebookLM.', `<span class="count-stamp"><strong>${filtered.length}</strong><small>z ${sources.length} zdrojů</small></span>`)}<section class="library-controls wrap">${searchBox('Hledat ve zdrojích…', query, 'Hledat ve zdrojích')}<div class="chip-row" aria-label="Kategorie zdrojů">${link('/zdroje', 'Všechny', `chip${!active ? ' is-active' : ''}`)}${categories.map((category) => link(`/zdroje?kategorie=${encodeURIComponent(category)}`, `${esc(category)} <small>${sources.filter((source) => source.category === category).length}</small>`, `chip${active === category ? ' is-active' : ''}`)).join('')}</div></section><section class="section wrap list-section"><div class="list-heading"><p>${filtered.length} zdrojů</p>${active ? link('/zdroje', 'Zrušit filtr ×', 'text-link') : ''}</div><div class="source-category-note"><span>${icon('spark')}</span><p><strong>Tip pro import:</strong> kopírujte konkrétní URL zdroje, ne jen obecný dotaz. U citlivých nebo placených materiálů si nejprve ověřte přístupová práva.</p></div><div class="card-grid source-grid">${filtered.map(sourceCard).join('')}</div>${filtered.length ? `<div class="bulk-copy-row"><span>Kategorie ${active ? esc(active) : 'všechny zdroje'}</span>${copyButton(filtered.map((source) => source.url).join('\n'), 'Kopírovat všechny odkazy')}</div>` : `<div class="empty-state"><h2>Nic nenalezeno</h2><p>Zkuste název instituce, doménu nebo kategorii.</p></div>`}</section>`, 'zdroje');
+  return shell(`${pageIntro('Knihovna zdrojů', 'Začněte u zdroje, kterému rozumíte.', 'Ověřené instituce, archivy a datové katalogy s krátkým tipem, jak je přidat do NotebookLM.', `<span class="count-stamp"><strong>${filtered.length}</strong><small>z ${sources.length} zdrojů</small></span>`)}<section class="library-controls wrap">${searchBox('Hledat ve zdrojích…', query, 'Hledat ve zdrojích')}<div class="chip-row" aria-label="Kategorie zdrojů">${link('/zdroje', 'Všechny', `chip${!active ? ' is-active' : ''}`)}${categories.map((category) => link(`/zdroje?kategorie=${encodeURIComponent(category.id)}`, `${esc(category.label)} <small>${sources.filter((source) => source.category === category.id).length}</small>`, `chip${active === category.id ? ' is-active' : ''}`)).join('')}</div></section><section class="section wrap list-section"><div class="list-heading"><p>${filtered.length} zdrojů</p>${active ? link('/zdroje', 'Zrušit filtr ×', 'text-link') : ''}</div><div class="source-category-note"><span>${icon('spark')}</span><p><strong>Tip pro import:</strong> kopírujte konkrétní URL zdroje, ne jen obecný dotaz. U citlivých nebo placených materiálů si nejprve ověřte přístupová práva.</p></div><div class="card-grid source-grid">${filtered.map(sourceCard).join('')}</div>${filtered.length ? `<div class="bulk-copy-row"><span>Kategorie ${active ? esc(sourceCategory(active).label) : 'všechny zdroje'}</span>${copyButton(filtered.map((source) => source.url).join('\n'), 'Kopírovat všechny odkazy')}</div>` : `<div class="empty-state"><h2>Nic nenalezeno</h2><p>Zkuste název instituce, doménu nebo kategorii.</p></div>`}</section>`, 'zdroje');
 }
 
 function toolLibrary(): string {
@@ -209,16 +212,16 @@ function guideLibrary(): string {
   const params = new URLSearchParams(window.location.search);
   const query = params.get('q') ?? '';
   const active = params.get('kategorie') ?? '';
-  const filtered = guides.filter((guide) => (!active || guide.category === active) && matchesSearch([guide.title, guide.excerpt, guide.category, guide.tags.join(' ')], query));
+  const filtered = guides.filter((guide) => (!active || guide.category === active) && matchesSearch([guide.title, guide.excerpt, guideCategory(guide.category).label, guide.tags.join(' ')], query));
   meta('Průvodci', `${filtered.length} českých průvodců pro práci s NotebookLM.`);
-  return shell(`${pageIntro('Knihovna průvodců', 'Praktické odpovědi pro skutečnou práci.', 'Krátké české návody bez velkých slibů — od prvního notebooku po ověřování a archivaci.', `<span class="count-stamp"><strong>${filtered.length}</strong><small>z ${guides.length} průvodců</small></span>`)}<section class="library-controls wrap">${searchBox('Hledat v průvodcích…', query, 'Hledat v průvodcích')}<div class="chip-row" aria-label="Kategorie průvodců">${link('/pruvodci', 'Všechny', `chip${!active ? ' is-active' : ''}`)}${guideCategories.map((category) => link(`/pruvodci?kategorie=${encodeURIComponent(category)}`, esc(category), `chip${active === category ? ' is-active' : ''}`)).join('')}</div></section><section class="section wrap list-section"><div class="card-grid guide-grid">${filtered.map(guideCard).join('')}</div></section>`, 'pruvodci');
+  return shell(`${pageIntro('Knihovna průvodců', 'Praktické odpovědi pro skutečnou práci.', 'Krátké české návody bez velkých slibů — od prvního notebooku po ověřování a archivaci.', `<span class="count-stamp"><strong>${filtered.length}</strong><small>z ${guides.length} průvodců</small></span>`)}<section class="library-controls wrap">${searchBox('Hledat v průvodcích…', query, 'Hledat v průvodcích')}<div class="chip-row" aria-label="Kategorie průvodců">${link('/pruvodci', 'Všechny', `chip${!active ? ' is-active' : ''}`)}${guideCategories.map((category) => link(`/pruvodci?kategorie=${encodeURIComponent(category.id)}`, esc(category.label), `chip${active === category.id ? ' is-active' : ''}`)).join('')}</div></section><section class="section wrap list-section"><div class="card-grid guide-grid">${filtered.map(guideCard).join('')}</div></section>`, 'pruvodci');
 }
 
 function guideDetail(slug: string): string {
   const guide = guideBySlug(slug);
   if (!guide) return notFound();
   meta(guide.title, guide.excerpt, 'Article');
-  return shell(`<article class="article-wrap wrap">${breadcrumb([['Průvodci', '/pruvodci'], [guide.category, `/pruvodci?kategorie=${encodeURIComponent(guide.category)}`], [guide.title, '#']])}<header class="article-header"><div class="detail-kicker">${badge(guide.category, 'light')} <span>${esc(guide.readingMinutes)} min čtení</span></div><h1>${esc(guide.title)}</h1><p class="lead">${esc(guide.excerpt)}</p><div class="article-meta"><span>Aktualizováno ${esc(guide.updatedAt)}</span><span>Autor: ${esc(guide.author ?? 'Notebook Hub CZ')}</span><span class="spacer"></span>${favoriteButton('guide', guide.id)}${button(`${icon('share')} Sdílet`, 'share', 'icon-button')}</div></header><div class="article-layout"><aside class="toc"><p class="eyebrow">Na stránce</p>${guide.content.map((section, index) => `<a href="#section-${index}">${esc(section.heading)}</a>`).join('')}</aside><div class="prose">${guide.content.map((section, index) => `<section id="section-${index}"><h2>${esc(section.heading)}</h2>${section.paragraphs.map((paragraph) => `<p>${esc(paragraph)}</p>`).join('')}${section.bullets ? `<ul>${section.bullets.map((bullet) => `<li>${esc(bullet)}</li>`).join('')}</ul>` : ''}</section>`).join('')}<div class="article-callout"><strong>${icon('spark')} Kontrolní otázka</strong><p>Co v tomto postupu vyžaduje vaše vlastní ověření nebo znalost kontextu?</p></div></div></div></article><section class="section section-tint"><div class="wrap"><div class="section-heading"><div><p class="eyebrow">Další čtení</p><h2>Pokračovat v knihovně</h2></div></div><div class="card-grid guide-grid">${guides.filter((item) => item.id !== guide.id).slice(0, 3).map(guideCard).join('')}</div></div></section>`, 'pruvodci');
+  return shell(`<article class="article-wrap wrap">${breadcrumb([['Průvodci', '/pruvodci'], [guideCategory(guide.category).label, `/pruvodci?kategorie=${encodeURIComponent(guide.category)}`], [guide.title, '#']])}<header class="article-header"><div class="detail-kicker">${badge(guideCategory(guide.category).label, 'light')} <span>${esc(guide.readingMinutes)} min čtení</span></div><h1>${esc(guide.title)}</h1><p class="lead">${esc(guide.excerpt)}</p><div class="article-meta"><span>Aktualizováno ${esc(guide.updatedAt)}</span><span>Autor: ${esc(guide.author ?? 'Notebook Hub CZ')}</span><span class="spacer"></span>${favoriteButton('guide', guide.id)}${button(`${icon('share')} Sdílet`, 'share', 'icon-button')}</div></header><div class="article-layout"><aside class="toc"><p class="eyebrow">Na stránce</p>${guide.content.map((section, index) => `<a href="#section-${index}">${esc(section.heading)}</a>`).join('')}</aside><div class="prose">${guide.content.map((section, index) => `<section id="section-${index}"><h2>${esc(section.heading)}</h2>${section.paragraphs.map((paragraph) => `<p>${esc(paragraph)}</p>`).join('')}${section.bullets ? `<ul>${section.bullets.map((bullet) => `<li>${esc(bullet)}</li>`).join('')}</ul>` : ''}</section>`).join('')}<div class="article-callout"><strong>${icon('spark')} Kontrolní otázka</strong><p>Co v tomto postupu vyžaduje vaše vlastní ověření nebo znalost kontextu?</p></div></div></div></article><section class="section section-tint"><div class="wrap"><div class="section-heading"><div><p class="eyebrow">Další čtení</p><h2>Pokračovat v knihovně</h2></div></div><div class="card-grid guide-grid">${guides.filter((item) => item.id !== guide.id).slice(0, 3).map(guideCard).join('')}</div></div></section>`, 'pruvodci');
 }
 
 function favorites(): string {

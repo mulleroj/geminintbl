@@ -1,0 +1,10 @@
+import type { PublicNotebook } from '../../schemas';
+
+export const notebooks: PublicNotebook[] = [
+  { id: 'n-otevrena-data', title: 'Jak číst otevřená data', publisher: 'Česká data pro každého', category: 'Otevřená data', description: 'Veřejný notebook s metodikou, slovníkem pojmů a příklady práce s datovými katalogy.', url: 'https://notebooklm.google/', sourceLabel: 'Odkaz na veřejný notebook bude doplněn po ověření', needsReview: true },
+  { id: 'n-studium-biologie', title: 'Biologie pro opakování', author: 'OpenStax', category: 'Studium', description: 'Ukázková struktura zdrojů pro opakování biologie, otázky a pojmové mapy.', url: 'https://notebooklm.google/', sourceUrl: 'https://openstax.org/subjects/science', sourceLabel: 'OpenStax', retrievedAt: '2026-08-15' },
+  { id: 'n-vyzkumny-projekt', title: 'Výzkumný projekt od otázky k závěru', publisher: 'Notebook Hub CZ', category: 'Výzkum', description: 'Originální demonstrační notebook s ukázkou triáže zdrojů a závěrečného rozhodovacího mema.', url: 'https://notebooklm.google/', sourceLabel: 'Originální obsah projektu', retrievedAt: '2026-08-15' },
+  { id: 'n-dejiny-regionu', title: 'Dějiny regionu z primárních pramenů', publisher: 'Notebook Hub CZ', category: 'Historie', description: 'Šablona pro práci s kronikou, mapou a sekundární literaturou bez míchání typů důkazů.', url: 'https://notebooklm.google/', sourceLabel: 'Originální obsah projektu', retrievedAt: '2026-08-15' },
+  { id: 'n-ucitelska-porada', title: 'Příprava učitelské porady', publisher: 'Notebook Hub CZ', category: 'Pro učitele', description: 'Praktický notebook pro přípravu porady, shrnutí podkladů a otázky k rozhodnutí.', url: 'https://notebooklm.google/', sourceLabel: 'Originální obsah projektu', retrievedAt: '2026-08-15' },
+  { id: 'n-cizojazycne-texty', title: 'Čtení cizojazyčných textů', publisher: 'Notebook Hub CZ', category: 'Jazyky', description: 'Pracovní prostor pro slovník, argumentační mapu a porovnání překladových variant.', url: 'https://notebooklm.google/', sourceLabel: 'Originální obsah projektu', retrievedAt: '2026-08-15' },
+];

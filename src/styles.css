@@ -50,6 +50,7 @@ button { cursor: pointer; }
 .desktop-nav a:hover, .desktop-nav a.is-active { color: var(--ink); }
 .desktop-nav a.is-active::after { position: absolute; content: ""; bottom: 1px; left: .62rem; right: .62rem; height: 2px; background: var(--accent-deep); }
 .menu-toggle, .mobile-menu { display: none; }
+.mobile-menu[hidden] { display: none; }
 
 .hero { overflow: hidden; border-bottom: 1px solid var(--line); background: radial-gradient(circle at 80% 15%, rgba(225, 168, 63, .16), transparent 32%), var(--paper); }
 .hero-grid { min-height: 550px; display: grid; grid-template-columns: 1.14fr .86fr; align-items: center; gap: 80px; padding-block: 80px 72px; }

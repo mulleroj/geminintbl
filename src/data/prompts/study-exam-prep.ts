@@ -1,0 +1,7 @@
+import type { Prompt } from '../../schemas';
+import { projectProvenance } from '../provenance';
+
+export const studyExamPrepPrompts: Prompt[] = [
+  { ...projectProvenance, id: 'p-karticky-s-odkazy', slug: 'karticky-s-odkazy-na-strany', title: 'Kartičky s odkazy na strany', description: 'Připraví studijní kartičky a u každé zachová stopu ke zdroji.', prompt: 'Vytvoř 15 oboustranných kartiček z vybraných zdrojů. Na líci polož jednu jasnou otázku, na rubu odpověz stručně a přidej stránku nebo přesný název zdroje. Střídej definice, příčiny a důsledky. Nezahrnuj informace, které nelze doložit.', category: 'study-exam-prep', tags: ['kartičky', 'maturita', 'učení'], target: 'chat', featured: true, audience: ['student'], educationLevel: ['secondary', 'university'] },
+  { ...projectProvenance, id: 'p-plan-pripravy', slug: 'plan-pripravy-na-zkousku', title: 'Plán přípravy na zkoušku', description: 'Rozloží látku do realistických bloků podle dostupných materiálů.', prompt: 'Z dodaných materiálů vytvoř čtyřtýdenní plán přípravy. Nejdříve seřaď témata podle návaznosti a obtížnosti, potom navrhni krátké bloky s opakováním a sebekontrolou. U každého bloku uveď, ze kterého zdroje vychází. Nehádej časovou náročnost bez označení odhadu.', category: 'study-exam-prep', tags: ['plán', 'zkouška', 'student'], target: 'chat', audience: ['student', 'teacher'], educationLevel: ['secondary', 'university'] },
+];

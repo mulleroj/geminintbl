@@ -1,0 +1,7 @@
+import type { Source } from '../../schemas';
+
+export const czechGovernmentSources: Source[] = [
+  { id: 's-data-gov', title: 'Národní katalog otevřených dat', url: 'https://data.gov.cz/', domain: 'data.gov.cz', category: 'open-data', description: 'Centrální katalog českých otevřených dat a jejich poskytovatelů.', importTip: 'Přidejte popis datasetu i samotná data, aby NotebookLM znal kontext.', access: 'free', language: ['cs'], region: ['Česká republika'], featured: true, sourceLabel: 'Vláda ČR', retrievedAt: '2026-08-15', license: 'Podle licence konkrétního datasetu' },
+  { id: 's-psp', title: 'Poslanecká sněmovna — dokumenty', url: 'https://www.psp.cz/', domain: 'psp.cz', category: 'legislation', description: 'Návrhy zákonů, stenoprotokoly a další parlamentní dokumenty.', importTip: 'Pro právní rešerši vždy přidejte také datum a typ dokumentu.', access: 'free', language: ['cs'], region: ['Česká republika'], sourceLabel: 'Parlament ČR', retrievedAt: '2026-08-15', license: 'Dle podmínek PSP ČR' },
+  { id: 's-cnb', title: 'Česká národní banka', url: 'https://www.cnb.cz/', domain: 'cnb.cz', category: 'economics', description: 'Statistiky, měnová politika, zprávy a datové řady ČNB.', importTip: 'U ekonomických témat si hlídejte období, jednotky a revize dat.', access: 'free', language: ['cs'], region: ['Česká republika'], sourceLabel: 'Oficiální instituce', retrievedAt: '2026-08-15', license: 'Dle podmínek ČNB' },
+];

@@ -1,4 +1,4 @@
-import type { FavoriteType } from './data';
+import type { FavoriteType } from './schemas/common';
 
 export interface Favorite {
   type: FavoriteType;
