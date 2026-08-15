@@ -97,8 +97,13 @@ const duplicateSlugs = [
   ...duplicateValues(groupRecords.prompts.map((record) => fieldValue(record.block, 'slug')).filter(Boolean)).map((slug) => `prompt:${slug}`),
   ...duplicateValues(groupRecords.guides.map((record) => fieldValue(record.block, 'slug')).filter(Boolean)).map((slug) => `guide:${slug}`),
 ].sort();
-const recordsWithProvenance = allRecords.filter((record) => ['prompts', 'tools', 'notebooks', 'guides'].includes(record.type));
-const missingSourceUrl = recordsWithProvenance.filter((record) => !fieldValue(record.block, 'sourceUrl')).length;
+const provenanceScope = allRecords.filter((record) => ['prompts', 'notebooks', 'guides'].includes(record.type));
+const isOriginalInternal = (record) => /\.\.\.projectProvenance\b/.test(record.block) || /\bsourceLabel:\s*'Originální obsah/.test(record.block);
+const originalInternal = provenanceScope.filter(isOriginalInternal).length;
+const externalRecords = provenanceScope.filter((record) => !isOriginalInternal(record));
+const externalWithSourceUrl = externalRecords.filter((record) => fieldValue(record.block, 'sourceUrl'));
+const externalMissingSourceUrl = externalRecords.filter((record) => !fieldValue(record.block, 'sourceUrl'));
+const sourceUrlNotApplicable = originalInternal;
 const needsReview = allRecords.filter((record) => /\bneedsReview:\s*true\b/.test(record.block)).length;
 const promptQuality = auditPromptQuality(groupRecords.prompts);
 const formatMetrics = (metrics) => Object.entries(metrics).map(([key, value]) => `${key}=${value}`).join(', ');
@@ -117,17 +122,25 @@ const lines = [
   `Prompts by audience: ${formatMetrics(promptQuality.metrics.byAudience)}`,
   `Prompts by complexity: ${formatMetrics(promptQuality.metrics.byComplexity)}`,
   `Featured prompts: ${promptQuality.metrics.featured}`,
+  `Differentiation-tagged prompts: ${promptQuality.metrics.differentiation}`,
+  `Tag vocabulary: ${promptQuality.metrics.tagVocabulary}`,
+  `Rare prompt tags: ${promptQuality.metrics.rareTags.length}`,
   `Original Notebook Hub CZ: ${promptQuality.metrics.original}`,
   `External attributed prompts: ${promptQuality.metrics.externalAttributed}`,
   `Prompt quality: ${promptQuality.errors.length ? 'FAIL' : 'PASS'}`,
   `Prompt quality missing description: ${promptQuality.metrics.missingDescription}`,
   `Prompt quality missing prompt: ${promptQuality.metrics.missingPrompt}`,
+  `Prompt quality missing tags: ${promptQuality.metrics.missingTags}`,
   `Prompt quality missing author: ${promptQuality.metrics.missingAuthor}`,
   `Prompt quality missing provenance: ${promptQuality.metrics.missingProvenance}`,
+  `Prompt quality placeholders/TODO: ${promptQuality.metrics.placeholders}`,
   `Prompt quality duplicate titles: ${promptQuality.duplicateTitles.length ? promptQuality.duplicateTitles.join(', ') : 'none'}`,
   `Prompt quality duplicate normalized titles: ${promptQuality.duplicateNormalizedTitles.length ? promptQuality.duplicateNormalizedTitles.join(', ') : 'none'}`,
   `needsReview: ${needsReview}`,
-  `Missing sourceUrl: ${missingSourceUrl}`,
+  `Provenance original internal: ${originalInternal}`,
+  `Provenance external with sourceUrl: ${externalWithSourceUrl.length}`,
+  `Provenance external missing sourceUrl: ${externalMissingSourceUrl.length}`,
+  `Provenance sourceUrl not applicable: ${sourceUrlNotApplicable}`,
   `Duplicate IDs: ${duplicateIds.length ? duplicateIds.join(', ') : 'none'}`,
   `Duplicate slugs: ${duplicateSlugs.length ? duplicateSlugs.join(', ') : 'none'}`,
   `Invalid URLs: ${invalidUrls.length ? invalidUrls.sort().join(', ') : 'none'}`,

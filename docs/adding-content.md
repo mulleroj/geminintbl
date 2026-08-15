@@ -20,6 +20,7 @@ Notebook Hub CZ používá modulární katalog. Každý typ obsahu má vlastní 
 ## Kontrola před předáním
 
 ```text
+npm run prompt:coverage
 npm run content:audit
 npm run prompt:quality
 npm run typecheck
@@ -27,6 +28,6 @@ npm test
 npm run build
 ```
 
-Audit vypisuje počty kolekcí a registrů, `needsReview`, chybějící `sourceUrl`, duplicitní ID/slugs a neplatné URL. Při chybě zastaví proces s nenulovým návratovým kódem.
+Coverage audit nejprve zkontroluje job-to-be-done, overlap groups, category heatmapu, tag vocabulary a manuální QA vzorek. Content audit rozlišuje originální interní obsah, externí záznam s platnou `sourceUrl`, externí záznam bez povinné `sourceUrl` a `sourceUrl not applicable`; originální obsah tedy není falešně hlášen jako chyba. Při skutečné strukturální chybě zastaví proces s nenulovým návratovým kódem.
 
 Pro větší import nejprve rozdělte data podle tématu do více souborů. Hromadný import ani automatické publikování bez kontroly původu není součástí tohoto katalogu.

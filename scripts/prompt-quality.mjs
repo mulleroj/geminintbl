@@ -18,6 +18,7 @@ function normalizeTitle(value) {
 export function parsePromptRecord(record) {
   const block = record.block;
   const prompt = fieldValue(block, 'prompt');
+  const usesProjectProvenance = /\.\.\.projectProvenance\b/.test(block);
   return {
     ...record,
     id: fieldValue(block, 'id') || record.id,
@@ -34,9 +35,12 @@ export function parsePromptRecord(record) {
     normalizedTitle: normalizeTitle(fieldValue(block, 'title')),
     featured: /\bfeatured:\s*true\b/.test(block),
     needsReview: /\bneedsReview:\s*true\b/.test(block),
-    original: /\.\.\.projectProvenance\b/.test(block),
-    hasAuthor: /\bauthor:\s*'/.test(block) || /\.\.\.projectProvenance\b/.test(block),
-    hasProvenance: /\bsourceLabel:\s*'/.test(block) || /\.\.\.projectProvenance\b/.test(block),
+    original: usesProjectProvenance || /\bsourceLabel:\s*'Originální obsah/.test(block),
+    sourceUrl: fieldValue(block, 'sourceUrl'),
+    sourceLabel: fieldValue(block, 'sourceLabel'),
+    hasAuthor: /\bauthor:\s*'/.test(block) || usesProjectProvenance,
+    hasProvenance: /\bsourceLabel:\s*'/.test(block) || usesProjectProvenance,
+    hasPlaceholder: /\[(?:TODO|TÉMA|CÍL|DOPLŇTE?)\]|TODO:|\blorem\s+ipsum/i.test(prompt),
   };
 }
 
@@ -57,7 +61,7 @@ export function auditPromptQuality(records) {
     if (!prompt.complexity) errors.push(`prompt:${prompt.id} missing complexity`);
     if (!prompt.hasAuthor) errors.push(`prompt:${prompt.id} missing author/provenance`);
     if (!prompt.hasProvenance) errors.push(`prompt:${prompt.id} missing sourceLabel/provenance`);
-    if (/\[TODO\]|TODO:|\blorem\s+ipsum/i.test(prompt.prompt)) errors.push(`prompt:${prompt.id} contains placeholder text`);
+    if (prompt.hasPlaceholder) errors.push(`prompt:${prompt.id} contains placeholder text`);
   }
   const duplicateTitles = duplicateValues(prompts.map((prompt) => prompt.title));
   const duplicateNormalizedTitles = duplicateValues(prompts.map((prompt) => prompt.normalizedTitle));
@@ -73,12 +77,17 @@ export function auditPromptQuality(records) {
       byTarget: Object.fromEntries([...new Set(prompts.map((prompt) => prompt.target))].sort().map((target) => [target, prompts.filter((prompt) => prompt.target === target).length])),
       byAudience: Object.fromEntries([...new Set(prompts.flatMap((prompt) => prompt.audience))].sort().map((audience) => [audience, prompts.filter((prompt) => prompt.audience.includes(audience)).length])),
       byComplexity: Object.fromEntries([...new Set(prompts.map((prompt) => prompt.complexity))].sort().map((complexity) => [complexity, prompts.filter((prompt) => prompt.complexity === complexity).length])),
+      tagVocabulary: new Set(prompts.flatMap((prompt) => prompt.tags)).size,
+      rareTags: [...new Set(prompts.flatMap((prompt) => prompt.tags))].filter((tag) => prompts.filter((prompt) => prompt.tags.includes(tag)).length === 1).sort((a, b) => a.localeCompare(b, 'cs')),
+      differentiation: prompts.filter((prompt) => prompt.tags.includes('diferenciace')).length,
       featured: prompts.filter((prompt) => prompt.featured).length,
       needsReview: prompts.filter((prompt) => prompt.needsReview).length,
       missingDescription: prompts.filter((prompt) => !prompt.description).length,
       missingPrompt: prompts.filter((prompt) => !prompt.prompt).length,
+      missingTags: prompts.filter((prompt) => !prompt.tags.length).length,
       missingAuthor: prompts.filter((prompt) => !prompt.hasAuthor).length,
       missingProvenance: prompts.filter((prompt) => !prompt.hasProvenance).length,
+      placeholders: prompts.filter((prompt) => prompt.hasPlaceholder).length,
       original: prompts.filter((prompt) => prompt.original).length,
       externalAttributed: prompts.filter((prompt) => !prompt.original && prompt.hasProvenance).length,
     },

@@ -10,5 +10,11 @@ export function matchesSearch(values: Array<string | undefined>, query: string):
   const needle = normalizeSearchText(query);
   if (!needle) return true;
   const haystack = normalizeSearchText(values.filter(Boolean).join(' '));
-  return needle.split(/\s+/).every((token) => haystack.includes(token));
+  const haystackTokens = haystack.split(/\s+/u);
+  const rawTokens = query.trim().split(/\s+/u);
+  return needle.split(/\s+/u).every((token, index) => {
+    const rawToken = rawTokens[index] ?? '';
+    const isAcronym = /^[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ]{2,}$/u.test(rawToken);
+    return isAcronym ? haystackTokens.includes(token) : haystack.includes(token);
+  });
 }
