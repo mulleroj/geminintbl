@@ -1,7 +1,7 @@
 import { downloadPptx } from './export';
 import { processPdf } from './pdf';
 import { clearProject, readProject, saveProject } from './storage';
-import { clamp, sanitizeFileName, validatePdfFile } from './model';
+import { clamp, sanitizeFileName, userFacingProcessError, validatePdfFile } from './model';
 import type { SlideEditorProject, SlideModel, SlideTextBlock } from './types';
 
 const esc = (value: unknown): string => String(value ?? '')
@@ -25,6 +25,7 @@ interface EditorState {
 
 let state: EditorState;
 let saveTimer: number | undefined;
+let processToken = 0;
 
 function freshState(): EditorState {
   return { phase: 'empty', project: null, selectedSlide: 0, selectedBlockId: null, progress: 0, progressMessage: '', error: '' };
@@ -51,11 +52,11 @@ function steps(): string {
 }
 
 function emptyContent(): string {
-  return `<section class="slide-editor-empty"><div class="slide-editor-notice"><strong>${'✦'} Zpracování přímo v prohlížeči</strong><span>PDF ani jeho stránky neposíláme na server Notebook Hubu. OCR model se při prvním použití načte do prohlížeče.</span></div>${steps()}<label class="slide-editor-dropzone" data-editor-dropzone><input data-editor-upload type="file" accept="application/pdf,.pdf" /><span class="drop-icon">↑</span><strong>Nahrajte PDF prezentaci</strong><small>Přetáhněte soubor sem nebo jej vyberte. Limit: 40 MB a 50 stran.</small></label><p class="slide-editor-hint"><strong>Pro nejlepší výsledek:</strong> používejte slidy s jasně oddělenými textovými bloky. OCR a maskování pozadí jsou přibližné, proto si výsledek před sdílením zkontrolujte.</p></section>`;
+  return `<section class="slide-editor-empty"><div class="slide-editor-notice"><strong>${'✦'} Zpracování přímo v prohlížeči</strong><span>PDF ani jeho stránky neposíláme na server Notebook Hubu. OCR model se při prvním použití načte do prohlížeče.</span></div>${steps()}<label class="slide-editor-dropzone" data-editor-dropzone><input aria-label="Vyberte PDF prezentaci" data-editor-upload type="file" accept="application/pdf,.pdf" /><span class="drop-icon">↑</span><strong>Nahrajte PDF prezentaci</strong><small>Přetáhněte soubor sem nebo jej vyberte. Limit: 40 MB a 50 stran.</small></label><p class="slide-editor-hint"><strong>Pro nejlepší výsledek:</strong> používejte slidy s jasně oddělenými textovými bloky. OCR a maskování pozadí jsou přibližné, proto si výsledek před sdílením zkontrolujte.</p></section>`;
 }
 
 function processingContent(): string {
-  return `<section class="slide-editor-processing" aria-live="polite"><div class="processing-mark">${'✦'}</div><p class="eyebrow">${state.progress < 50 ? 'PDF' : 'OCR'} / zpracování v prohlížeči</p><h2>${esc(state.progressMessage || 'Připravuji slidy…')}</h2><progress max="100" value="${state.progress}">${state.progress}%</progress><p>${state.progress}% dokončeno. U větší prezentace může rozpoznání textu chvíli trvat.</p></section>`;
+  return `<section class="slide-editor-processing" aria-live="polite"><div class="processing-mark">${'✦'}</div><p class="eyebrow">${state.progress < 50 ? 'PDF' : 'OCR'} / zpracování v prohlížeči</p><h2>${esc(state.progressMessage || 'Připravuji slidy…')}</h2><progress aria-label="Postup zpracování PDF" max="100" value="${Math.min(100, state.progress)}">${state.progress}%</progress><p>${state.progress}% dokončeno. U větší prezentace může rozpoznání textu chvíli trvat.</p></section>`;
 }
 
 function errorContent(): string {
@@ -252,19 +253,23 @@ function bindEditorEvents(root: HTMLElement): void {
 }
 
 async function resetProject(root: HTMLElement): Promise<void> {
+  processToken += 1;
   await clearProject();
   state = freshState();
   replacePage(root);
 }
 
 async function processFile(root: HTMLElement, file: File): Promise<void> {
+  const token = ++processToken;
   const validationError = validatePdfFile(file);
   if (validationError) { state.phase = 'error'; state.error = validationError; replacePage(root); return; }
   state = { ...freshState(), phase: 'processing', progressMessage: 'Připravuji PDF…' };
   replacePage(root);
   try {
     const slides = await processPdf(file, (progress) => {
-      state.progress = Math.round(((progress.current - 1) / Math.max(1, progress.total) + (progress.stage === 'ocr' ? 0.5 : 0)) * 100);
+      if (token !== processToken) return;
+      const stageOffset = progress.stage === 'ocr' ? 50 : 0;
+      state.progress = Math.min(99, Math.round(stageOffset + ((progress.current - 1) / Math.max(1, progress.total)) * 50));
       state.progressMessage = progress.message;
       const element = root.querySelector<HTMLElement>('[data-slide-editor]');
       const progressBar = element?.querySelector<HTMLProgressElement>('progress');
@@ -274,13 +279,15 @@ async function processFile(root: HTMLElement, file: File): Promise<void> {
       if (heading) heading.textContent = state.progressMessage;
       if (copy) copy.textContent = `${state.progress}% dokončeno. U větší prezentace může rozpoznání textu chvíli trvat.`;
     });
+    if (token !== processToken) return;
     const project: SlideEditorProject = { id: makeId(), fileName: sanitizeFileName(file.name) + '.pdf', createdAt: new Date().toISOString(), slides };
     state = { ...state, phase: 'ready', project, selectedSlide: 0, selectedBlockId: slides[0]?.blocks[0]?.id ?? null, progress: 100, progressMessage: 'Hotovo' };
     await saveProject(project);
     replacePage(root);
   } catch (error) {
+    if (token !== processToken) return;
     state.phase = 'error';
-    state.error = error instanceof Error && error.message ? error.message : 'Neznámá chyba při zpracování PDF.';
+    state.error = userFacingProcessError(error);
     replacePage(root);
   }
 }

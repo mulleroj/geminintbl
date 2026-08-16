@@ -38,6 +38,15 @@ export function validatePdfFile(file: Pick<File, 'name' | 'size' | 'type'>): str
   return null;
 }
 
+export function userFacingProcessError(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error ?? '');
+  if (/příliš mnoho stran|limit je 50/i.test(message)) return message;
+  if (/heslem|password|encrypted/i.test(message)) return 'Toto PDF je chráněné heslem a nelze je v editoru otevřít.';
+  if (/invalid\s*pdf|invalidpdf|unexpected eof|bad xref|pdf header|formaterror|neplatn.{0,4}pdf|poškozen/i.test(message)) return 'PDF je poškozené nebo v nepodporovaném formátu.';
+  if (/fetch|network|worker|language|tesseract|wasm|cdn|load/i.test(message)) return 'OCR se nepodařilo načíst. Zkontrolujte připojení a zkuste to znovu.';
+  return 'PDF se nepodařilo zpracovat. Zkontrolujte soubor a zkuste to znovu.';
+}
+
 export function normalizeOcrLines(lines: OcrLine[], slideWidth: number, slideHeight: number): OcrLine[] {
   return lines
     .map((line) => ({ ...line, text: line.text.replace(/\s+/g, ' ').trim(), bbox: clampBox(line.bbox, slideWidth, slideHeight) }))

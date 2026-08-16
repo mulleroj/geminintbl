@@ -26,25 +26,39 @@ function colorForBox(canvas: HTMLCanvasElement, box: SlideBox): string {
   if (!context) return '#ffffff';
   const margin = Math.max(5, Math.round(Math.min(box.width, box.height) * 0.14));
   const points = [
-    [box.x + box.width / 2, box.y - margin],
-    [box.x + box.width / 2, box.y + box.height + margin],
-    [box.x - margin, box.y + box.height / 2],
-    [box.x + box.width + margin, box.y + box.height / 2],
+    [box.x + box.width * 0.2, box.y - margin],
+    [box.x + box.width * 0.5, box.y - margin],
+    [box.x + box.width * 0.8, box.y - margin],
+    [box.x + box.width * 0.2, box.y + box.height + margin],
+    [box.x + box.width * 0.5, box.y + box.height + margin],
+    [box.x + box.width * 0.8, box.y + box.height + margin],
+    [box.x - margin, box.y + box.height * 0.25],
+    [box.x - margin, box.y + box.height * 0.75],
+    [box.x + box.width + margin, box.y + box.height * 0.25],
+    [box.x + box.width + margin, box.y + box.height * 0.75],
   ];
-  const pixels = points.map(([x, y]) => {
-    const sampleX = Math.min(canvas.width - 1, Math.max(0, Math.round(x)));
-    const sampleY = Math.min(canvas.height - 1, Math.max(0, Math.round(y)));
-    const data = context.getImageData(sampleX, sampleY, 1, 1).data;
-    return [data[0], data[1], data[2]];
-  });
-  const average = pixels.reduce((result, pixel) => result.map((value, index) => value + pixel[index]), [0, 0, 0]).map((value) => Math.round(value / pixels.length));
-  return `#${average.map((value) => value.toString(16).padStart(2, '0')).join('')}`;
+  try {
+    const pixels = points.map(([x, y]) => {
+      const sampleX = Math.min(canvas.width - 1, Math.max(0, Math.round(x)));
+      const sampleY = Math.min(canvas.height - 1, Math.max(0, Math.round(y)));
+      const data = context.getImageData(sampleX, sampleY, 1, 1).data;
+      return [data[0], data[1], data[2]];
+    });
+    const median = (channel: number): number => {
+      const values = pixels.map((pixel) => pixel[channel]).sort((a, b) => a - b);
+      return values[Math.floor(values.length / 2)] ?? 255;
+    };
+    return `#${[0, 1, 2].map((channel) => median(channel).toString(16).padStart(2, '0')).join('')}`;
+  } catch {
+    return '#ffffff';
+  }
 }
 
 async function renderPages(file: File, onProgress: (progress: ProcessProgress) => void): Promise<RenderedSlide[]> {
   const buffer = await file.arrayBuffer();
   const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(buffer) });
-  const pdf = await loadingTask.promise;
+  try {
+    const pdf = await loadingTask.promise;
   if (pdf.numPages === 0) throw new Error('PDF neobsahuje žádné stránky.');
   if (pdf.numPages > MAX_PDF_PAGES) throw new Error(`PDF má příliš mnoho stran. Limit je ${MAX_PDF_PAGES}.`);
   const slides: RenderedSlide[] = [];
@@ -63,8 +77,10 @@ async function renderPages(file: File, onProgress: (progress: ProcessProgress) =
     slides.push({ pageNumber, width: canvas.width, height: canvas.height, imageUrl: canvas.toDataURL('image/jpeg', 0.92), canvas });
     page.cleanup();
   }
-  await loadingTask.destroy();
-  return slides;
+    return slides;
+  } finally {
+    await loadingTask.destroy();
+  }
 }
 
 function extractLines(data: Tesseract.Page): OcrLine[] {
@@ -85,12 +101,7 @@ export async function processPdf(file: File, onProgress: (progress: ProcessProgr
   const rendered = await renderPages(file, onProgress);
   let worker: Tesseract.Worker | null = null;
   try {
-    worker = await Tesseract.createWorker('ces+eng', 1, {
-      logger: (message) => {
-        const current = rendered.findIndex((slide) => slide.pageNumber === Number(message.userJobId)) + 1;
-        if (current > 0) onProgress({ stage: 'ocr', current, total: rendered.length, message: `Rozpoznávám text slidu ${current} z ${rendered.length}…` });
-      },
-    });
+    worker = await Tesseract.createWorker('ces+eng', 1);
     const slides: SlideModel[] = [];
     for (const item of rendered) {
       onProgress({ stage: 'ocr', current: item.pageNumber, total: rendered.length, message: `Rozpoznávám text slidu ${item.pageNumber} z ${rendered.length}…` });

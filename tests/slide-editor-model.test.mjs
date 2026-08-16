@@ -37,3 +37,11 @@ test('slide editor model serializes and rejects malformed projects safely', asyn
   assert.equal(model.parseProject('{"slides":[]}'), null);
   assert.equal(model.sanitizeFileName('Česká prezentace (verze 2).pdf'), 'Česká-prezentace-verze-2');
 });
+
+test('slide editor maps technical processing failures to safe Czech UX messages', async () => {
+  const model = await loadModel();
+  assert.equal(model.userFacingProcessError(new Error('InvalidPDFException: Invalid PDF structure')), 'PDF je poškozené nebo v nepodporovaném formátu.');
+  assert.equal(model.userFacingProcessError(new Error('Failed to fetch language data')), 'OCR se nepodařilo načíst. Zkontrolujte připojení a zkuste to znovu.');
+  assert.equal(model.userFacingProcessError(new Error('PDF má příliš mnoho stran. Limit je 50.')), 'PDF má příliš mnoho stran. Limit je 50.');
+  assert.equal(model.userFacingProcessError(new Error('internal stack trace')), 'PDF se nepodařilo zpracovat. Zkontrolujte soubor a zkuste to znovu.');
+});
