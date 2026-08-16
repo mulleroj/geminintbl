@@ -18,7 +18,7 @@ test('semantic heading and social metadata contracts are present', async () => {
   assert.match(main, /teacher-prompt-reference[\s\S]*?<h5>/);
   assert.match(main, /summary_large_image/);
   assert.match(main, /meta\[property="og:image:width"\]/);
-  assert.match(main, /semanticGeneratorMarkup/);
+  assert.match(main, /semanticToolLibraryMarkup/);
 
   for (const tag of [
     'og:image', 'og:image:width', 'og:image:height', 'og:image:alt',

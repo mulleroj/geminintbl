@@ -79,10 +79,15 @@ test('content audit reports the current catalog inventory deterministically', as
 });
 
 test('tools and public notebooks expose the V1 metadata contract', async () => {
-  const [tools, notebooks] = await Promise.all([
+  const [main, tools, notebooks] = await Promise.all([
+    readFile('src/main.ts', 'utf8'),
     readFile('src/data/tools/index.ts', 'utf8'),
     readFile('src/data/notebooks/index.ts', 'utf8'),
   ]);
+  const toolLibrary = main.slice(main.indexOf('function toolLibrary'), main.indexOf('function notebookLibrary'));
+  assert.match(toolLibrary, /Nástroje Notebook Hub CZ/);
+  assert.match(main, /editor-prezentaci/);
+  assert.match(toolLibrary, /isNotebookHubTool/);
   for (const field of ['category', 'sourceType', 'integrationLevel', 'workflowTip', 'verifiedAt']) assert.match(tools, new RegExp(field));
   assert.match(tools, /t-deckedit/);
   assert.match(tools, /Convert to PPTX/);
