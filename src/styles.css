@@ -217,6 +217,16 @@ button { cursor: pointer; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }
 
+/* Semantic heading parity: keep the existing visual treatment while using the correct outline levels. */
+.section-heading-title { display: block; margin: 0; font-size: clamp(1.75rem, 3vw, 2.6rem); line-height: 1.03; letter-spacing: -.06em; }
+.card-title { display: block; }
+.generator-library-section .card-title { margin: 22px 0 9px; }
+.footer-grid .footer-heading { margin: 3px 0 16px; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; }
+.teacher-workflow-card h3 { margin: 21px 0 9px; font-size: 1.65rem; letter-spacing: -.06em; }
+.teacher-recipe h4 { margin: 0 0 9px; font-size: .84rem; letter-spacing: -.02em; }
+.teacher-prompt-reference h5 { margin: 0; font-size: .95rem; }
+@media (max-width: 560px) { .section-heading-title { font-size: 2rem; } }
+
 /* Teacher workflows and internal generators */
 .teacher-home-section { padding-block: 52px; border-block: 1px solid var(--line); }
 .teacher-home-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }

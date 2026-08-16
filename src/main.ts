@@ -61,6 +61,8 @@ function button(label: string, action: string, className = '', extra = ''): stri
 
 function meta(title: string, description: string, type: 'WebSite' | 'Article' = 'WebSite', articleData?: { dateModified?: string; keywords?: string[] }): void {
   const resolvedTitle = title === 'Přehled' ? 'Notebook Hub CZ — prompty a zdroje pro Gemini Notebook' : `${title} — Notebook Hub CZ`;
+  const socialImage = `${window.location.origin}/og/notebook-hub-cz.png`;
+  const socialImageAlt = 'Notebook Hub CZ — české prompty, zdroje a postupy pro Gemini Notebook';
   document.title = resolvedTitle;
   const canonical = `${window.location.origin}${window.location.pathname}`;
   const set = (selector: string, content: string, attribute = 'content') => {
@@ -78,7 +80,15 @@ function meta(title: string, description: string, type: 'WebSite' | 'Article' = 
   set('meta[property="og:description"]', description);
   set('meta[property="og:url"]', canonical);
   set('meta[property="og:type"]', type === 'Article' ? 'article' : 'website');
-  set('meta[name="twitter:card"]', 'summary');
+  set('meta[property="og:image"]', socialImage);
+  set('meta[property="og:image:width"]', '1200');
+  set('meta[property="og:image:height"]', '630');
+  set('meta[property="og:image:alt"]', socialImageAlt);
+  set('meta[name="twitter:card"]', 'summary_large_image');
+  set('meta[name="twitter:title"]', resolvedTitle);
+  set('meta[name="twitter:description"]', description);
+  set('meta[name="twitter:image"]', socialImage);
+  set('meta[name="twitter:image:alt"]', socialImageAlt);
   let canonicalLink = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
   if (!canonicalLink) {
     canonicalLink = document.createElement('link');
@@ -132,8 +142,31 @@ function siteFooter(): string {
   return `<footer class="site-footer"><div class="footer-grid"><div><a class="brand footer-brand" href="/"><span class="brand-mark">N</span><span><strong>Notebook Hub CZ</strong><small>Pro lidi, kteří chtějí vědět proč.</small></span></a><p class="muted">Česká knihovna promptů, zdrojů, nástrojů a průvodců pro práci s Gemini Notebook.</p></div><div><h2>Knihovna</h2><div class="footer-links">${link('/prompty', 'Prompty')}${link('/zdroje', 'Zdroje')}${link('/nastroje', 'Nástroje')}${link('/notebooky', 'Notebooky')}${link('/pruvodci', 'Průvodci')}${link('/oblibene', 'Oblíbené')}</div></div><div><h2>Projekt</h2><div class="footer-links">${link('/pridat', 'Přidat obsah')}${link('/nastroje/odstraneni-vodoznaku', 'Experimentální nástroj')}<a href="https://notebooklm.google/" target="_blank" rel="noopener noreferrer">Gemini Notebook ${icon('external')}</a></div></div></div><div class="footer-bottom"><span>© 2026 Notebook Hub CZ</span><span>Nezávislý komunitní projekt. Není spojen se společností Google. Gemini Notebook je produkt společnosti Google LLC.</span></div></footer>`;
 }
 
+function semanticMarkup(content: string, active: string): string {
+  const listTitles: Record<string, string> = {
+    prompty: 'Výsledky promptů',
+    zdroje: 'Výsledky zdrojů',
+    nastroje: 'Výsledky nástrojů',
+    notebooky: 'Výsledky veřejných notebooků',
+    pruvodci: 'Výsledky průvodců',
+  };
+  let markup = content;
+  const listTitle = listTitles[active];
+  if (listTitle) {
+    markup = markup.replace('<section class="section wrap list-section">', `<section class="section wrap list-section"><h2 class="visually-hidden">${listTitle}</h2>`);
+  }
+  markup = markup.replaceAll('<h2>Knihovna</h2>', '<p class="footer-heading">Knihovna</p>')
+    .replaceAll('<h2>Projekt</h2>', '<p class="footer-heading">Projekt</p>');
+  if (active === 'pro-ucitele') {
+    markup = markup.replaceAll('<h3>', '<h4>')
+      .replace(/(<article class="card teacher-workflow-card"[^>]*>[\s\S]*?)<h2>/g, '$1<h3>')
+      .replace(/(<article class="teacher-prompt-reference"[^>]*>[\s\S]*?)<h4>/g, '$1<h5>');
+  }
+  return markup;
+}
+
 function shell(content: string, active: string): string {
-  return `${siteHeader(active)}<main id="main-content">${content}</main>${siteFooter()}<div id="toast" class="toast" role="status" aria-live="polite"></div>`;
+  return `${siteHeader(active)}<main id="main-content">${semanticMarkup(content, active)}</main>${semanticMarkup(siteFooter(), active)}<div id="toast" class="toast" role="status" aria-live="polite"></div>`;
 }
 
 function pageIntro(kicker: string, title: string, description: string, extras = ''): string {
@@ -337,10 +370,18 @@ function catalogToolLibrary(): string {
   return shell(`${pageIntro('Katalog nástrojů', 'Méně ruční práce. Více prostoru na myšlení.', 'Komunitní i oficiální nástroje pro import, organizaci, výzkum a export. Každý záznam má kategorii, úroveň napojení, cenu a datum ověření.', `<span class="count-stamp"><strong>${filtered.length}</strong><small>nástrojů v katalogu</small></span>`)}<section class="library-controls wrap">${searchBox('Hledat v nástrojích…', query, 'Hledat v nástrojích')}<div class="chip-row" aria-label="Kategorie nástrojů">${link('/nastroje', 'Všechny', `chip${!active ? ' is-active' : ''}`)}${toolCategories.map((category) => link(`/nastroje?kategorie=${encodeURIComponent(category.id)}`, `${esc(category.label)} <small>${tools.filter((tool) => tool.category === category.id).length}</small>`, `chip${active === category.id ? ' is-active' : ''}`)).join('')}</div></section><section class="section wrap list-section"><div class="notice"><strong>${icon('spark')} Bezpečné odkazy</strong><span>Externí odkazy se otevírají v nové kartě. Před instalací vždy zkontrolujte autora, oprávnění a zacházení se soubory.</span></div><div class="list-heading"><p>${filtered.length} nástrojů${active ? ` · ${esc(toolCategory(active).label)}` : ''}</p>${active ? link('/nastroje', 'Zrušit filtr ×', 'text-link') : ''}</div><div class="card-grid tool-grid">${filtered.map(toolCard).join('')}</div>${filtered.length ? '' : `<div class="empty-state"><h2>Nic nenalezeno</h2><p>Zkuste jiný název, kategorii nebo úroveň napojení.</p></div>`}</section>`, 'nastroje');
 }
 
+function semanticGeneratorMarkup(markup: string): string {
+  return markup.replace(/<section class="section section-tint generator-library-section">[\s\S]*?<\/section>/, (section) => section
+    .replace('<section class="section section-tint generator-library-section">', '<section class="section section-tint generator-library-section" aria-labelledby="generator-library-title">')
+    .replace('<h2>Generátory Notebook Hub CZ</h2>', '<p class="section-heading-title" id="generator-library-title">Generátory Notebook Hub CZ</p>')
+    .replaceAll('<h3>', '<strong class="card-title">')
+    .replaceAll('</h3>', '</strong>'));
+}
+
 function toolLibrary(): string {
   const generatorTools = tools.filter((tool) => tool.url.startsWith('/nastroje/generator-'));
   const section = `<section class="section section-tint generator-library-section"><div class="wrap"><div class="section-heading"><div><p class="eyebrow">Notebook Hub CZ</p><h2>Generátory Notebook Hub CZ</h2></div><p class="muted">Tři interní formuláře pro prompt, ne hotový výstup.</p></div><div class="card-grid tool-grid">${generatorTools.map(toolCard).join('')}</div></div></section>`;
-  return catalogToolLibrary().replace('<main id="main-content">', `<main id="main-content">${section}`);
+  return semanticGeneratorMarkup(catalogToolLibrary().replace('<main id="main-content">', `<main id="main-content">${section}`));
 }
 
 function notebookLibrary(): string {
