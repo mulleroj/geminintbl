@@ -26,7 +26,7 @@ Počet průvodců zůstává přesně 32; nový obsah prohlubuje všech 32 exist
 | Hloubková třída | Počet | Cíl | Naměřeno po auditu |
 | --- | ---: | ---: | ---: |
 | quick | 3 | 500–800 slov | průměr 585 |
-| standard | 10 | 800–1200 slov | průměr 872 |
+| standard | 10 | 800–1200 slov | průměr 871 |
 | advanced | 19 | 1100–1600 slov | průměr 1132 |
 
 Výchozí obsah měl min/max/průměr/medián 246/408/316,6/310,5 slov. Po prohloubení má 533/1181/999/1114 slov; žádný průvodce není pod 450 slov ani mimo svou cílovou hloubkovou třídu. Všech 32 průvodců obsahuje konkrétní příklad, checklist a TOC; 29 obsahuje varování nebo typickou chybu. Standardní a pokročilé texty používají rozbalovací TOC a dlouhé řádky jsou omezené na přibližně 70ch.
