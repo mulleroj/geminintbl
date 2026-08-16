@@ -14,47 +14,54 @@ function openDatabase(): Promise<IDBDatabase> {
   });
 }
 
-export async function saveProject(project: SlideEditorProject): Promise<void> {
+export async function saveProject(project: SlideEditorProject): Promise<boolean> {
+  let database: IDBDatabase | undefined;
   try {
-    const database = await openDatabase();
+    database = await openDatabase();
     await new Promise<void>((resolve, reject) => {
-      const transaction = database.transaction(STORE_NAME, 'readwrite');
+      const transaction = database!.transaction(STORE_NAME, 'readwrite');
       transaction.objectStore(STORE_NAME).put(serializeProject(project), PROJECT_KEY);
       transaction.addEventListener('complete', () => resolve());
       transaction.addEventListener('error', () => reject(transaction.error));
     });
-    database.close();
+    return true;
   } catch {
-    // Persistence is an enhancement; editing and export work without it.
+    return false;
+  } finally {
+    database?.close();
   }
 }
 
 export async function readProject(): Promise<SlideEditorProject | null> {
+  let database: IDBDatabase | undefined;
   try {
-    const database = await openDatabase();
+    database = await openDatabase();
     const value = await new Promise<unknown>((resolve, reject) => {
-      const request = database.transaction(STORE_NAME, 'readonly').objectStore(STORE_NAME).get(PROJECT_KEY);
+      const request = database!.transaction(STORE_NAME, 'readonly').objectStore(STORE_NAME).get(PROJECT_KEY);
       request.addEventListener('success', () => resolve(request.result));
       request.addEventListener('error', () => reject(request.error));
     });
-    database.close();
     return typeof value === 'string' ? parseProject(value) : null;
   } catch {
     return null;
+  } finally {
+    database?.close();
   }
 }
 
 export async function clearProject(): Promise<void> {
+  let database: IDBDatabase | undefined;
   try {
-    const database = await openDatabase();
+    database = await openDatabase();
     await new Promise<void>((resolve, reject) => {
-      const transaction = database.transaction(STORE_NAME, 'readwrite');
+      const transaction = database!.transaction(STORE_NAME, 'readwrite');
       transaction.objectStore(STORE_NAME).delete(PROJECT_KEY);
       transaction.addEventListener('complete', () => resolve());
       transaction.addEventListener('error', () => reject(transaction.error));
     });
-    database.close();
   } catch {
     // Ignore storage failures; this is not required for the core workflow.
+  } finally {
+    database?.close();
   }
 }

@@ -1,5 +1,3 @@
-import { downloadPptx } from './export';
-import { processPdf } from './pdf';
 import { clearProject, readProject, saveProject } from './storage';
 import { clamp, sanitizeFileName, userFacingProcessError, validatePdfFile } from './model';
 import type { SlideEditorProject, SlideModel, SlideTextBlock } from './types';
@@ -26,6 +24,7 @@ interface EditorState {
 let state: EditorState;
 let saveTimer: number | undefined;
 let processToken = 0;
+let recoveryProject: SlideEditorProject | null = null;
 
 function freshState(): EditorState {
   return { phase: 'empty', project: null, selectedSlide: 0, selectedBlockId: null, progress: 0, progressMessage: '', error: '' };
@@ -87,7 +86,10 @@ function readyContent(): string {
   const project = state.project;
   const slide = selectedSlide();
   if (!project || !slide) return emptyContent();
-  return `<section class="slide-editor-ready"><div class="slide-editor-toolbar"><div><p class="eyebrow">Rozpracovaný projekt</p><strong>${esc(project.fileName)}</strong><span>${project.slides.length} slidů · upravujete slide ${slide.pageNumber}</span></div><div class="slide-editor-toolbar-actions"><button class="button button-quiet" type="button" data-editor-reset>Nové PDF</button><button class="button button-primary" type="button" data-editor-export>Exportovat do PowerPointu ↗</button></div></div><div class="slide-editor-layout"><aside class="slide-editor-slides"><div class="slide-editor-panel-heading"><p class="eyebrow">Slidy</p><strong>${project.slides.length}</strong></div><div class="slide-thumbnails">${project.slides.map(thumbnail).join('')}</div></aside><main class="slide-editor-main"><div class="slide-editor-stage-wrap"><div class="slide-editor-stage" data-editor-stage style="aspect-ratio:${slide.width} / ${slide.height};"><img class="slide-editor-background" src="${esc(slide.imageUrl)}" alt="Slide ${slide.pageNumber} — původní grafika" />${slide.blocks.map((block) => blockMarkup(block, slide)).join('')}</div></div><p class="slide-editor-feedback" data-editor-feedback role="status" aria-live="polite">${state.selectedBlockId ? 'Vybraný blok můžete upravit přímo na slidu nebo v panelu vlastností.' : 'Klikněte na rozpoznaný textový blok a začněte upravovat.'}</p></main>${inspector()}</div><div class="slide-editor-footnote"><strong>Jak funguje pozadí:</strong> původní slide zůstává jako obrázek. U rozpoznaných oblastí se vytvoří přibližná barevná maska a nad ní skutečný editovatelný text. U složitých nebo fotografických pozadí může být maska viditelná.</div></section>`;
+  const feedback = state.error
+    ? `<strong>${esc(state.error)}</strong> Aktuální projekt zůstává dostupný v této relaci.`
+    : (state.selectedBlockId ? 'Vybraný blok můžete upravit přímo na slidu nebo v panelu vlastností.' : 'Klikněte na rozpoznaný textový blok a začněte upravovat.');
+  return `<section class="slide-editor-ready"><div class="slide-editor-toolbar"><div><p class="eyebrow">Rozpracovaný projekt</p><strong>${esc(project.fileName)}</strong><span>${project.slides.length} slidů · upravujete slide ${slide.pageNumber}</span></div><div class="slide-editor-toolbar-actions"><button class="button button-quiet" type="button" data-editor-reset>Nové PDF</button><button class="button button-primary" type="button" data-editor-export>Exportovat do PowerPointu ↗</button></div></div><div class="slide-editor-layout"><aside class="slide-editor-slides"><div class="slide-editor-panel-heading"><p class="eyebrow">Slidy</p><strong>${project.slides.length}</strong></div><div class="slide-thumbnails">${project.slides.map(thumbnail).join('')}</div></aside><main class="slide-editor-main"><div class="slide-editor-stage-wrap"><div class="slide-editor-stage" data-editor-stage style="aspect-ratio:${slide.width} / ${slide.height};"><img class="slide-editor-background" src="${esc(slide.imageUrl)}" alt="Slide ${slide.pageNumber} — původní grafika" />${slide.blocks.map((block) => blockMarkup(block, slide)).join('')}</div></div><p class="slide-editor-feedback" data-editor-feedback role="status" aria-live="polite">${feedback}</p></main>${inspector()}</div><div class="slide-editor-footnote"><strong>Jak funguje pozadí:</strong> původní slide zůstává jako obrázek. U rozpoznaných oblastí se vytvoří přibližná barevná maska a nad ní skutečný editovatelný text. U složitých nebo fotografických pozadí může být maska viditelná.</div></section>`;
 }
 
 function page(): string {
@@ -229,6 +231,7 @@ async function exportProject(root: HTMLElement): Promise<void> {
   if (button) { button.disabled = true; button.textContent = 'Připravuji PPTX…'; }
   if (feedback) feedback.textContent = 'Skládám původní grafiku a editovatelné textové objekty…';
   try {
+    const { downloadPptx } = await import('./export');
     await downloadPptx(state.project);
     if (feedback) feedback.textContent = 'PowerPoint je připravený ke stažení. Po otevření ověřte text a rozvržení.';
   } catch {
@@ -253,6 +256,7 @@ function bindEditorEvents(root: HTMLElement): void {
 }
 
 async function resetProject(root: HTMLElement): Promise<void> {
+  recoveryProject = state.project;
   processToken += 1;
   await clearProject();
   state = freshState();
@@ -261,11 +265,13 @@ async function resetProject(root: HTMLElement): Promise<void> {
 
 async function processFile(root: HTMLElement, file: File): Promise<void> {
   const token = ++processToken;
+  const previousProject = state.project ?? recoveryProject;
   const validationError = validatePdfFile(file);
   if (validationError) { state.phase = 'error'; state.error = validationError; replacePage(root); return; }
   state = { ...freshState(), phase: 'processing', progressMessage: 'Připravuji PDF…' };
   replacePage(root);
   try {
+    const { processPdf } = await import('./pdf');
     const slides = await processPdf(file, (progress) => {
       if (token !== processToken) return;
       const stageOffset = progress.stage === 'ocr' ? 50 : 0;
@@ -282,10 +288,17 @@ async function processFile(root: HTMLElement, file: File): Promise<void> {
     if (token !== processToken) return;
     const project: SlideEditorProject = { id: makeId(), fileName: sanitizeFileName(file.name) + '.pdf', createdAt: new Date().toISOString(), slides };
     state = { ...state, phase: 'ready', project, selectedSlide: 0, selectedBlockId: slides[0]?.blocks[0]?.id ?? null, progress: 100, progressMessage: 'Hotovo' };
-    await saveProject(project);
+    const persisted = await saveProject(project);
+    recoveryProject = null;
+    if (!persisted) state.error = 'Projekt se nepodařilo automaticky uložit do tohoto prohlížeče.';
     replacePage(root);
   } catch (error) {
     if (token !== processToken) return;
+    if (previousProject) {
+      state = { ...freshState(), phase: 'ready', project: previousProject, selectedSlide: 0, selectedBlockId: previousProject.slides[0]?.blocks[0]?.id ?? null, error: userFacingProcessError(error) };
+      replacePage(root);
+      return;
+    }
     state.phase = 'error';
     state.error = userFacingProcessError(error);
     replacePage(root);

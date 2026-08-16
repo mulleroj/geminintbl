@@ -1,11 +1,13 @@
 import { deflateSync } from 'node:zlib';
 import { readFile, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..', '..');
-const outputPath = join(here, 'slide-editor-regression.pdf');
+const requestedPages = Number(process.argv[2] ?? 8);
+if (!Number.isInteger(requestedPages) || requestedPages < 1 || requestedPages > 50) throw new Error('Page count must be an integer from 1 to 50.');
+const outputPath = process.argv[3] ? resolve(root, process.argv[3]) : join(here, 'slide-editor-regression.pdf');
 const fontPath = join(root, 'node_modules', 'pdfjs-dist', 'standard_fonts', 'LiberationSans-Regular.ttf');
 
 function u16(buffer, offset) { return buffer.readUInt16BE(offset); }
@@ -225,7 +227,7 @@ function drawIllustration() {
   ].join('\n');
 }
 
-for (const page of pages) {
+for (const page of Array.from({ length: requestedPages }, (_, index) => pages[index % pages.length])) {
   const imageRef = page.background === 'raster' ? pdf.stream(rasterBackground('warm').data, `/Type /XObject /Subtype /Image /Width 320 /Height 180 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /FlateDecode`) : null;
   const textLines = [page.title, ...page.lines];
   const encoded = textLines.map((line) => encodeText(line, font, glyphMap));

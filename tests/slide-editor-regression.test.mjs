@@ -22,10 +22,12 @@ test('regression fixture is an eight-slide 16:9 PDF with the required content ma
 });
 
 test('slide editor hardening keeps user-facing progress and privacy contracts explicit', async () => {
-  const [view, pdf, styles] = await Promise.all([
+  const [view, pdf, styles, storage, fixture] = await Promise.all([
     readFile('src/slide-editor/view.ts', 'utf8'),
     readFile('src/slide-editor/pdf.ts', 'utf8'),
     readFile('src/styles.css', 'utf8'),
+    readFile('src/slide-editor/storage.ts', 'utf8'),
+    readFile('tests/fixtures/create-slide-editor-regression.mjs', 'utf8'),
   ]);
   assert.match(view, /processToken/);
   assert.match(view, /aria-label="Postup zpracování PDF"/);
@@ -33,4 +35,10 @@ test('slide editor hardening keeps user-facing progress and privacy contracts ex
   assert.doesNotMatch(pdf, /userJobId/);
   assert.match(pdf, /median/);
   assert.match(styles, /slide-editor-dropzone:focus-within/);
+  assert.match(view, /await import\('\.\/pdf'\)/);
+  assert.match(view, /await import\('\.\/export'\)/);
+  assert.match(view, /recoveryProject/);
+  assert.match(view, /Aktuální projekt zůstává dostupný/);
+  assert.match(storage, /saveProject\(project: SlideEditorProject\): Promise<boolean>/);
+  assert.match(fixture, /requestedPages/);
 });
