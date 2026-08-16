@@ -1,11 +1,11 @@
 # Content inventory
 
-Stav po etapě M-CONTENT-1C. Číselný výpis je ověřován skriptem `npm run content:audit`.
+Stav po etapě M-TEACHER-1. Číselný výpis je ověřován skriptem `npm run content:audit`.
 
 ```text
 Prompts: 95
 Sources: 175
-Tools: 25
+Tools: 28
 Notebooks: 15
 Guides: 5
 Prompt categories: 9
@@ -13,16 +13,20 @@ Source categories: 10
 Guide categories: 6
 Tool categories: 8
 Notebook categories: 10
-Tools by pricing: free=8, freemium=5, paid=0, open source=12
-Tools by integration: direct=4, workflow=10, adjacent=11
-Tools by source type: official=7, open-source=12, commercial=6, community=0
-Tool workflow tips >=80 chars: 25
-Featured tools: 7
+Tools by pricing: free=11, freemium=5, paid=0, open source=12
+Tools by integration: direct=7, workflow=10, adjacent=11
+Tools by source type: official=7, open-source=12, commercial=6, community=3
+Tool workflow tips >=80 chars: 28
+Featured tools: 10
 Notebooks by source type: official=8, education=2, research=0, community=5
 Notebooks by access: public=0, google-account=15
 Verified notebooks: 15
 Featured notebooks: 5
 ```
+
+Teacher workflows: 13
+Internal generators: 3 (`/nastroje/generator-*`)
+Prompt library: 95 (locked; no new prompt bodies)
 
 ## Trusted Sources v1
 

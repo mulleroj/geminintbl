@@ -18,7 +18,7 @@ test('static app contains all major Czech routes and shared provenance fields', 
   const main = await readFile('src/main.ts', 'utf8');
   const schemas = await readFile('src/schemas/common.ts', 'utf8');
   const promptSchema = await readFile('src/schemas/prompt.ts', 'utf8');
-  for (const route of ['/prompty', '/zdroje', '/nastroje', '/notebooky', '/pruvodci', '/oblibene', '/pridat']) assert.match(main, new RegExp(route.replace('/', '\\/')));
+  for (const route of ['/prompty', '/zdroje', '/nastroje', '/notebooky', '/pruvodci', '/oblibene', '/pridat', '/pro-ucitele', '/nastroje/generator-prezentace', '/nastroje/generator-infografiky', '/nastroje/generator-audio-video']) assert.match(main, new RegExp(route.replace('/', '\\/')));
   for (const field of ['sourceUrl', 'sourceLabel', 'retrievedAt', 'license', 'needsReview']) assert.match(schemas, new RegExp(field));
   assert.match(schemas, /professional/);
   assert.match(promptSchema, /complexity/);
@@ -32,7 +32,7 @@ test('content audit reports the current catalog inventory deterministically', as
   assert.ok(promptCount >= 90 && promptCount <= 100, `expected 90-100 prompts, got ${promptCount}`);
   for (const line of [
     'Sources: 175',
-    'Tools: 25',
+    'Tools: 28',
     'Notebooks: 15',
     'Guides: 5',
     'Prompt categories: 9',
@@ -40,11 +40,11 @@ test('content audit reports the current catalog inventory deterministically', as
     'Guide categories: 6',
     'Tool categories: 8',
     'Notebook categories: 10',
-    'Tools by pricing: free=8, freemium=5, paid=0, open source=12',
-    'Tools by integration: direct=4, workflow=10, adjacent=11',
-    'Tools by source type: official=7, open-source=12, commercial=6, community=0',
-    'Tool workflow tips >=80 chars: 25',
-    'Featured tools: 7',
+    'Tools by pricing: free=11, freemium=5, paid=0, open source=12',
+    'Tools by integration: direct=7, workflow=10, adjacent=11',
+    'Tools by source type: official=7, open-source=12, commercial=6, community=3',
+    'Tool workflow tips >=80 chars: 28',
+    'Featured tools: 10',
     'Notebooks by source type: official=8, education=2, research=0, community=5',
     'Notebooks by access: public=0, google-account=15',
     'Verified notebooks: 15',

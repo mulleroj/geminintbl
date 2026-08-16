@@ -17,6 +17,8 @@ Reference uses 11 primary route/page patterns, category and detail variants, plu
 | `/guides/:slug` | Detail průvodce | Article, metadata, share, favorite, related reading, TOC | `/pruvodci/:slug` | VERIFIED |
 | `/favorites` | Uložený obsah | localStorage, empty state, grouped saved content | `/oblibene` | VERIFIED |
 | `/submit` | Contribution form | Type switcher, conditional fields, review notice | `/pridat` | VERIFIED |
+| Teacher workflows | Practical task recipes, existing prompt references, source guidance, checks | `/pro-ucitele` | VERIFIED |
+| Internal generators | Prompt builders for presentations, infographics and audio/video | `/nastroje/generator-*` | VERIFIED |
 | `/watermark-remover` | Client utility | Local-only warning, format selection, experimental state | `/nastroje/odstraneni-vodoznaku` | INTENTIONALLY DIFFERENT |
 | `/robots.txt`, `/sitemap.xml` | SEO infrastructure | Crawl directives and public route listing | `/robots.txt`, `/sitemap.xml` | VERIFIED |
 | `/prompts/:category` anchor groups | Nested category groups | In-page category links and counts | Same route with section anchors | VERIFIED |

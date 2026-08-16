@@ -7,6 +7,7 @@ export { sources } from './data/sources';
 export { tools } from './data/tools';
 export { notebooks } from './data/notebooks';
 export { guides } from './data/guides';
+export { teacherWorkflows } from './data/teacher-workflows';
 
 import { guideCategories, notebookCategories, promptCategories, sourceCategories, toolCategories } from './data/categories';
 import { guides } from './data/guides';
@@ -40,6 +41,10 @@ export function notebookCategory(id: string) {
 
 export function promptBySlug(slug: string) {
   return prompts.find((prompt) => prompt.slug === slug);
+}
+
+export function promptById(id: string) {
+  return prompts.find((prompt) => prompt.id === id);
 }
 
 export function guideBySlug(slug: string) {

@@ -4,3 +4,4 @@ export * from './source';
 export * from './tool';
 export * from './notebook';
 export * from './guide';
+export * from './teacher';
