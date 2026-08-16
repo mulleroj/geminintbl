@@ -45,7 +45,7 @@ Source catalog is READY for publication. Every record has a stable ID, canonical
 
 - verifiedAt records the date on which the URL and source purpose were checked.
 - sourceType distinguishes primary official, academic, open-data, library, archive, reference, journalism and fact-check sources.
-- notebookSuitability describes whether a concrete page, document or dataset is useful as a NotebookLM source; it is not a claim about factual truth.
+- notebookSuitability describes whether a concrete page, document or dataset is useful as a Gemini Notebook source; it is not a claim about factual truth.
 - importTip tells the user what context to preserve when importing the source.
 - HTTP results are intentionally kept separate from metadata: BOT_BLOCKED or MANUAL_REVIEW is not treated as a broken URL.
 
@@ -207,7 +207,7 @@ Source catalog is READY for publication. Every record has a stable ID, canonical
 | s-core | CORE | science | https://core.ac.uk/ | academic | free | GLOBAL | medium | 2026-08-15 | Výsledek použijte k nalezení originálního repozitáře a plného textu s licencí. |
 | s-doaj | Directory of Open Access Journals | science | https://doaj.org/ | reference | free | GLOBAL | medium | 2026-08-15 | U článku si ověřte časopis, recenzní režim, DOI a licenci konkrétního textu. |
 | s-cszu | Český statistický úřad | statistics | https://www.czso.cz/ | official | free | CZ | high | 2026-08-15 | Začněte tematickou stránkou a přidejte jen tabulky relevantní k otázce. |
-| s-data-gov | Národní katalog otevřených dat | statistics | https://data.gov.cz/ | open-data | free | CZ | high | 2026-08-15 | Přidejte popis datasetu i konkrétní distribuci, aby NotebookLM znal strukturu dat. |
+| s-data-gov | Národní katalog otevřených dat | statistics | https://data.gov.cz/ | open-data | free | CZ | high | 2026-08-15 | Přidejte popis datasetu i konkrétní distribuci, aby Gemini Notebook znal strukturu dat. |
 | s-cszu-products | Produkty ČSÚ | statistics | https://www.czso.cz/csu/czso/produkty | official | free | CZ | high | 2026-08-15 | U publikace importujte také metodickou část a poznamenejte si referenční období. |
 | s-cszu-vdb | Veřejná databáze ČSÚ | statistics | https://vdb.czso.cz/vdbvo2/ | open-data | free | CZ | high | 2026-08-15 | Exportovanou tabulku vždy ponechte spolu s názvem ukazatele, jednotkou a filtrem. |
 | s-cszu-open-data | Otevřená data ČSÚ | statistics | https://csu.gov.cz/otevrena_data | open-data | free | CZ | high | 2026-08-15 | K datové sadě přidejte datový slovník a popis aktualizace, ne jen stažený soubor. |

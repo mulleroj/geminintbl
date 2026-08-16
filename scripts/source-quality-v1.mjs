@@ -142,7 +142,7 @@ const document = [
   '',
   '- verifiedAt records the date on which the URL and source purpose were checked.',
   '- sourceType distinguishes primary official, academic, open-data, library, archive, reference, journalism and fact-check sources.',
-  '- notebookSuitability describes whether a concrete page, document or dataset is useful as a NotebookLM source; it is not a claim about factual truth.',
+  '- notebookSuitability describes whether a concrete page, document or dataset is useful as a Gemini Notebook source; it is not a claim about factual truth.',
   '- importTip tells the user what context to preserve when importing the source.',
   '- HTTP results are intentionally kept separate from metadata: BOT_BLOCKED or MANUAL_REVIEW is not treated as a broken URL.',
   '',

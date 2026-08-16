@@ -18,7 +18,7 @@ Audit proběhl nad lokálním Vite preview po úpravě homepage hero a katalogu 
 - Vyhledávání `učitel`: `/prompty?q=učitel`, 1 výsledek; změna dotazu používá `replaceState`, takže nevytváří historii pro každý znak.
 - Kategoriový filtr `study-exam-prep`: 2 výsledky.
 - Počty obsahu: Prompts 12, Sources 10, Tools 8, Notebooks 6, Guides 5.
-- Stabilní veřejný NotebookLM import URL nebyl nalezen v oficiálně dokumentovaných postupech; falešná importní akce proto nebyla přidána.
+- Stabilní veřejné importní URL Gemini Notebook nebylo nalezeno v oficiálně dokumentovaných postupech; falešná importní akce proto nebyla přidána.
 
 ## Ověřené rozměry
 

@@ -1,6 +1,6 @@
 # Notebook Hub CZ
 
-Česká, nezávislá knihovna promptů, důvěryhodných zdrojů, nástrojů, veřejných notebooků a praktických průvodců pro NotebookLM.
+Česká, nezávislá knihovna promptů, důvěryhodných zdrojů, nástrojů, veřejných notebooků a praktických průvodců pro Gemini Notebook (dříve NotebookLM).
 
 ## Lokální spuštění
 
@@ -46,4 +46,4 @@ Protože nebyla dodaná finální produkční doména, `public/sitemap.xml` pou�
 
 ## Licence a attribution
 
-Web je vlastní komunitní projekt a není spojený se společností Google. Gemini a NotebookLM jsou ochranné známky společnosti Google LLC. Externí projekty a zdroje zůstávají označené svým autorem a odkazem; jejich použití je určeno jako katalogová metadata, nikoli převzetí redakčního obsahu.
+Web je vlastní komunitní projekt a není spojený se společností Google. Gemini Notebook je produkt společnosti Google LLC; Notebook Hub CZ je nezávislá komunitní knihovna. Externí projekty a zdroje zůstávají označené svým autorem a odkazem; jejich použití je určeno jako katalogová metadata, nikoli převzetí redakčního obsahu.

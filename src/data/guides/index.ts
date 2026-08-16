@@ -10,7 +10,7 @@ export const guides: Guide[] = [
     { heading: 'Tři vrstvy odpovědi', paragraphs: ['Odpověď si rozdělte na tvrzení přímo doložená zdrojem, interpretaci vzniklou spojením více míst a návrh dalšího kroku. Tyto vrstvy se nemají tvářit stejně jistě.'] },
     { heading: 'Kontrolní prompt', paragraphs: ['Po každém delším výstupu si vyžádejte audit: která tvrzení mají oporu, která jsou odvozená a co ve zdrojích chybí. Kontrola není záruka pravdy, ale odhalí místa pro ruční ověření.'] },
   ] },
-  { ...projectProvenance, id: 'g-prace-pro-ucitele', slug: 'notebooklm-pro-ucitele', title: 'NotebookLM jako příprava pro učitele', excerpt: 'Jak z podkladů připravit otázky, příklady a materiály, aniž by se ztratila role učitele.', category: 'jak-na-to', readingMinutes: 7, updatedAt: '2026-08-10', tags: ['učitelé', 'výuka'], content: [
+  { ...projectProvenance, id: 'g-prace-pro-ucitele', slug: 'notebooklm-pro-ucitele', title: 'Gemini Notebook jako příprava pro učitele', excerpt: 'Jak z podkladů připravit otázky, příklady a materiály, aniž by se ztratila role učitele.', category: 'jak-na-to', readingMinutes: 7, updatedAt: '2026-08-10', tags: ['učitelé', 'výuka'], content: [
     { heading: 'Co si připravit', paragraphs: ['Začněte učebním cílem, nikoli hotovou aktivitou. Do notebooku přidejte kurikulární dokument, vlastní poznámky a jeden kvalitní zdroj pro obsahovou kontrolu.'] },
     { heading: 'Výstup vždy projděte', paragraphs: ['AI může urychlit první návrh, ale nezná konkrétní třídu ani odpovědnost učitele. Ověřte věk, jazyk, přesnost, citlivé příklady a návaznost na hodinu.'] },
   ] },

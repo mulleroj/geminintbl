@@ -1,6 +1,6 @@
 # Knihovna promptů
 
-Notebook Hub CZ staví na původních českých promptech pro práci s vlastními zdroji v NotebookLM. Referenční web slouží pouze k porovnání typů použití a šíře katalogu; jeho prompty se nepřekládají ani nepřebírají.
+Notebook Hub CZ staví na původních českých promptech pro práci s vlastními zdroji v Gemini Notebook. Referenční web slouží pouze k porovnání typů použití a šíře katalogu; jeho prompty se nepřekládají ani nepřebírají.
 
 ## Stav po M-CONTENT-1A2
 

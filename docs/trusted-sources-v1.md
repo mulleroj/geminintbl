@@ -1,6 +1,6 @@
 # Trusted Sources v1
 
-Trusted Sources v1 je katalog 175 zdrojů pro český Notebook Hub CZ. Nejde o kopii referenčního webu: každý záznam má vlastní identitu, popis, URL, původní instituci a tip pro import do NotebookLM.
+Trusted Sources v1 je katalog 175 zdrojů pro český Notebook Hub CZ. Nejde o kopii referenčního webu: každý záznam má vlastní identitu, popis, URL, původní instituci a tip pro import do Gemini Notebook.
 
 ```text
 Version: 1.0

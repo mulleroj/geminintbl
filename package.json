@@ -11,6 +11,7 @@
     "content:audit": "node scripts/content-audit.mjs",
     "sources:quality": "node scripts/source-quality-v1.mjs",
     "sources:check": "node scripts/check-sources.mjs",
+    "naming:audit": "node scripts/naming-audit.mjs",
     "prompt:quality": "node scripts/prompt-quality-audit.mjs",
     "prompt:coverage": "node scripts/prompt-coverage-audit.mjs",
     "test": "node --test tests/*.test.mjs"

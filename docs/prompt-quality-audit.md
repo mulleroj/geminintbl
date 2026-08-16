@@ -75,7 +75,7 @@ Current category distribution: audio-overviews=6, deep-analysis=10, setup-accura
 
 ## Prompt matrix
 
-Primary job-to-be-done is intentionally stated as the prompt title because titles were audited for a concrete action. Main output is derived from the declared NotebookLM target and reviewed against the prompt body.
+Primary job-to-be-done is intentionally stated as the prompt title because titles were audited for a concrete action. Main output is derived from the declared Gemini Notebook target and reviewed against the prompt body.
 
 | ID | Title | Category | Primary job-to-be-done | Audience | Complexity | Main output | Quality status | Overlap group | Action | Audit note |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
