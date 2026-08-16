@@ -129,14 +129,14 @@ Audit ani plánovaná oprava nemění katalogové počty, textovou knihovnu, gen
 | Doména | Výsledek |
 | --- | --- |
 | IA a homepage | PASS |
-| Cesty A–J | PASS s P1-1 před opravou |
+| Cesty A–J | PASS po uzavření P1-1 |
 | Katalogy, search, filter, empty states | PASS |
 | Detailové stránky a cross-linky | PASS |
 | Oblíbené/local state | PASS |
 | Teacher hub, SPU/ADHD, průvodci | PASS |
 | Responsive 390–1920 | PASS |
 | Accessibility sanity | PASS s P2 poznámkou |
-| SEO | PASS po P1-2; před opravou P1 |
+| SEO | PASS po uzavření P1-2 |
 | Trust/copyright/experimentální stavy | PASS s poznámkami |
 | Console smoke | PASS — bez warning/error signálů |
 | Build/regression gates | PASS — typecheck, lint, 19 testů, build a source-link gate |
@@ -144,6 +144,6 @@ Audit ani plánovaná oprava nemění katalogové počty, textovou knihovnu, gen
 ## 10. Readiness
 
 Před opravou: **NO-GO**, kvůli P1-1 a P1-2.  
-Po implementaci, gates, deployi branch preview a opakované browser kontrole: **GO očekáváno**, pokud obě P1 zůstanou bez reprodukce a všechny testy zůstanou zelené.
+Po implementaci, zelených gates, deployi branch preview a opakované browser kontrole: **GO pro branch preview**. P1-1 se na veřejném preview posouvá na `targetTop ≈ 98 px` pod hlavičku, P1-2 vrací 45/45 absolutních sitemap URL a žádná z kontrolovaných tras nehlásí overflow, chybějící H1/main ani console warning/error.
 
 Další milestone po tomto auditu: P2 accessibility/SEO polish, zejména heading hierarchy a sociální metadata. Není součástí tohoto bezpečnostně omezeného auditního fixu.
