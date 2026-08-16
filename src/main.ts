@@ -361,27 +361,29 @@ function sourceLibrary(): string {
   return shell(`${pageIntro('Knihovna zdrojů', 'Začněte u zdroje, kterému rozumíte.', 'Ověřené instituce, archivy a datové katalogy s krátkým tipem, jak je přidat do Gemini Notebook.', `<span class="count-stamp"><strong>${filtered.length}</strong><small>z ${sources.length} zdrojů</small></span>`)}<section class="library-controls wrap">${searchBox('Hledat ve zdrojích…', query, 'Hledat ve zdrojích')}<div class="chip-row" aria-label="Kategorie zdrojů">${link('/zdroje', 'Všechny', `chip${!active ? ' is-active' : ''}`)}${categories.map((category) => link(`/zdroje?kategorie=${encodeURIComponent(category.id)}`, `${esc(category.label)} <small>${sources.filter((source) => source.category === category.id).length}</small>`, `chip${active === category.id ? ' is-active' : ''}`)).join('')}</div></section><section class="section wrap list-section"><div class="list-heading"><p>${filtered.length} zdrojů</p>${active ? link('/zdroje', 'Zrušit filtr ×', 'text-link') : ''}</div><div class="source-category-note"><span>${icon('spark')}</span><p><strong>Tip pro import:</strong> kopírujte konkrétní URL zdroje, ne jen obecný dotaz. U citlivých nebo placených materiálů si nejprve ověřte přístupová práva.</p></div><div class="card-grid source-grid">${filtered.map(sourceCard).join('')}</div>${filtered.length ? `<div class="bulk-copy-row"><span>Kategorie ${active ? esc(sourceCategory(active).label) : 'všechny zdroje'}</span>${copyButton(filtered.map((source) => source.url).join('\n'), 'Kopírovat všechny odkazy')}</div>` : `<div class="empty-state"><h2>Nic nenalezeno</h2><p>Zkuste název instituce, doménu nebo kategorii.</p></div>`}</section>`, 'zdroje');
 }
 
+const isNotebookHubTool = (tool: Tool): boolean => tool.url === '/nastroje/editor-prezentaci' || tool.url.startsWith('/nastroje/generator-');
+
 function catalogToolLibrary(): string {
   const params = new URLSearchParams(window.location.search);
   const query = params.get('q') ?? '';
   const active = params.get('kategorie') ?? '';
-  const filtered = tools.filter((tool) => !tool.url.startsWith('/nastroje/generator-') && (!active || tool.category === active) && matchesSearch([tool.title, tool.description, tool.author, tool.type, tool.workflowTip, toolCategory(tool.category).label, tool.tags.join(' ')], query));
+  const filtered = tools.filter((tool) => !isNotebookHubTool(tool) && (!active || tool.category === active) && matchesSearch([tool.title, tool.description, tool.author, tool.type, tool.workflowTip, toolCategory(tool.category).label, tool.tags.join(' ')], query));
   meta('Nástroje', `${filtered.length} nástrojů pro import, organizaci a výzkum.`);
   return shell(`${pageIntro('Katalog nástrojů', 'Méně ruční práce. Více prostoru na myšlení.', 'Komunitní i oficiální nástroje pro import, organizaci, výzkum a export. Každý záznam má kategorii, úroveň napojení, cenu a datum ověření.', `<span class="count-stamp"><strong>${filtered.length}</strong><small>nástrojů v katalogu</small></span>`)}<section class="library-controls wrap">${searchBox('Hledat v nástrojích…', query, 'Hledat v nástrojích')}<div class="chip-row" aria-label="Kategorie nástrojů">${link('/nastroje', 'Všechny', `chip${!active ? ' is-active' : ''}`)}${toolCategories.map((category) => link(`/nastroje?kategorie=${encodeURIComponent(category.id)}`, `${esc(category.label)} <small>${tools.filter((tool) => tool.category === category.id).length}</small>`, `chip${active === category.id ? ' is-active' : ''}`)).join('')}</div></section><section class="section wrap list-section"><div class="notice"><strong>${icon('spark')} Bezpečné odkazy</strong><span>Externí odkazy se otevírají v nové kartě. Před instalací vždy zkontrolujte autora, oprávnění a zacházení se soubory.</span></div><div class="list-heading"><p>${filtered.length} nástrojů${active ? ` · ${esc(toolCategory(active).label)}` : ''}</p>${active ? link('/nastroje', 'Zrušit filtr ×', 'text-link') : ''}</div><div class="card-grid tool-grid">${filtered.map(toolCard).join('')}</div>${filtered.length ? '' : `<div class="empty-state"><h2>Nic nenalezeno</h2><p>Zkuste jiný název, kategorii nebo úroveň napojení.</p></div>`}</section>`, 'nastroje');
 }
 
-function semanticGeneratorMarkup(markup: string): string {
-  return markup.replace(/<section class="section section-tint generator-library-section">[\s\S]*?<\/section>/, (section) => section
-    .replace('<section class="section section-tint generator-library-section">', '<section class="section section-tint generator-library-section" aria-labelledby="generator-library-title">')
-    .replace('<h2>Generátory Notebook Hub CZ</h2>', '<p class="section-heading-title" id="generator-library-title">Generátory Notebook Hub CZ</p>')
+function semanticToolLibraryMarkup(markup: string): string {
+  return markup.replace(/<section class="section section-tint tool-library-section">[\s\S]*?<\/section>/, (section) => section
+    .replace('<section class="section section-tint tool-library-section">', '<section class="section section-tint tool-library-section" aria-labelledby="tool-library-title">')
+    .replace('<h2>Nástroje Notebook Hub CZ</h2>', '<p class="section-heading-title" id="tool-library-title">Nástroje Notebook Hub CZ</p>')
     .replaceAll('<h3>', '<strong class="card-title">')
     .replaceAll('</h3>', '</strong>'));
 }
 
 function toolLibrary(): string {
-  const generatorTools = tools.filter((tool) => tool.url.startsWith('/nastroje/generator-'));
-  const section = `<section class="section section-tint generator-library-section"><div class="wrap"><div class="section-heading"><div><p class="eyebrow">Notebook Hub CZ</p><h2>Generátory Notebook Hub CZ</h2></div><p class="muted">Tři interní formuláře pro prompt, ne hotový výstup.</p></div><div class="card-grid tool-grid">${generatorTools.map(toolCard).join('')}</div></div></section>`;
-  return semanticGeneratorMarkup(catalogToolLibrary().replace('<main id="main-content">', `<main id="main-content">${section}`));
+  const notebookHubTools = tools.filter(isNotebookHubTool);
+  const section = `<section class="section section-tint tool-library-section"><div class="wrap"><div class="section-heading"><div><p class="eyebrow">Notebook Hub CZ</p><h2>Nástroje Notebook Hub CZ</h2></div><p class="muted">Interní nástroje pro přípravu vizuálních výstupů a práci s prezentacemi.</p></div><div class="card-grid tool-grid">${notebookHubTools.map(toolCard).join('')}</div></div></section>`;
+  return semanticToolLibraryMarkup(catalogToolLibrary().replace('<main id="main-content">', `<main id="main-content">${section}`));
 }
 
 function notebookLibrary(): string {

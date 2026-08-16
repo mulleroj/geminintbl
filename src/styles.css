@@ -220,7 +220,7 @@ button { cursor: pointer; }
 /* Semantic heading parity: keep the existing visual treatment while using the correct outline levels. */
 .section-heading-title { display: block; margin: 0; font-size: clamp(1.75rem, 3vw, 2.6rem); line-height: 1.03; letter-spacing: -.06em; }
 .card-title { display: block; }
-.generator-library-section .card-title { margin: 22px 0 9px; }
+.tool-library-section .card-title { margin: 22px 0 9px; }
 .footer-grid .footer-heading { margin: 3px 0 16px; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; }
 .teacher-workflow-card h3 { margin: 21px 0 9px; font-size: 1.65rem; letter-spacing: -.06em; }
 .teacher-recipe h4 { margin: 0 0 9px; font-size: .84rem; letter-spacing: -.02em; }
@@ -258,7 +258,7 @@ button { cursor: pointer; }
 .teacher-prompt-reference .card-actions { margin-top: 4px; }
 .teacher-generator-link { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 5px; }
 .teacher-generator-link strong { color: var(--accent-deep); font-size: .75rem; }
-.generator-library-section { border-block: 1px solid var(--line); }
+.tool-library-section { border-block: 1px solid var(--line); }
 .generator-page { padding-block: 45px 90px; }
 .generator-header { max-width: 790px; padding-bottom: 28px; }
 .generator-header h1 { margin: 0 0 18px; font-size: clamp(2.7rem, 5.7vw, 5rem); line-height: .94; letter-spacing: -.08em; }
