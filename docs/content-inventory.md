@@ -5,7 +5,7 @@ Stav po etapě M-TEACHER-1. Číselný výpis je ověřován skriptem `npm run c
 ```text
 Prompts: 95
 Sources: 175
-Tools: 28
+Tools: 29
 Notebooks: 15
 Guides: 5
 Prompt categories: 9

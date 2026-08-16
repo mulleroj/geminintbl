@@ -32,7 +32,7 @@ test('content audit reports the current catalog inventory deterministically', as
   assert.ok(promptCount >= 90 && promptCount <= 100, `expected 90-100 prompts, got ${promptCount}`);
   for (const line of [
     'Sources: 175',
-    'Tools: 28',
+    'Tools: 29',
     'Notebooks: 15',
     'Guides: 32',
     'Prompt categories: 9',
@@ -40,11 +40,11 @@ test('content audit reports the current catalog inventory deterministically', as
     'Guide categories: 5',
     'Tool categories: 8',
     'Notebook categories: 10',
-    'Tools by pricing: free=11, freemium=5, paid=0, open source=12',
-    'Tools by integration: direct=7, workflow=10, adjacent=11',
-    'Tools by source type: official=7, open-source=12, commercial=6, community=3',
-    'Tool workflow tips >=80 chars: 28',
-    'Featured tools: 10',
+    'Tools by pricing: free=12, freemium=5, paid=0, open source=12',
+    'Tools by integration: direct=7, workflow=11, adjacent=11',
+    'Tools by source type: official=7, open-source=12, commercial=7, community=3',
+    'Tool workflow tips >=80 chars: 29',
+    'Featured tools: 11',
     'Notebooks by source type: official=8, education=2, research=0, community=5',
     'Notebooks by access: public=0, google-account=15',
     'Verified notebooks: 15',
@@ -84,6 +84,8 @@ test('tools and public notebooks expose the V1 metadata contract', async () => {
     readFile('src/data/notebooks/index.ts', 'utf8'),
   ]);
   for (const field of ['category', 'sourceType', 'integrationLevel', 'workflowTip', 'verifiedAt']) assert.match(tools, new RegExp(field));
+  assert.match(tools, /t-deckedit/);
+  assert.match(tools, /Convert to PPTX/);
   for (const field of ['category', 'language', 'region', 'topicTags', 'sourceType', 'access', 'verifiedAt', 'needsReview']) assert.match(notebooks, new RegExp(field));
   assert.doesNotMatch(notebooks, /needsReview:\s*true/);
 });
