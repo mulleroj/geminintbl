@@ -65,6 +65,7 @@ export function validateCatalog(input: CatalogInput): CatalogIntegrityReport {
   const promptIds = new Set(input.prompts.map((item) => item.id));
   const sourceIds = new Set(input.sources.map((item) => item.id));
   const toolIds = new Set(input.tools.map((item) => item.id));
+  const guideIds = new Set(input.guides.map((item) => item.id));
   const workflowIds = new Set((input.teacherWorkflows ?? []).map((item) => item.id));
 
   input.prompts.forEach((item) => {
@@ -91,11 +92,12 @@ export function validateCatalog(input: CatalogInput): CatalogIntegrityReport {
   input.guides.forEach((item) => {
     if (!isNonEmpty(item.id) || !isNonEmpty(item.slug) || !isNonEmpty(item.title) || !isNonEmpty(item.category)) issues.push(`guide:${item.id || '(missing)'} missing required field`);
     if (!guideCategoryIds.has(item.category)) issues.push(`guide:${item.id} unknown category ${item.category}`);
-    if (!isNonEmpty(item.level) || !isNonEmpty(item.lastVerified)) issues.push(`guide:${item.id} missing V1 verification metadata`);
+    if (!isNonEmpty(item.level) || !isNonEmpty(item.depthClass) || !isNonEmpty(item.lastVerified)) issues.push(`guide:${item.id} missing V1 verification metadata`);
     item.relatedPromptIds.forEach((id) => { if (!promptIds.has(id)) invalidRelatedReferences.push(`guide:${item.id}:prompt:${id}`); });
     item.relatedSourceIds.forEach((id) => { if (!sourceIds.has(id)) invalidRelatedReferences.push(`guide:${item.id}:source:${id}`); });
     item.relatedToolIds.forEach((id) => { if (!toolIds.has(id)) invalidRelatedReferences.push(`guide:${item.id}:tool:${id}`); });
     item.relatedWorkflowIds.forEach((id) => { if (!workflowIds.has(id)) invalidRelatedReferences.push(`guide:${item.id}:workflow:${id}`); });
+    (item.relatedGuideIds ?? []).forEach((id) => { if (id === item.id || !guideIds.has(id)) invalidRelatedReferences.push(`guide:${item.id}:guide:${id}`); });
     item.officialReferences.forEach((reference) => { if (!isNonEmpty(reference.label) || !isValidUrl(reference.url)) invalidUrls.push(`guide:${item.id}:officialReferences`); });
   });
 

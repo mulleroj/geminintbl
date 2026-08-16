@@ -1,5 +1,5 @@
 import { readdir, readFile } from 'node:fs/promises';
-import { extname, join, resolve } from 'node:path';
+import { basename, extname, join, resolve } from 'node:path';
 import { auditPromptQuality } from './prompt-quality.mjs';
 
 const root = resolve(import.meta.dirname, '..');
@@ -80,7 +80,8 @@ const invalidUrls = [];
 const groupRecords = {};
 
 for (const [name, config] of Object.entries(groups)) {
-  const files = await contentFiles(config.directory, config.includeIndex);
+  const files = (await contentFiles(config.directory, config.includeIndex))
+    .filter((file) => name !== 'guides' || !basename(file).startsWith('depth-'));
   const sources = await readSources(files);
   const records = sources.flatMap(({ file, text }) => recordsFromSource(text).map((record) => ({ ...record, file })));
   groupRecords[name] = records;

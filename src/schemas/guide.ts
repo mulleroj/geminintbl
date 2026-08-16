@@ -2,6 +2,8 @@ import type { Provenance } from './common';
 
 export type GuideLevel = 'beginner' | 'intermediate' | 'advanced';
 
+export type GuideDepthClass = 'quick' | 'standard' | 'advanced';
+
 export type GuideAudience = 'teacher' | 'student' | 'researcher' | 'professional' | 'general';
 
 export interface GuideReference {
@@ -15,6 +17,13 @@ export interface GuideSection {
   bullets?: string[];
 }
 
+export interface GuideDepthDefinition {
+  id: string;
+  depthClass: GuideDepthClass;
+  relatedGuideIds: string[];
+  sections: GuideSection[];
+}
+
 export interface Guide extends Provenance {
   id: string;
   slug: string;
@@ -26,11 +35,13 @@ export interface Guide extends Provenance {
   tags: string[];
   content: GuideSection[];
   level: GuideLevel;
+  depthClass?: GuideDepthClass;
   audience: GuideAudience[];
   relatedPromptIds: string[];
   relatedSourceIds: string[];
   relatedToolIds: string[];
   relatedWorkflowIds: string[];
+  relatedGuideIds?: string[];
   officialReferences: GuideReference[];
   lastVerified: string;
   availabilityNote?: string;
