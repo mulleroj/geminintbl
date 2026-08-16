@@ -51,7 +51,8 @@ function button(label: string, action: string, className = '', extra = ''): stri
 }
 
 function meta(title: string, description: string, type: 'WebSite' | 'Article' = 'WebSite'): void {
-  document.title = `${title} — Notebook Hub CZ`;
+  const resolvedTitle = title === 'Přehled' ? 'Notebook Hub CZ — prompty a zdroje pro Gemini Notebook' : `${title} — Notebook Hub CZ`;
+  document.title = resolvedTitle;
   const canonical = `${window.location.origin}${window.location.pathname}`;
   const set = (selector: string, content: string, attribute = 'content') => {
     let element = document.head.querySelector<HTMLMetaElement>(selector);
@@ -64,7 +65,7 @@ function meta(title: string, description: string, type: 'WebSite' | 'Article' = 
     element.setAttribute(attribute, content);
   };
   set('meta[name="description"]', description);
-  set('meta[property="og:title"]', title);
+  set('meta[property="og:title"]', resolvedTitle);
   set('meta[property="og:description"]', description);
   set('meta[property="og:url"]', canonical);
   set('meta[property="og:type"]', type === 'Article' ? 'article' : 'website');

@@ -20,6 +20,7 @@ test('current product naming and locked catalogs remain intact', async () => {
   ]);
   assert.match(main, /Gemini Notebook/);
   assert.match(main, /dříve NotebookLM/);
+  assert.match(main, /Notebook Hub CZ — prompty a zdroje pro Gemini Notebook/);
   assert.match(index, /Gemini Notebook/);
   assert.match(readme, /Gemini Notebook/);
 
