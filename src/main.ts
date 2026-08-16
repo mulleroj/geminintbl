@@ -446,6 +446,12 @@ let searchTimer: number | undefined;
 function navigate(href: string): void {
   history.pushState({}, '', href);
   render();
+  const hash = window.location.hash.slice(1);
+  if (!hash) return;
+  window.requestAnimationFrame(() => {
+    const target = document.getElementById(decodeURIComponent(hash));
+    target?.scrollIntoView({ behavior: 'instant', block: 'start' });
+  });
 }
 
 function toast(message: string): void {

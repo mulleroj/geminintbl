@@ -30,4 +30,4 @@ Reference uses 11 primary route/page patterns, category and detail variants, plu
 - The first iteration uses a compact, original Czech catalogue rather than reproducing the reference site's full third-party corpus. Imported/uncertain records are explicitly marked with `needsReview` and are not silently republished.
 - The watermark route is an experimental, non-processing UI. It does not claim to remove files until a safe, local implementation and format-specific verification exist.
 - The contribution flow is a local demo adapter with a clear hand-off state; it does not pretend that a backend submission was accepted.
-- The static sitemap contains all public paths but keeps relative `<loc>` values until a real production domain is configured; this avoids inventing a deploy URL.
+- The static sitemap contains all public paths with absolute production `<loc>` values now that `https://geminintbl.netlify.app/` is configured.

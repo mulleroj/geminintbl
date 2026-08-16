@@ -42,7 +42,7 @@ Oblíbené se ukládají lokálně v prohlížeči bez účtu. Sdílení použí
 
 Projekt je statický Vite build. Pro Netlify nastav `npm run build` jako build command a `dist` jako publish directory. SPA fallback je součástí `public/_redirects`.
 
-Protože nebyla dodaná finální produkční doména, `public/sitemap.xml` používá relativní lokátory. Před ostrým nasazením je nahraď absolutní URL skutečného webu; runtime metadata si canonical URL dopočítávají z aktuálního originu.
+`public/sitemap.xml` a sitemap directive v `public/robots.txt` používají absolutní URL produkčního webu `https://geminintbl.netlify.app/`; runtime metadata si canonical URL dopočítávají z aktuálního originu.
 
 ## Licence a attribution
 
