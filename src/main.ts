@@ -456,6 +456,20 @@ function generatorRoute(path: string): void {
   });
 }
 
+function slideEditorRoute(): void {
+  const path = '/nastroje/editor-prezentaci';
+  meta('Editor prezentací', 'Nahrajte PDF prezentaci z NotebookLM, upravte text a exportujte editovatelný PowerPoint.');
+  appRoot.innerHTML = shell(`<section class="section wrap generator-loading"><p class="eyebrow">Lokální nástroj</p><h1>Načítám editor prezentací…</h1><p class="lead">Připravuji PDF, OCR a exportní modul potřebný pro tuto route.</p></section>`, 'nastroje');
+  void import('./slide-editor/view').then((module) => {
+    if (window.location.pathname.replace(/\/$/, '') !== path) return;
+    appRoot.innerHTML = shell(module.renderSlideEditor(), 'nastroje');
+    bindPageEvents();
+    module.mountSlideEditor(appRoot);
+  }).catch(() => {
+    if (window.location.pathname.replace(/\/$/, '') === path) appRoot.innerHTML = shell(`<section class="section wrap empty-state"><h1>Editor se nepodařilo načíst.</h1><p>Zkuste route obnovit nebo se vraťte do katalogu nástrojů.</p>${link('/nastroje', 'Zpět do nástrojů', 'button button-primary')}</section>`, 'nastroje');
+  });
+}
+
 function notFound(): string {
   meta('Stránka nenalezena', 'Požadovaná stránka v Notebook Hub CZ neexistuje.');
   return shell(`<section class="not-found wrap"><p class="eyebrow">404 / nic tady není</p><h1>Tahle stránka se ztratila mezi zdroji.</h1><p class="lead">Zkontrolujte adresu nebo se vraťte do knihovny.</p>${link('/', 'Zpět na přehled', 'button button-primary')}</section>`, '');
@@ -470,6 +484,7 @@ function render(): void {
   else if (segments[0] === 'prompty' && segments.length === 3) appRoot.innerHTML = promptDetail(segments[1], segments[2]);
   else if (path === '/zdroje') appRoot.innerHTML = sourceLibrary();
   else if (path === '/nastroje') appRoot.innerHTML = toolLibrary();
+  else if (path === '/nastroje/editor-prezentaci') slideEditorRoute();
   else if (path === '/nastroje/generator-prezentace' || path === '/nastroje/generator-infografiky' || path === '/nastroje/generator-audio-video') generatorRoute(path);
   else if (path === '/nastroje/odstraneni-vodoznaku') appRoot.innerHTML = watermark();
   else if (path === '/pro-ucitele') appRoot.innerHTML = teacherHub();
