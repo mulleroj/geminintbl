@@ -186,7 +186,8 @@ test('slide editor keeps the local-first and editable-PPTX contracts visible in 
   assert.match(pdf, /GlobalWorkerOptions\.workerSrc/);
   assert.match(pdf, /createWorker\('ces\+eng'/);
   assert.match(exporter, /createPptx/);
-  assert.match(exporter, /addImage\(\{ data: source\.imageUrl/);
+  assert.match(exporter, /slide\.background = \{ data: source\.imageUrl/);
+  assert.doesNotMatch(exporter, /addImage\(\{ data: source\.imageUrl/);
   assert.match(exporter, /addText\(block\.text/);
   assert.match(storage, /indexedDB\.open/);
 });

@@ -50,7 +50,7 @@ export async function createPptx(project: SlideEditorProject): Promise<Blob> {
   pptx.title = sanitizeFileName(project.fileName);
   for (const source of project.slides) {
     const slide = pptx.addSlide();
-    slide.addImage({ data: source.imageUrl, x: 0, y: 0, w: widthIn, h: heightIn });
+    slide.background = { data: source.imageUrl };
     source.blocks.forEach((block) => addEditableBlock(pptx, slide, source, block, widthIn, heightIn));
   }
   const result = await pptx.write({ outputType: 'blob', compression: true });

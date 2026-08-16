@@ -30,7 +30,7 @@ pptx.title = 'notebook-slide-editor-regression';
 for (const page of pages) {
   const slide = pptx.addSlide();
   const imageBytes = await readFile(join(imageDir, page.image));
-  slide.addImage({ data: `data:image/png;base64,${imageBytes.toString('base64')}`, x: 0, y: 0, w: 10, h: 5.625 });
+  slide.background = { data: `data:image/png;base64,${imageBytes.toString('base64')}` };
   for (const block of page.blocks) {
     const x = toInches(block.x, 960, 10);
     const y = toInches(540 - block.y - block.h, 540, 5.625);

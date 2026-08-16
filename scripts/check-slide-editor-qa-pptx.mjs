@@ -8,10 +8,14 @@ const presentation = await zip.file('ppt/presentation.xml').async('string');
 const slideNames = names.filter((name) => /^ppt\/slides\/slide\d+\.xml$/.test(name)).sort();
 const slideXml = await Promise.all(slideNames.map((name) => zip.file(name).async('string')));
 const text = slideXml.join('\n');
+const shapeTrees = slideXml.map((xml) => xml.slice(xml.indexOf('<p:spTree>'), xml.indexOf('</p:spTree>')));
 const result = {
   slides: slideNames.length,
   slideRelationships: names.filter((name) => /^ppt\/slides\/_rels\/slide\d+\.xml\.rels$/.test(name)).length,
   wide16by9: presentation.includes('cx="9144000" cy="5143500"'),
+  slideBackgrounds: slideXml.filter((xml) => /<p:bg><p:bgPr><a:blipFill/.test(xml)).length,
+  selectableBackgroundPictures: shapeTrees.filter((tree) => tree.includes('<p:pic>')).length,
+  textShapesInTrees: shapeTrees.reduce((total, tree) => total + (tree.match(/<p:sp>/g) ?? []).length, 0),
   textObjects: (text.match(/<a:t>/g) ?? []).length,
   hasCzech: text.includes('Česká'),
   hasEnglish: text.includes('English'),
@@ -19,5 +23,5 @@ const result = {
   hasBold: text.includes('b="1"'),
   hasItalic: text.includes('i="1"'),
 };
-if (!result.slides || result.slides !== 8 || !result.wide16by9 || result.textObjects < 8 || !result.hasCzech || !result.hasEnglish || !result.hasNumbers || !result.hasBold || !result.hasItalic) process.exitCode = 1;
+if (!result.slides || result.slides !== 8 || result.slideBackgrounds !== 8 || result.selectableBackgroundPictures !== 0 || !result.wide16by9 || result.textObjects < 8 || !result.hasCzech || !result.hasEnglish || !result.hasNumbers || !result.hasBold || !result.hasItalic) process.exitCode = 1;
 console.log(JSON.stringify(result));
