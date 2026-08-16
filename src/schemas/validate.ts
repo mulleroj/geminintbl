@@ -99,6 +99,19 @@ export function validateCatalog(input: CatalogInput): CatalogIntegrityReport {
     item.relatedWorkflowIds.forEach((id) => { if (!workflowIds.has(id)) invalidRelatedReferences.push(`guide:${item.id}:workflow:${id}`); });
     (item.relatedGuideIds ?? []).forEach((id) => { if (id === item.id || !guideIds.has(id)) invalidRelatedReferences.push(`guide:${item.id}:guide:${id}`); });
     item.officialReferences.forEach((reference) => { if (!isNonEmpty(reference.label) || !isValidUrl(reference.url)) invalidUrls.push(`guide:${item.id}:officialReferences`); });
+    const sectionIssues = (sections: Guide['content'], location: string): void => {
+      sections.forEach((section) => {
+        if (!isNonEmpty(section.heading) || section.paragraphs.some((paragraph) => !isNonEmpty(paragraph)) || section.bullets?.some((bullet) => !isNonEmpty(bullet))) issues.push(`guide:${item.id}:${location} contains an empty section field`);
+        if (section.subsections) sectionIssues(section.subsections, `${location}:${section.heading}`);
+      });
+    };
+    sectionIssues(item.content, 'content');
+    if (item.advancedSections) sectionIssues(item.advancedSections, 'advancedSections');
+    if (item.studySetup) {
+      const setup = item.studySetup;
+      if (![setup.bestFor, setup.studyMethod, setup.promptTip, setup.commonMistake, setup.proTip, setup.verifiedAt, setup.officialReference.label, setup.officialReference.url].every(isNonEmpty) || !setup.recommendedSettings.length || setup.recommendedSettings.some((setting) => !isNonEmpty(setting))) issues.push(`guide:${item.id}:studySetup missing required field`);
+      if (!isValidUrl(setup.officialReference.url)) invalidUrls.push(`guide:${item.id}:studySetup.officialReference`);
+    }
   });
 
   [...input.prompts, ...input.sources, ...input.tools, ...input.notebooks, ...input.guides].forEach((item) => {

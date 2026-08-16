@@ -31,6 +31,12 @@ Počet průvodců zůstává přesně 32; nový obsah prohlubuje všech 32 exist
 
 Výchozí obsah měl min/max/průměr/medián 246/408/316,6/310,5 slov. Po prohloubení má 533/1181/999/1114 slov; žádný průvodce není pod 450 slov ani mimo svou cílovou hloubkovou třídu. Všech 32 průvodců obsahuje konkrétní příklad, checklist a TOC; 29 obsahuje varování nebo typickou chybu. Standardní a pokročilé texty používají rozbalovací TOC a dlouhé řádky jsou omezené na přibližně 70ch.
 
+### M-UX-GUIDE-2 — výchozí čtení a studijní vrstva
+
+Výchozí čtení nyní používá viditelný `content` z hlavní a vybrané hloubkové vrstvy. Menší opakující se bloky jsou v datovém modelu `subsections`; pozdější rozšíření jsou v `advancedSections` a zůstávají ve výchozím stavu zavřená pod „Podrobněji“. TOC odkazuje pouze na 5–7 hlavních sekcí. `readingMinutes` se počítá z viditelného textu rychlostí 200 slov za minutu, nikoli z uzavřených detailů.
+
+Po UX auditu má viditelný text min/max/průměr/medián 476/831/670/710 slov, průměr sekcí a TOC 6,6, pokročilé detaily má 31 z 32 průvodců. Strukturovaný `studySetup` je připojen pouze ke 13 relevantním průvodcům (průměr 96 slov); studijní kolekce na `/pruvodci#studium` má 346 slov. Kompletní změny a baseline po průvodcích jsou v `docs/guide-editorial-audit-v1.md`; ověřené studijní postupy a produktové caveats v `docs/study-power-layer-v1.md`.
+
 Každý průvodce má ručně zadané `relatedGuideIds`. Kurátorský audit eviduje 271 vazeb do katalogů a 96 vazeb mezi průvodci, celkem 367 vazeb; rozsah na průvodce je 9–14, průměr 11,5, bez dangling nebo overlinked záznamu. Vazby se zobrazují ve sloupci „Další průvodci“ a na mobilu se skládají do jednoho sloupce.
 
 ## Propojení a UX

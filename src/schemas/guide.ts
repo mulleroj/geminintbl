@@ -15,6 +15,18 @@ export interface GuideSection {
   heading: string;
   paragraphs: string[];
   bullets?: string[];
+  subsections?: GuideSection[];
+}
+
+export interface GuideStudySetup {
+  bestFor: string;
+  recommendedSettings: string[];
+  studyMethod: string;
+  promptTip: string;
+  commonMistake: string;
+  proTip: string;
+  verifiedAt: string;
+  officialReference: GuideReference;
 }
 
 export interface GuideDepthDefinition {
@@ -34,6 +46,8 @@ export interface Guide extends Provenance {
   updatedAt?: string;
   tags: string[];
   content: GuideSection[];
+  advancedSections?: GuideSection[];
+  studySetup?: GuideStudySetup;
   level: GuideLevel;
   depthClass?: GuideDepthClass;
   audience: GuideAudience[];

@@ -1,0 +1,171 @@
+import type { GuideStudySetup } from '../../schemas';
+
+const verifiedAt = '2026-08-16';
+
+const google = (label: string, url: string) => ({ label, url });
+
+export const studySetupByGuide: Record<string, GuideStudySetup> = {
+  'g-co-je-gemini-notebook': {
+    bestFor: 'Orientace v tématu, když máte vlastní zdroje a nechcete začít volným webovým chatem.',
+    recommendedSettings: ['Začněte pouze s vybranými zdroji.', 'Rozlište Chat pro porozumění a Studio pro artefakt.'],
+    studyMethod: 'Nejdřív si nechte vysvětlit mapu tématu, potom si položte vlastní kontrolní otázku.',
+    promptTip: '„Vysvětli pojem ve třech krocích, u každého uveď citaci a na konci polož jednu otázku na přenos.“',
+    commonMistake: 'Brát plynulou odpověď nebo artefakt ze Studia jako hotový závěr.',
+    proTip: 'Po každém výstupu napište jednou větou, co stále neumíte vysvětlit bez nápovědy.',
+    verifiedAt,
+    officialReference: google('Google Help: Learn about Gemini Notebook', 'https://support.google.com/gemininotebook/answer/16164461?hl=en'),
+  },
+  'g-prvni-notebook': {
+    bestFor: 'První studijní notebook s jasnou otázkou, malou sadou podkladů a jedním ověřitelným výstupem.',
+    recommendedSettings: ['Pojmenujte notebook podle výsledku.', 'Po každém importu proveďte testovací otázku.'],
+    studyMethod: 'Orientace → otázka → vysvětlení → vlastní shrnutí → kontrola citace.',
+    promptTip: 'Požádejte o vysvětlení a zároveň o otázku, na kterou musí student odpovědět vlastním slovem.',
+    commonMistake: 'Nahrát příliš mnoho zdrojů a začít generováním bez cíle.',
+    proTip: 'Zachovejte si jednu verzi notebooku pro opakování a druhou pro větší projekt.',
+    verifiedAt,
+    officialReference: google('Google Help: Create a notebook', 'https://support.google.com/notebooklm/answer/16206563?hl=en'),
+  },
+  'g-kvalitni-zdroje': {
+    bestFor: 'Učení z více podkladů, kde záleží na autoritě, datu a přesném rozsahu tvrzení.',
+    recommendedSettings: ['Začněte menší dávkou zdrojů.', 'Při chatu vybírejte jen zdroje pro danou otázku.'],
+    studyMethod: 'Vyberte zdroje → porovnejte hlavní tvrzení → označte mezeru → vraťte se k originálu.',
+    promptTip: '„Které části odpovědi jsou přímo doložené a které jsou pouze interpretací? Uveď zdroj u každé vrstvy.“',
+    commonMistake: 'Zaměnit počet zdrojů za kvalitu opory.',
+    proTip: 'Nechte si vytvořit seznam tvrzení, která se mezi zdroji liší, ještě před psaním shrnutí.',
+    verifiedAt,
+    officialReference: google('Google Help: Use chat in Gemini Notebook', 'https://support.google.com/notebooklm/answer/16179559?hl=en'),
+  },
+  'g-citace-a-overeni': {
+    bestFor: 'Učení s důrazem na důkaz, přesnou citaci a rozlišení mezi zdrojem a výkladem.',
+    recommendedSettings: ['Pracujte s vybranými zdroji.', 'U důležité odpovědi otevřete citaci v originálu.'],
+    studyMethod: 'Tvrzení → citace → vlastní vysvětlení → protiotázka → přiznaná mezera.',
+    promptTip: '„Odpověz jen z vybraných zdrojů. U každého tvrzení přidej citaci a označ, co je inference.“',
+    commonMistake: 'Použít citaci jako dekoraci bez kontroly, zda opravdu podporuje celou větu.',
+    proTip: 'Zkuste jednu otázku formulovat opačně; odhalí to přehnanou jistotu rychleji než další shrnutí.',
+    verifiedAt,
+    officialReference: google('Google Help: Use chat in Gemini Notebook', 'https://support.google.com/notebooklm/answer/16179559?hl=en'),
+  },
+  'g-test-a-kviz': {
+    bestFor: 'Přípravu cvičného ověření porozumění nebo návrhu testových položek z vlastních zdrojů.',
+    recommendedSettings: ['Rozlišujte cvičení a hodnocení.', 'Před použitím projděte klíč i jednoznačnost položek.'],
+    studyMethod: 'Vybavení z paměti → vysvětlení chyby → návrat ke zdroji → nový pokus.',
+    promptTip: '„Vytvoř otázky od pojmu k aplikaci, u každé přidej vysvětlení správné odpovědi a citaci.“',
+    commonMistake: 'Považovat automaticky vygenerovaný kvíz za férové hodnocení bez pilotáže.',
+    proTip: 'Uložte si jen položky, u kterých umíte vysvětlit, proč je správná právě jedna odpověď.',
+    verifiedAt,
+    officialReference: google('Google Help: Generate flashcards or quizzes', 'https://support.google.com/gemininotebook/answer/16958963?hl=en'),
+  },
+  'g-mind-maps': {
+    bestFor: 'Rychlé zorientování se v pojmech a vztazích před hlubším čtením nebo opakováním.',
+    recommendedSettings: ['Použijte mapu jako orientační vrstvu.', 'Rozbalte větev a položte otázku ke konkrétnímu uzlu.'],
+    studyMethod: 'Mapa → otázka k uzlu → ověření ve zdroji → vlastní vysvětlení.',
+    promptTip: '„Vyber z mapy tři uzly, které spolu souvisejí, a nech mě vysvětlit jejich vztah.“',
+    commonMistake: 'Učit se mapu jako hotový výklad bez návratu k podkladům.',
+    proTip: 'Skryjte hlavní větev a zkuste ji znovu sestavit z paměti.',
+    verifiedAt,
+    officialReference: google('Google Help: Generate a Mind Map', 'https://support.google.com/notebooklm/answer/16212283?hl=en'),
+  },
+  'g-flashcards-quizzes': {
+    bestFor: 'Krátké opakování pojmů, vztahů a chyb, které se vracejí v testu nebo při samostudiu.',
+    recommendedSettings: ['Zvolte obtížnost podle cíle, ne podle délky.', 'Po chybě si nechte zobrazit vysvětlení a vraťte se ke zdroji.'],
+    studyMethod: 'Vybavení → označení Got it/Missed it → vysvětlení → opakování slabých míst.',
+    promptTip: '„Vytvoř kartičky od základních pojmů k aplikaci; u každé přidej krátké vysvětlení a zdroj.“',
+    commonMistake: 'Sbírat velkou sadu kartiček místo opakování několika slabých míst.',
+    proTip: 'Po úspěšném kole vysvětlete tři karty nahlas bez obrazovky.',
+    verifiedAt,
+    officialReference: google('Google Help: Generate flashcards or quizzes', 'https://support.google.com/gemininotebook/answer/16958963?hl=en'),
+  },
+  'g-audio-overview': {
+    bestFor: 'Opakování při chůzi nebo cestě, když už máte zdrojový text a potřebujete slyšet hlavní vztahy.',
+    recommendedSettings: ['Zvolte formát podle cíle: Deep Dive, Brief, Critique nebo Debate.', 'Zkontrolujte jazyk, délku a vlastní prompt před generováním.'],
+    studyMethod: 'Poslech → pauza → vlastní rekapitulace → ověření citace ve zdroji.',
+    promptTip: '„Zaměř se na tři pojmy, vysvětli jejich rozdíl a na konci mě vyzkoušej jednou otázkou.“',
+    commonMistake: 'Považovat audio za náhradu čtení nebo přehlédnout, že delší volba je podle Google aktuálně jen v angličtině.',
+    proTip: 'Po poslechu si napište dvě věty bez nahlížení; mezery se ukážou rychleji než při pasivním poslechu.',
+    verifiedAt,
+    officialReference: google('Google Help: Generate Audio Overviews', 'https://support.google.com/notebooklm/answer/16212820?hl=en-GB'),
+  },
+  'g-video-overview': {
+    bestFor: 'Vizuální orientaci nebo vysvětlení, kde obraz skutečně pomáhá porozumět vztahům ve zdroji.',
+    recommendedSettings: ['Vyberte formát a jazyk podle nabídky účtu.', 'Použijte steering prompt a ručně zkontrolujte obraz proti textu.'],
+    studyMethod: 'Krátké video → pauza před závěrem → vysvětlení bez obrazu → kontrola zdroje.',
+    promptTip: '„Vysvětli pouze pojmy doložené zdroji, zvýrazni dvě podmínky a nepřidávej vizuální fakta mimo podklady.“',
+    commonMistake: 'Zaměnit přesvědčivý obraz za důkaz nebo přehlédnout věkové a jazykové omezení formátu.',
+    proTip: 'Pusťte si výstup jednou bez zvuku a jednou bez obrazu; rozdíl často odhalí falešný význam.',
+    verifiedAt,
+    officialReference: google('Google Help: Generate Video Overviews', 'https://support.google.com/gemininotebook/answer/16454555?hl=en'),
+  },
+  'g-cinematic-short': {
+    bestFor: 'Motivaci a rychlou orientaci, ne pro úplné vysvětlení podmínek, výjimek nebo metodiky.',
+    recommendedSettings: ['Cinematic a Short používejte jen tehdy, když nezkrátí důkaz.', 'Pro přesné vysvětlení zvažte Explainer nebo text.'],
+    studyMethod: 'Upoutávka → otázka, kterou vyvolala → návrat ke zdroji → vlastní vysvětlení.',
+    promptTip: '„Drž se zdrojů, uveď jednu hlavní myšlenku a jasně označ, co video záměrně nepokrývá.“',
+    commonMistake: 'Přijmout filmový styl jako zkratku k porozumění nebo jako jediný studijní materiál.',
+    proTip: 'Nechte studenta jednou větou popsat, co video tvrdí, a porovnejte to s povoleným závěrem.',
+    verifiedAt,
+    officialReference: google('Google Help: Generate Video Overviews', 'https://support.google.com/gemininotebook/answer/16454555?hl=en'),
+  },
+  'g-infografika': {
+    bestFor: 'Převod malého počtu ověřených tvrzení, čísel a vztahů do rychlé vizuální orientace.',
+    recommendedSettings: ['Zvolte detail, orientaci a styl podle příjemce.', 'Zkontrolujte čísla, měřítko, zdroje a alternativní text.'],
+    studyMethod: 'Infografika → vlastní popis hlavního sdělení → kontrola čísel ve zdroji.',
+    promptTip: '„Použij jen tato tvrzení a čísla; u každého zachovej jednotku, období a citaci.“',
+    commonMistake: 'Nechat dekorativní design převzít význam nebo skrýt chybějící měřítko.',
+    proTip: 'Zeptejte se člověka, který neviděl váš brief, co si z infografiky odnáší.',
+    verifiedAt,
+    officialReference: google('Google Help: Generate an infographic', 'https://support.google.com/gemininotebook/answer/16758265?hl=en'),
+  },
+  'g-slide-deck': {
+    bestFor: 'Přípravu osnovy a prezentačního podkladu, který má vést posluchače jednou argumentovou linií.',
+    recommendedSettings: ['Rozlišujte Detailed Deck a Presenter Slides.', 'Nastavte jazyk, délku a vlastní prompt; po revizi znovu ověřte zdroje.'],
+    studyMethod: 'Osnova → vysvětlení každého slidu → zkouška nahlas → oprava slepých míst.',
+    promptTip: '„Na každý slide dej jednu myšlenku, důkaz nebo příklad, citaci a otázku pro posluchače.“',
+    commonMistake: 'Považovat revizi decku za nové čtení zdrojů; Google uvádí, že zdroje se při revizi znovu nezohledňují.',
+    proTip: 'Zkuste deck odprezentovat bez poznámek; místa, která nejdou vysvětlit, nejsou ještě připravená.',
+    verifiedAt,
+    officialReference: google('Google Help: Generate a Slide Deck', 'https://support.google.com/notebooklm/answer/16757456?hl=en'),
+  },
+  'g-cizi-jazyk': {
+    bestFor: 'Učení odborného obsahu v jiném jazyce bez záměny plynulosti za věcnou správnost.',
+    recommendedSettings: ['Nastavte jazyk výstupu a úroveň podle cíle.', 'Porovnávejte originální pojem, překlad a kontext ve zdroji.'],
+    studyMethod: 'Originál → glosář → vysvětlení v cílovém jazyce → vlastní parafráze → odborná kontrola.',
+    promptTip: '„Vytvoř glosář, ponech originální termín, uveď český ekvivalent a označ nejednoznačnosti.“',
+    commonMistake: 'Přijmout plynulý překlad bez ověření odborného významu a úrovně jazyka.',
+    proTip: 'Nechte si položit otázku v cílovém jazyce, ale odpověď nejdřív vysvětlete vlastními slovy.',
+    verifiedAt,
+    officialReference: google('Google Help: Learn about Gemini Notebook', 'https://support.google.com/gemininotebook/answer/16164461?hl=en'),
+  },
+};
+
+export const studyJourney = [
+  ['01', 'Orientuj se', 'Mind Map nebo krátká odpověď ukáže pojmy a vztahy.'],
+  ['02', 'Porozuměj', 'Chat vysvětlí zdroj v kroku, který umíš zopakovat.'],
+  ['03', 'Procvič', 'Flashcards nebo kvíz vyvolají vybavení z paměti.'],
+  ['04', 'Vysvětli', 'Teach-back ověří, zda umíš myšlenku podat bez nápovědy.'],
+  ['05', 'Najdi mezery', 'Sokratovská otázka a kontrola citace ukážou slabé místo.'],
+  ['06', 'Opakuj a ověř', 'Vrať se ke zdroji, oprav omyl a zakonči vlastním testem.'],
+] as const;
+
+export const studyRecipes = [
+  ['15 min', 'Rychlá revize', 'Mapa → 3 otázky v chatu → 5 kartiček → jedna věta bez nápovědy.'],
+  ['45 min', 'Hluboké porozumění', 'Vybrané zdroje → vysvětlení → porovnání → teach-back → kontrola citací.'],
+  ['Před testem', 'Zkouška nanečisto', 'Kvíz → označ Missed it → vrať se ke zdroji → nový pokus jen ze slabých míst.'],
+  ['Jazyk', 'Cizí jazyk', 'Originál → glosář → otázky v cílovém jazyce → vlastní parafráze → odborná revize.'],
+] as const;
+
+export const studyModules = [
+  ['Mind Map', 'orientace', 'Přehled vztahů před otázkou nebo čtením.'],
+  ['Chat', 'porozumění', 'Vysvětlení, Socratic, teach-back a kontrola mezer.'],
+  ['Flashcards / Quizzes', 'procvičení', 'Vybavení z paměti a návrat ke zdroji.'],
+  ['Audio / Video', 'opakování', 'Alternativní formát, vždy s následnou kontrolou.'],
+  ['Infographic / Slide Deck', 'vysvětlení', 'Převod struktury do vizuálního nebo prezentačního výstupu.'],
+] as const;
+
+export const studyChatPrompts = [
+  ['Vysvětli', 'Vysvětli pojem ve třech krocích, přidej citace a na konci polož jednu otázku na přenos.'],
+  ['Sokratovský průvodce', 'Veď mě otázkami od zdroje k závěru. Odpověď neprozrazuj, dokud nezkusím vlastní vysvětlení.'],
+  ['Teach-back', 'Požádej mě, abych téma vysvětlil vlastními slovy, a označ jednu mezeru, kterou mám doplnit ze zdroje.'],
+  ['Porovnej', 'Porovnej dvě vysvětlení podle definice, důkazu, podmínky a místa, kde se rozcházejí.'],
+  ['Najdi mezeru', 'Najdi tvrzení, které neumím doložit citací, a polož mi k němu jednu přesnou kontrolní otázku.'],
+  ['Zkoušející', 'Polož mi pět otázek od pojmu k aplikaci. Po každé odpovědi uveď, co je správně a co mám ověřit.'],
+] as const;
