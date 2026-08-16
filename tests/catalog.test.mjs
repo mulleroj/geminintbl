@@ -32,12 +32,23 @@ test('content audit reports the current catalog inventory deterministically', as
   assert.ok(promptCount >= 90 && promptCount <= 100, `expected 90-100 prompts, got ${promptCount}`);
   for (const line of [
     'Sources: 175',
-    'Tools: 8',
-    'Notebooks: 6',
+    'Tools: 25',
+    'Notebooks: 15',
     'Guides: 5',
     'Prompt categories: 9',
     'Source categories: 10',
     'Guide categories: 6',
+    'Tool categories: 8',
+    'Notebook categories: 10',
+    'Tools by pricing: free=8, freemium=5, paid=0, open source=12',
+    'Tools by integration: direct=4, workflow=10, adjacent=11',
+    'Tools by source type: official=7, open-source=12, commercial=6, community=0',
+    'Tool workflow tips >=80 chars: 25',
+    'Featured tools: 7',
+    'Notebooks by source type: official=8, education=2, research=0, community=5',
+    'Notebooks by access: public=0, google-account=15',
+    'Verified notebooks: 15',
+    'Featured notebooks: 5',
     'Prompts by category: audio-overviews=6, deep-analysis=10, setup-accuracy=8, slides-video-infographics=7, strategy-decisions=8, study-exam-prep=10, teaching=29, workflows=9, writing-content=8',
     'Prompts by target: audio=5, chat=79, chat-settings=4, infographic=2, slides=4, video=1',
     'Prompts by audience: general=23, professional=26, researcher=29, student=28, teacher=45',
@@ -56,15 +67,25 @@ test('content audit reports the current catalog inventory deterministically', as
     'Prompt quality placeholders/TODO: 0',
     'Prompt quality duplicate titles: none',
     'Prompt quality duplicate normalized titles: none',
-    'needsReview: 1',
-    'Provenance original internal: 104',
-    'Provenance external with sourceUrl: 1',
-    'Provenance external missing sourceUrl: 1',
-    'Provenance sourceUrl not applicable: 104',
+    'needsReview: 0',
+    'Provenance original internal: 100',
+    'Provenance external with sourceUrl: 11',
+    'Provenance external missing sourceUrl: 4',
+    'Provenance sourceUrl not applicable: 100',
     'Duplicate IDs: none',
     'Duplicate slugs: none',
     'Invalid URLs: none',
   ]) assert.match(stdout, new RegExp(`^${line.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'm'));
+});
+
+test('tools and public notebooks expose the V1 metadata contract', async () => {
+  const [tools, notebooks] = await Promise.all([
+    readFile('src/data/tools/index.ts', 'utf8'),
+    readFile('src/data/notebooks/index.ts', 'utf8'),
+  ]);
+  for (const field of ['category', 'sourceType', 'integrationLevel', 'workflowTip', 'verifiedAt']) assert.match(tools, new RegExp(field));
+  for (const field of ['category', 'language', 'region', 'topicTags', 'sourceType', 'access', 'verifiedAt', 'needsReview']) assert.match(notebooks, new RegExp(field));
+  assert.doesNotMatch(notebooks, /needsReview:\s*true/);
 });
 
 test('prompt quality audit enforces the scale and metadata contract', async () => {

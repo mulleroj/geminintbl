@@ -1,6 +1,6 @@
 # Live source link check
 
-Checked: 2026-08-15T22:19:08.818Z
+Checked: 2026-08-16T06:22:23.256Z
 Scope: 175 source records
 Network policy: HEAD first, GET fallback for 400/405/501, follow redirects, 8 second timeout, concurrency 6.
 
@@ -68,7 +68,7 @@ BROKEN and TIMEOUT are release-blocking. BOT_BLOCKED and MANUAL_REVIEW remain vi
 | s-opendata-praha | REDIRECT | 200 | https://opendata.praha.eu/ | https://lkod.cz/catalog/praha | redirected to final URL |
 | s-opendata-brno | MANUAL_REVIEW |  | https://opendata.brno.cz/ |  | fetch failed |
 | s-cuzk | REDIRECT | 200 | https://www.cuzk.cz/ | https://cuzk.gov.cz/ | redirected to final URL |
-| s-cuzk-geoportal | REDIRECT | 200 | https://geoportal.cuzk.cz/ | https://geoportal.cuzk.cz/(S(lcrchbdgttwlpgi2hduypfze))/Default.aspx?head_tab=sekce-00-gp&mode=TextMeta&text=uvod_uvod&menu=01&news=yes&UvodniStrana=yes | redirected to final URL |
+| s-cuzk-geoportal | REDIRECT | 200 | https://geoportal.cuzk.cz/ | https://geoportal.cuzk.cz/(S(bu02bhg4jsbi4lwl1hdomo13))/Default.aspx?head_tab=sekce-00-gp&mode=TextMeta&text=uvod_uvod&menu=01&news=yes&UvodniStrana=yes | redirected to final URL |
 | s-inspire-geoportal | REDIRECT | 200 | https://inspire-geoportal.ec.europa.eu/ | https://data.europa.eu/ | redirected to final URL |
 | s-cszu-volby | REDIRECT | 200 | https://www.czso.cz/csu/czso/volby | https://csu.gov.cz/volby | redirected to final URL |
 | s-cszu-population | REDIRECT | 200 | https://www.czso.cz/csu/czso/obyvatelstvo | https://csu.gov.cz/obyvatelstvo | redirected to final URL |

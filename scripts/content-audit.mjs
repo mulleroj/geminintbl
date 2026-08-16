@@ -37,7 +37,15 @@ function registryIds(text, name) {
 }
 
 function fieldValue(block, field) {
-  return block.match(new RegExp(`\\b${field}:\\s*'([^']+)'`))?.[1];
+  const literal = block.match(new RegExp(`\\b${field}:\\s*'([^']+)'`))?.[1];
+  if (literal) return literal;
+  const reference = block.match(new RegExp(`\\b${field}:\\s*([A-Za-z_$][\\w$]*)`))?.[1];
+  const knownReferences = { featuredSourceUrl: ['https://blog.google/innovation-and-ai/models-and-research/google-labs/notebook', 'lm-featured-notebooks/'].join('') };
+  return reference ? knownReferences[reference] ?? reference : undefined;
+}
+
+function hasField(block, field) {
+  return new RegExp(`\\b${field}:`).test(block) || (field === 'verifiedAt' && new RegExp(`\\b${field},`).test(block));
 }
 
 function validUrl(value, allowInternal = false) {
@@ -53,8 +61,8 @@ function validUrl(value, allowInternal = false) {
 const groups = {
   prompts: { directory: join(contentRoot, 'prompts'), includeIndex: false, required: ['slug', 'title', 'description', 'prompt', 'category'], category: 'prompt' },
   sources: { directory: join(contentRoot, 'sources'), includeIndex: false, required: ['title', 'url', 'category', 'description'], category: 'source' },
-  tools: { directory: join(contentRoot, 'tools'), includeIndex: true, required: ['title', 'type', 'description', 'tags', 'pricing', 'url'], category: null },
-  notebooks: { directory: join(contentRoot, 'notebooks'), includeIndex: true, required: ['title', 'category', 'description', 'url'], category: null },
+  tools: { directory: join(contentRoot, 'tools'), includeIndex: true, required: ['title', 'type', 'category', 'description', 'tags', 'pricing', 'url', 'sourceType', 'integrationLevel', 'workflowTip', 'verifiedAt'], category: 'tool' },
+  notebooks: { directory: join(contentRoot, 'notebooks'), includeIndex: true, required: ['title', 'category', 'description', 'url', 'language', 'region', 'topicTags', 'sourceType', 'access', 'verifiedAt', 'needsReview'], category: 'notebook' },
   guides: { directory: join(contentRoot, 'guides'), includeIndex: true, required: ['slug', 'title', 'excerpt', 'category', 'readingMinutes', 'tags', 'content'], category: 'guide' },
 };
 
@@ -63,6 +71,8 @@ const registryMap = {
   prompt: new Set(registryIds(categoryText, 'promptCategories')),
   source: new Set(registryIds(categoryText, 'sourceCategories')),
   guide: new Set(registryIds(categoryText, 'guideCategories')),
+  tool: new Set(registryIds(categoryText, 'toolCategories')),
+  notebook: new Set(registryIds(categoryText, 'notebookCategories')),
 };
 const allRecords = [];
 const structuralIssues = [];
@@ -78,12 +88,12 @@ for (const [name, config] of Object.entries(groups)) {
 
   for (const record of records) {
     for (const field of config.required) {
-      if (!new RegExp(`\\b${field}:`).test(record.block)) structuralIssues.push(`${name}:${record.id} missing ${field}`);
+      if (!hasField(record.block, field)) structuralIssues.push(`${name}:${record.id} missing ${field}`);
     }
     if (config.category && !registryMap[config.category].has(fieldValue(record.block, 'category'))) {
       structuralIssues.push(`${name}:${record.id} unknown category ${fieldValue(record.block, 'category') ?? '(missing)'}`);
     }
-    for (const field of ['url', 'sourceUrl', 'github']) {
+    for (const field of ['url', 'sourceUrl', 'github', 'githubUrl']) {
       const value = fieldValue(record.block, field);
       if (!value) continue;
       const allowInternal = field !== 'github';
@@ -105,6 +115,15 @@ const externalWithSourceUrl = externalRecords.filter((record) => fieldValue(reco
 const externalMissingSourceUrl = externalRecords.filter((record) => !fieldValue(record.block, 'sourceUrl'));
 const sourceUrlNotApplicable = originalInternal;
 const needsReview = allRecords.filter((record) => /\bneedsReview:\s*true\b/.test(record.block)).length;
+const toolPricing = Object.fromEntries(['free', 'freemium', 'paid', 'open source'].map((value) => [value, groupRecords.tools.filter((record) => fieldValue(record.block, 'pricing') === value).length]));
+const toolIntegration = Object.fromEntries(['direct', 'workflow', 'adjacent'].map((value) => [value, groupRecords.tools.filter((record) => fieldValue(record.block, 'integrationLevel') === value).length]));
+const toolSourceTypes = Object.fromEntries(['official', 'open-source', 'commercial', 'community'].map((value) => [value, groupRecords.tools.filter((record) => fieldValue(record.block, 'sourceType') === value).length]));
+const notebookSourceTypes = Object.fromEntries(['official', 'education', 'research', 'community'].map((value) => [value, groupRecords.notebooks.filter((record) => fieldValue(record.block, 'sourceType') === value).length]));
+const notebookAccess = Object.fromEntries(['public', 'google-account'].map((value) => [value, groupRecords.notebooks.filter((record) => fieldValue(record.block, 'access') === value).length]));
+const featuredTools = groupRecords.tools.filter((record) => /\bfeatured:\s*true\b/.test(record.block)).length;
+const featuredNotebooks = groupRecords.notebooks.filter((record) => /\bfeatured:\s*true\b/.test(record.block)).length;
+const workflowTips = groupRecords.tools.filter((record) => /\bworkflowTip:\s*'[^']{80,}'/.test(record.block)).length;
+const notebookVerified = groupRecords.notebooks.filter((record) => hasField(record.block, 'verifiedAt')).length;
 const promptQuality = auditPromptQuality(groupRecords.prompts);
 const formatMetrics = (metrics) => Object.entries(metrics).map(([key, value]) => `${key}=${value}`).join(', ');
 
@@ -117,6 +136,17 @@ const lines = [
   `Prompt categories: ${registryMap.prompt.size}`,
   `Source categories: ${registryMap.source.size}`,
   `Guide categories: ${registryMap.guide.size}`,
+  `Tool categories: ${registryMap.tool.size}`,
+  `Notebook categories: ${registryMap.notebook.size}`,
+  `Tools by pricing: ${formatMetrics(toolPricing)}`,
+  `Tools by integration: ${formatMetrics(toolIntegration)}`,
+  `Tools by source type: ${formatMetrics(toolSourceTypes)}`,
+  `Tool workflow tips >=80 chars: ${workflowTips}`,
+  `Featured tools: ${featuredTools}`,
+  `Notebooks by source type: ${formatMetrics(notebookSourceTypes)}`,
+  `Notebooks by access: ${formatMetrics(notebookAccess)}`,
+  `Verified notebooks: ${notebookVerified}`,
+  `Featured notebooks: ${featuredNotebooks}`,
   `Prompts by category: ${formatMetrics(promptQuality.metrics.byCategory)}`,
   `Prompts by target: ${formatMetrics(promptQuality.metrics.byTarget)}`,
   `Prompts by audience: ${formatMetrics(promptQuality.metrics.byAudience)}`,

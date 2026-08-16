@@ -1,4 +1,4 @@
-import type { Guide, GuideCategory, Prompt, PromptCategory, PublicNotebook, Source, SourceCategory, Tool } from './index';
+import type { CatalogCategory, Guide, GuideCategory, Prompt, PromptCategory, PublicNotebook, Source, SourceCategory, Tool } from './index';
 
 export interface CatalogInput {
   prompts: Prompt[];
@@ -9,6 +9,8 @@ export interface CatalogInput {
   promptCategories: PromptCategory[];
   sourceCategories: SourceCategory[];
   guideCategories: GuideCategory[];
+  toolCategories: CatalogCategory[];
+  notebookCategories: CatalogCategory[];
 }
 
 export interface CatalogIntegrityReport {
@@ -55,6 +57,8 @@ export function validateCatalog(input: CatalogInput): CatalogIntegrityReport {
   const promptCategoryIds = new Set(input.promptCategories.map((item) => item.id));
   const sourceCategoryIds = new Set(input.sourceCategories.map((item) => item.id));
   const guideCategoryIds = new Set(input.guideCategories.map((item) => item.id));
+  const toolCategoryIds = new Set(input.toolCategories.map((item) => item.id));
+  const notebookCategoryIds = new Set(input.notebookCategories.map((item) => item.id));
 
   input.prompts.forEach((item) => {
     if (!isNonEmpty(item.id) || !isNonEmpty(item.slug) || !isNonEmpty(item.title) || !isNonEmpty(item.description) || !isNonEmpty(item.category) || !isNonEmpty(item.prompt)) issues.push(`prompt:${item.id || '(missing)'} missing required field`);
@@ -66,12 +70,15 @@ export function validateCatalog(input: CatalogInput): CatalogIntegrityReport {
     if (!isValidUrl(item.url)) invalidUrls.push(`source:${item.id}:url`);
   });
   input.tools.forEach((item) => {
-    if (!isNonEmpty(item.id) || !isNonEmpty(item.title) || !isNonEmpty(item.url)) issues.push(`tool:${item.id || '(missing)'} missing required field`);
+    if (!isNonEmpty(item.id) || !isNonEmpty(item.title) || !isNonEmpty(item.url) || !isNonEmpty(item.category) || !isNonEmpty(item.workflowTip)) issues.push(`tool:${item.id || '(missing)'} missing required field`);
+    if (!toolCategoryIds.has(item.category)) issues.push(`tool:${item.id} unknown category ${item.category}`);
     if (!isValidUrl(item.url, true)) invalidUrls.push(`tool:${item.id}:url`);
+    if (item.githubUrl && !isValidUrl(item.githubUrl)) invalidUrls.push(`tool:${item.id}:githubUrl`);
     if (item.github && !isValidUrl(item.github)) invalidUrls.push(`tool:${item.id}:github`);
   });
   input.notebooks.forEach((item) => {
-    if (!isNonEmpty(item.id) || !isNonEmpty(item.title) || !isNonEmpty(item.url)) issues.push(`notebook:${item.id || '(missing)'} missing required field`);
+    if (!isNonEmpty(item.id) || !isNonEmpty(item.title) || !isNonEmpty(item.url) || !isNonEmpty(item.category) || !isNonEmpty(item.language.join(' ')) || !isNonEmpty(item.region.join(' ')) || !isNonEmpty(item.topicTags.join(' '))) issues.push(`notebook:${item.id || '(missing)'} missing required field`);
+    if (!notebookCategoryIds.has(item.category)) issues.push(`notebook:${item.id} unknown category ${item.category}`);
     if (!isValidUrl(item.url)) invalidUrls.push(`notebook:${item.id}:url`);
   });
   input.guides.forEach((item) => {

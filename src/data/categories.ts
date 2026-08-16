@@ -1,4 +1,4 @@
-import type { GuideCategory, PromptCategory, SourceCategory } from '../schemas';
+import type { CatalogCategory, GuideCategory, PromptCategory, SourceCategory } from '../schemas';
 
 export const promptCategories: PromptCategory[] = [
   { id: 'deep-analysis', label: 'Hloubková analýza', eyebrow: 'Pochopit', description: 'Porovnávejte zdroje, hledejte rozpory a ověřujte závěry.', color: 'sage' },
@@ -32,4 +32,28 @@ export const guideCategories: GuideCategory[] = [
   { id: 'jak-na-to', label: 'Jak na to', description: 'Krokové postupy pro konkrétní situace.' },
   { id: 'srovnani', label: 'Srovnání', description: 'Férové porovnání přístupů, variant a omezení.' },
   { id: 'faq', label: 'FAQ', description: 'Odpovědi na opakující se otázky.' },
+];
+
+export const toolCategories: CatalogCategory[] = [
+  { id: 'google-ecosystem', label: 'Google ekosystém', description: 'Služby Google pro zdroje, dokumenty, výzkum a export.' },
+  { id: 'source-prep', label: 'Příprava zdrojů', description: 'Čištění, extrakce a příprava webových podkladů před importem.' },
+  { id: 'research-citations', label: 'Výzkum a citace', description: 'Vyhledávání literatury, reference a práce s odbornými metadaty.' },
+  { id: 'documents-pdf', label: 'Dokumenty a PDF', description: 'Převod, OCR a strukturování dokumentů pro další práci.' },
+  { id: 'web-capture', label: 'Webový výstřižek', description: 'Uložení webu do stabilnější podoby pro čtení a archivaci.' },
+  { id: 'organization', label: 'Organizace poznámek', description: 'Lokální poznámky a znalostní struktury kolem notebooku.' },
+  { id: 'export-publishing', label: 'Export a publikování', description: 'Převod výsledků do formátů pro sdílení, archivaci nebo prezentaci.' },
+  { id: 'visual-output', label: 'Vizuální výstup', description: 'Mapy, osnovy a další přehledné výstupy ze strukturovaného textu.' },
+];
+
+export const notebookCategories: CatalogCategory[] = [
+  { id: 'health-wellbeing', label: 'Zdraví a wellbeing', description: 'Veřejné notebooky o zdraví, životním stylu a kvalitě života.' },
+  { id: 'business-economics', label: 'Byznys a ekonomika', description: 'Firemní výsledky, trendy a ekonomické souvislosti.' },
+  { id: 'science-environment', label: 'Věda a životní prostředí', description: 'Přírodovědné, klimatické a výzkumné podklady.' },
+  { id: 'parenting', label: 'Rodičovství', description: 'Ověřitelné zdroje a rady pro rodiče v digitálním věku.' },
+  { id: 'literature', label: 'Literatura', description: 'Klasická díla a literární zdroje pro čtení a interpretaci.' },
+  { id: 'technology', label: 'Technologie', description: 'Technické návody, platformy a nástroje.' },
+  { id: 'education', label: 'Vzdělávání', description: 'Notebooky využitelné ve výuce, kurzech a samostudiu.' },
+  { id: 'media-journalism', label: 'Média a žurnalistika', description: 'Redakční materiály a práce s veřejnými mediálními zdroji.' },
+  { id: 'gaming', label: 'Hry', description: 'Komunitní herní příručky a průběžně aktualizované podklady.' },
+  { id: 'productivity', label: 'Produktivita', description: 'Pracovní postupy, orientace v nástroji a osobní organizace.' },
 ];

@@ -293,7 +293,7 @@ Result: 35 reviewed, 35 PASS, 0 low-quality remaining. All six featured prompts 
 
 ## Provenance finding
 
-Prompt records use project provenance and may correctly omit \`sourceUrl\`. The only unresolved historical provenance record is notebook \`n-otevrena-data\`, which keeps \`needsReview: true\` because the public notebook link has not been verified. It is documented rather than given invented attribution.
+Prompt records use project provenance and may correctly omit \`sourceUrl\`. The historical notebook record \`n-otevrena-data\` was removed in M-CONTENT-1C because its public link could not be verified; the prompt library itself remains fully attributed and locked.
 
 ## v1 decision
 

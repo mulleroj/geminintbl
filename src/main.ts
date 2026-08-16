@@ -4,6 +4,8 @@ import {
   guideCategories,
   guides,
   notebooks,
+  notebookCategories,
+  notebookCategory,
   promptBySlug,
   promptCategories,
   promptCategory,
@@ -12,6 +14,8 @@ import {
   sourceCategory,
   sources,
   tools,
+  toolCategories,
+  toolCategory,
   type FavoriteType,
   type Guide,
   type Prompt,
@@ -168,11 +172,13 @@ function sourceCard(source: Source): string {
 
 function toolCard(tool: Tool): string {
   const internal = !isExternal(tool.url);
-  return `<article class="card tool-card"><div class="card-top"><span class="tool-icon">${icon('spark')}</span>${badge(tool.type, 'light')}<span class="spacer"></span>${favoriteButton('tool', tool.id)}</div><h3>${internal ? link(tool.url, esc(tool.title)) : `<a href="${esc(tool.url)}" target="_blank" rel="noopener noreferrer">${esc(tool.title)} ${icon('external')}</a>`}</h3><p>${esc(tool.description)}</p><div class="card-meta"><span>${esc(tool.author ?? 'Komunitní projekt')}</span>${badge(tool.pricing === 'open source' ? 'open source' : tool.pricing, 'soft')}</div><div class="tag-list">${tool.tags.map((tag) => `<span>#${esc(tag)}</span>`).join('')}</div></article>`;
+  const category = toolCategory(tool.category);
+  return `<article class="card tool-card"><div class="card-top"><span class="tool-icon">${icon('spark')}</span>${badge(category.label, 'light')}<span class="spacer"></span>${favoriteButton('tool', tool.id)}</div><h3>${internal ? link(tool.url, esc(tool.title)) : `<a href="${esc(tool.url)}" target="_blank" rel="noopener noreferrer">${esc(tool.title)} ${icon('external')}</a>`}</h3><p>${esc(tool.description)}</p><div class="card-meta"><span>${esc(tool.type)}</span>${badge(tool.pricing === 'open source' ? 'open source' : tool.pricing, 'soft')}<span>${esc(toolIntegrationLabels[tool.integrationLevel])}</span></div><div class="card-meta"><span>${esc(tool.author ?? 'Komunitní projekt')}</span><span>${esc(toolSourceLabels[tool.sourceType])}</span></div><p class="workflow-tip"><strong>Workflow:</strong> ${esc(tool.workflowTip)}</p><div class="tag-list">${tool.tags.map((tag) => `<span>#${esc(tag)}</span>`).join('')}</div></article>`;
 }
 
 function notebookCard(notebook: PublicNotebook): string {
-  return `<article class="card notebook-card"><div class="card-top"><span class="notebook-shape">▤</span>${badge(notebook.category, 'light')}<span class="spacer"></span>${favoriteButton('notebook', notebook.id)}</div><h3><a href="${esc(notebook.url)}" target="_blank" rel="noopener noreferrer">${esc(notebook.title)} ${icon('external')}</a></h3><p>${esc(notebook.description)}</p><div class="card-meta"><span>${esc(notebook.publisher ?? notebook.author ?? 'Komunitní katalog')}</span></div>${notebook.needsReview ? `<p class="review-note">${icon('spark')} Odkaz čeká na ověření</p>` : ''}</article>`;
+  const category = notebookCategory(notebook.category);
+  return `<article class="card notebook-card"><div class="card-top"><span class="notebook-shape">▤</span>${badge(category.label, 'light')}<span class="spacer"></span>${favoriteButton('notebook', notebook.id)}</div><h3><a href="${esc(notebook.url)}" target="_blank" rel="noopener noreferrer">${esc(notebook.title)} ${icon('external')}</a></h3><p>${esc(notebook.description)}</p><div class="card-meta"><span>${esc(notebook.publisher ?? notebook.author ?? 'Komunitní katalog')}</span><span>${esc(notebookSourceLabels[notebook.sourceType])}</span></div><div class="card-meta"><span>${esc(notebook.language.join(' · '))}</span><span>${esc(notebookAccessLabels[notebook.access])}</span></div><div class="tag-list">${notebook.topicTags.map((tag) => `<span>#${esc(tag)}</span>`).join('')}</div>${notebook.needsReview ? `<p class="review-note">${icon('spark')} Odkaz čeká na ověření</p>` : ''}</article>`;
 }
 
 function guideCard(guide: Guide): string {
@@ -183,6 +189,11 @@ const sourceTypeLabels: Record<Source['sourceType'], string> = {
   official: 'Oficiální', academic: 'Akademický', 'open-data': 'Otevřená data', library: 'Knihovna',
   archive: 'Archiv', reference: 'Referenční', journalism: 'Žurnalistika', 'fact-check': 'Fact-check',
 };
+
+const toolIntegrationLabels: Record<Tool['integrationLevel'], string> = { direct: 'Přímé', workflow: 'Workflow', adjacent: 'Doplňkové' };
+const toolSourceLabels: Record<Tool['sourceType'], string> = { official: 'Oficiální', 'open-source': 'Open source', commercial: 'Komerční', community: 'Komunitní' };
+const notebookSourceLabels: Record<PublicNotebook['sourceType'], string> = { official: 'Oficiální', education: 'Vzdělávací', research: 'Výzkumný', community: 'Komunitní' };
+const notebookAccessLabels: Record<PublicNotebook['access'], string> = { public: 'Veřejný odkaz', 'google-account': 'Vyžaduje Google účet' };
 
 const sourceSuitabilityLabels: Record<Source['notebookSuitability'], string> = {
   high: 'Vysoká vhodnost', medium: 'Střední vhodnost', limited: 'Omezená vhodnost',
@@ -257,17 +268,19 @@ function sourceLibrary(): string {
 function toolLibrary(): string {
   const params = new URLSearchParams(window.location.search);
   const query = params.get('q') ?? '';
-  const filtered = tools.filter((tool) => matchesSearch([tool.title, tool.description, tool.author, tool.type, tool.tags.join(' ')], query));
+  const active = params.get('kategorie') ?? '';
+  const filtered = tools.filter((tool) => (!active || tool.category === active) && matchesSearch([tool.title, tool.description, tool.author, tool.type, tool.workflowTip, toolCategory(tool.category).label, tool.tags.join(' ')], query));
   meta('Nástroje', `${filtered.length} nástrojů pro import, organizaci a výzkum.`);
-  return shell(`${pageIntro('Katalog nástrojů', 'Méně ruční práce. Více prostoru na myšlení.', 'Komunitní i oficiální nástroje pro import, organizaci, výzkum a export. Každý odkaz vede na původní projekt.', `<span class="count-stamp"><strong>${filtered.length}</strong><small>nástrojů v katalogu</small></span>`)}<section class="library-controls wrap">${searchBox('Hledat v nástrojích…', query, 'Hledat v nástrojích')}</section><section class="section wrap list-section"><div class="notice"><strong>${icon('spark')} Bezpečné odkazy</strong><span>Externí odkazy se otevírají v nové kartě. Před instalací vždy zkontrolujte autora a oprávnění.</span></div><div class="card-grid tool-grid">${filtered.map(toolCard).join('')}</div></section>`, 'nastroje');
+  return shell(`${pageIntro('Katalog nástrojů', 'Méně ruční práce. Více prostoru na myšlení.', 'Komunitní i oficiální nástroje pro import, organizaci, výzkum a export. Každý záznam má kategorii, úroveň napojení, cenu a datum ověření.', `<span class="count-stamp"><strong>${filtered.length}</strong><small>nástrojů v katalogu</small></span>`)}<section class="library-controls wrap">${searchBox('Hledat v nástrojích…', query, 'Hledat v nástrojích')}<div class="chip-row" aria-label="Kategorie nástrojů">${link('/nastroje', 'Všechny', `chip${!active ? ' is-active' : ''}`)}${toolCategories.map((category) => link(`/nastroje?kategorie=${encodeURIComponent(category.id)}`, `${esc(category.label)} <small>${tools.filter((tool) => tool.category === category.id).length}</small>`, `chip${active === category.id ? ' is-active' : ''}`)).join('')}</div></section><section class="section wrap list-section"><div class="notice"><strong>${icon('spark')} Bezpečné odkazy</strong><span>Externí odkazy se otevírají v nové kartě. Před instalací vždy zkontrolujte autora, oprávnění a zacházení se soubory.</span></div><div class="list-heading"><p>${filtered.length} nástrojů${active ? ` · ${esc(toolCategory(active).label)}` : ''}</p>${active ? link('/nastroje', 'Zrušit filtr ×', 'text-link') : ''}</div><div class="card-grid tool-grid">${filtered.map(toolCard).join('')}</div>${filtered.length ? '' : `<div class="empty-state"><h2>Nic nenalezeno</h2><p>Zkuste jiný název, kategorii nebo úroveň napojení.</p></div>`}</section>`, 'nastroje');
 }
 
 function notebookLibrary(): string {
   const params = new URLSearchParams(window.location.search);
   const query = params.get('q') ?? '';
-  const filtered = notebooks.filter((notebook) => matchesSearch([notebook.title, notebook.description, notebook.category, notebook.publisher, notebook.author], query));
+  const active = params.get('kategorie') ?? '';
+  const filtered = notebooks.filter((notebook) => (!active || notebook.category === active) && matchesSearch([notebook.title, notebook.description, notebookCategory(notebook.category).label, notebook.publisher, notebook.author, notebook.language.join(' '), notebook.region.join(' '), notebook.topicTags.join(' ')], query));
   meta('Veřejné notebooky', `${filtered.length} veřejných notebooků a ukázek struktury.`);
-  return shell(`${pageIntro('Veřejné notebooky', 'Podívejte se, jak to poskládali ostatní.', 'Ukázky struktur, zdrojů a pracovních postupů. Odkazy, které ještě čekají na ověření, jsou tak označené.', `<span class="count-stamp"><strong>${filtered.length}</strong><small>notebooků v katalogu</small></span>`)}<section class="library-controls wrap">${searchBox('Hledat v noteboocích…', query, 'Hledat v noteboocích')}</section><section class="section wrap list-section"><div class="card-grid notebook-grid">${filtered.map(notebookCard).join('')}</div></section>`, 'notebooky');
+  return shell(`${pageIntro('Veřejné notebooky', 'Podívejte se, jak to poskládali ostatní.', 'Skutečně otevřitelné veřejné nebo sdílené notebooky s uvedeným tématem, původem, jazykem a datem ručního ověření.', `<span class="count-stamp"><strong>${filtered.length}</strong><small>notebooků v katalogu</small></span>`)}<section class="library-controls wrap">${searchBox('Hledat v noteboocích…', query, 'Hledat v noteboocích')}<div class="chip-row" aria-label="Kategorie notebooků">${link('/notebooky', 'Všechny', `chip${!active ? ' is-active' : ''}`)}${notebookCategories.map((category) => link(`/notebooky?kategorie=${encodeURIComponent(category.id)}`, `${esc(category.label)} <small>${notebooks.filter((notebook) => notebook.category === category.id).length}</small>`, `chip${active === category.id ? ' is-active' : ''}`)).join('')}</div></section><section class="section wrap list-section"><div class="notice"><strong>${icon('spark')} Přístup</strong><span>Veřejný odkaz může vyžadovat přihlášení ke Google účtu. Před použitím si ověřte aktuální obsah a oprávnění ke zdrojům.</span></div><div class="list-heading"><p>${filtered.length} notebooků${active ? ` · ${esc(notebookCategory(active).label)}` : ''}</p>${active ? link('/notebooky', 'Zrušit filtr ×', 'text-link') : ''}</div><div class="card-grid notebook-grid">${filtered.map(notebookCard).join('')}</div>${filtered.length ? '' : `<div class="empty-state"><h2>Nic nenalezeno</h2><p>Zkuste jiný název, jazyk, region nebo kategorii.</p></div>`}</section>`, 'notebooky');
 }
 
 function guideLibrary(): string {

@@ -1,15 +1,27 @@
 # Content inventory
 
-Stav po etapě M-CONTENT-1B. Číselný výpis je ověřován skriptem `npm run content:audit`.
+Stav po etapě M-CONTENT-1C. Číselný výpis je ověřován skriptem `npm run content:audit`.
 
 ```text
 Prompts: 95
 Sources: 175
-Tools: 8
-Notebooks: 6
+Tools: 25
+Notebooks: 15
 Guides: 5
 Prompt categories: 9
+Source categories: 10
 Guide categories: 6
+Tool categories: 8
+Notebook categories: 10
+Tools by pricing: free=8, freemium=5, paid=0, open source=12
+Tools by integration: direct=4, workflow=10, adjacent=11
+Tools by source type: official=7, open-source=12, commercial=6, community=0
+Tool workflow tips >=80 chars: 25
+Featured tools: 7
+Notebooks by source type: official=8, education=2, research=0, community=5
+Notebooks by access: public=0, google-account=15
+Verified notebooks: 15
+Featured notebooks: 5
 ```
 
 ## Trusted Sources v1
@@ -87,13 +99,13 @@ Kompletní coverage matrix, overlap groups a manuální vzorek 35 promptů jsou 
 ```text
 Original Notebook Hub CZ prompts: 95
 External attributed prompts: 0
-Provenance original internal records: 104
-Provenance external with sourceUrl: 1
-Provenance external missing sourceUrl: 1
-Provenance sourceUrl not applicable: 104
-needsReview (whole catalog): 1
+Provenance original internal records: 100
+Provenance external with sourceUrl: 11
+Provenance external missing sourceUrl: 4
+Provenance sourceUrl not applicable: 100
+needsReview (whole catalog): 0
 ```
 
-Jeden historický záznam `n-otevrena-data` zůstává `needsReview: true`, protože veřejný notebook nebyl ověřen. Originální promptová knihovna a interní katalogové záznamy mají legitimně `sourceUrl` nepoužito.
+Historický záznam `n-otevrena-data` byl z katalogu odstraněn, protože jeho veřejný notebook nebyl dohledatelný. V aktuální sadě notebooků není žádný záznam `needsReview: true`; komunitní odkazy mají transparentně uvedený přístup přes Google účet a datum ručního ověření.
 
-Tools, Notebooks a Guides se v této etapě obsahově nerozšiřovaly. Prompt Library zůstává uzamčená na 95 záznamech. Reference audit sloužil pouze jako benchmark rozsahu a typů použití; Trusted Sources v1 používá vlastní, ověřené záznamy.
+Prompt Library zůstává uzamčená na 95 záznamech a Trusted Sources v1 na 175 záznamech. Nástroje a veřejné notebooky mají vlastní taxonomii, link-check skripty `npm run tools:check` a `npm run notebooks:check` a samostatnou dokumentaci v `docs/tools-v1.md` a `docs/public-notebooks-v1.md`.

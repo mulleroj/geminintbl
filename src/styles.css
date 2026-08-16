@@ -100,6 +100,8 @@ button { cursor: pointer; }
 .card-meta { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 20px; color: var(--ink-soft); font-size: .7rem; }
 .source-import-tip { margin-top: 15px !important; color: var(--accent-deep) !important; font-size: .75rem !important; line-height: 1.5 !important; }
 .source-import-tip strong { color: var(--ink); }
+.workflow-tip { margin-top: 16px !important; padding-top: 14px; border-top: 1px solid var(--line); color: var(--accent-deep) !important; font-size: .75rem !important; line-height: 1.5 !important; }
+.workflow-tip strong { color: var(--ink); }
 .card-actions { display: flex; align-items: center; gap: 14px; margin-top: 22px; }
 .index-mark { color: var(--accent-deep); font-size: 1.1rem; }
 .source-icon, .tool-icon, .notebook-shape { width: 27px; height: 27px; display: grid; place-items: center; border: 1px solid var(--line-strong); color: var(--accent-deep); font-size: .8rem; font-weight: 800; }
