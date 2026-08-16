@@ -18,7 +18,7 @@ test('static app contains all major Czech routes and shared provenance fields', 
   const main = await readFile('src/main.ts', 'utf8');
   const schemas = await readFile('src/schemas/common.ts', 'utf8');
   const promptSchema = await readFile('src/schemas/prompt.ts', 'utf8');
-  for (const route of ['/prompty', '/zdroje', '/nastroje', '/notebooky', '/pruvodci', '/oblibene', '/pridat', '/pro-ucitele', '/nastroje/generator-prezentace', '/nastroje/generator-infografiky', '/nastroje/generator-audio-video']) assert.match(main, new RegExp(route.replace('/', '\\/')));
+  for (const route of ['/prompty', '/zdroje', '/nastroje', '/notebooky', '/pruvodci', '/oblibene', '/pridat', '/pro-ucitele', '/nastroje/editor-prezentaci', '/nastroje/generator-prezentace', '/nastroje/generator-infografiky', '/nastroje/generator-audio-video']) assert.match(main, new RegExp(route.replace('/', '\\/')));
   for (const field of ['sourceUrl', 'sourceLabel', 'retrievedAt', 'license', 'needsReview']) assert.match(schemas, new RegExp(field));
   assert.match(schemas, /professional/);
   assert.match(promptSchema, /complexity/);
@@ -32,7 +32,7 @@ test('content audit reports the current catalog inventory deterministically', as
   assert.ok(promptCount >= 90 && promptCount <= 100, `expected 90-100 prompts, got ${promptCount}`);
   for (const line of [
     'Sources: 175',
-    'Tools: 28',
+    'Tools: 30',
     'Notebooks: 15',
     'Guides: 32',
     'Prompt categories: 9',
@@ -40,11 +40,11 @@ test('content audit reports the current catalog inventory deterministically', as
     'Guide categories: 5',
     'Tool categories: 8',
     'Notebook categories: 10',
-    'Tools by pricing: free=11, freemium=5, paid=0, open source=12',
-    'Tools by integration: direct=7, workflow=10, adjacent=11',
-    'Tools by source type: official=7, open-source=12, commercial=6, community=3',
-    'Tool workflow tips >=80 chars: 28',
-    'Featured tools: 10',
+    'Tools by pricing: free=13, freemium=5, paid=0, open source=12',
+    'Tools by integration: direct=8, workflow=11, adjacent=11',
+    'Tools by source type: official=7, open-source=12, commercial=7, community=4',
+    'Tool workflow tips >=80 chars: 30',
+    'Featured tools: 12',
     'Notebooks by source type: official=8, education=2, research=0, community=5',
     'Notebooks by access: public=0, google-account=15',
     'Verified notebooks: 15',
@@ -84,6 +84,10 @@ test('tools and public notebooks expose the V1 metadata contract', async () => {
     readFile('src/data/notebooks/index.ts', 'utf8'),
   ]);
   for (const field of ['category', 'sourceType', 'integrationLevel', 'workflowTip', 'verifiedAt']) assert.match(tools, new RegExp(field));
+  assert.match(tools, /t-deckedit/);
+  assert.match(tools, /Convert to PPTX/);
+  assert.match(tools, /t-slide-editor/);
+  assert.match(tools, /editor-prezentaci/);
   for (const field of ['category', 'language', 'region', 'topicTags', 'sourceType', 'access', 'verifiedAt', 'needsReview']) assert.match(notebooks, new RegExp(field));
   assert.doesNotMatch(notebooks, /needsReview:\s*true/);
 });
@@ -167,4 +171,23 @@ test('prompt browsing exposes expansion, view persistence and compatible filters
   assert.match(storage, /savePromptViewMode/);
   assert.match(styles, /prompt-results\.is-compact/);
   assert.match(search, /isAcronym/);
+});
+
+test('slide editor keeps the local-first and editable-PPTX contracts visible in source', async () => {
+  const [view, model, pdf, exporter, storage] = await Promise.all([
+    readFile('src/slide-editor/view.ts', 'utf8'),
+    readFile('src/slide-editor/model.ts', 'utf8'),
+    readFile('src/slide-editor/pdf.ts', 'utf8'),
+    readFile('src/slide-editor/export.ts', 'utf8'),
+    readFile('src/slide-editor/storage.ts', 'utf8'),
+  ]);
+  for (const pattern of [/Nahrajte PDF prezentaci/, /Exportovat do PowerPointu/, /data-block-text/, /data-resize-block/, /processPdf/]) assert.match(view, pattern);
+  for (const pattern of [/MAX_PDF_BYTES/, /MAX_PDF_PAGES/, /validatePdfFile/, /linesToBlocks/, /boxToPptx/, /serializeProject/]) assert.match(model, pattern);
+  assert.match(pdf, /GlobalWorkerOptions\.workerSrc/);
+  assert.match(pdf, /createWorker\('ces\+eng'/);
+  assert.match(exporter, /createPptx/);
+  assert.match(exporter, /slide\.background = \{ data: source\.imageUrl/);
+  assert.doesNotMatch(exporter, /addImage\(\{ data: source\.imageUrl/);
+  assert.match(exporter, /addText\(block\.text/);
+  assert.match(storage, /indexedDB\.open/);
 });

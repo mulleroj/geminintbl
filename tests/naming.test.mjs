@@ -25,7 +25,7 @@ test('current product naming and locked catalogs remain intact', async () => {
   assert.match(readme, /Gemini Notebook/);
 
   const { stdout } = await run('node', ['scripts/content-audit.mjs'], { encoding: 'utf8' });
-  for (const line of ['Prompts: 95', 'Sources: 175', 'Tools: 28', 'Notebooks: 15', 'Guides: 32']) {
+  for (const line of ['Prompts: 95', 'Sources: 175', 'Tools: 30', 'Notebooks: 15', 'Guides: 32']) {
     assert.match(stdout, new RegExp(`^${line}$`, 'm'));
   }
 });
