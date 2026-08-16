@@ -26,12 +26,11 @@ export const sourceCategories: SourceCategory[] = [
 ];
 
 export const guideCategories: GuideCategory[] = [
-  { id: 'novinky', label: 'Novinky', description: 'Krátké zprávy o změnách, které stojí za pozornost.' },
-  { id: 'pruvodce', label: 'Průvodce', description: 'Praktické návody pro práci s notebookem.' },
-  { id: 'recenze', label: 'Recenze', description: 'Střízlivé hodnocení nástrojů a pracovních postupů.' },
-  { id: 'jak-na-to', label: 'Jak na to', description: 'Krokové postupy pro konkrétní situace.' },
-  { id: 'srovnani', label: 'Srovnání', description: 'Férové porovnání přístupů, variant a omezení.' },
-  { id: 'faq', label: 'FAQ', description: 'Odpovědi na opakující se otázky.' },
+  { id: 'zacinate', label: 'Začínáme', description: 'Základní orientace, notebook, zdroje a první ověřitelný výstup.' },
+  { id: 'ucitele', label: 'Pro učitele', description: 'Příprava hodin, diferenciace a materiály pro práci ve třídě.' },
+  { id: 'studio-vystupy', label: 'Studio a výstupy', description: 'Audio, video, mapy, kvízy, infografiky a další výstupy ze zdrojů.' },
+  { id: 'vyzkum', label: 'Výzkum a analýza', description: 'Porovnávání, důkazní stopa a práce s více dokumenty.' },
+  { id: 'bezpecnost-kvalita', label: 'Bezpečnost a kvalita', description: 'Ověřování, autorská práva, osobní údaje a archivace.' },
 ];
 
 export const toolCategories: CatalogCategory[] = [

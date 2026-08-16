@@ -16,8 +16,9 @@ import { prompts } from './data/prompts';
 import { sources } from './data/sources';
 import { tools } from './data/tools';
 import { assertCatalogValid } from './schemas/validate';
+import { teacherWorkflows } from './data/teacher-workflows';
 
-export const catalogIntegrity = assertCatalogValid({ prompts, sources, tools, notebooks, guides, promptCategories, sourceCategories, guideCategories, toolCategories, notebookCategories });
+export const catalogIntegrity = assertCatalogValid({ prompts, sources, tools, notebooks, guides, promptCategories, sourceCategories, guideCategories, toolCategories, notebookCategories, teacherWorkflows });
 
 export function promptCategory(id: string) {
   return promptCategories.find((category) => category.id === id) ?? promptCategories[0];
@@ -49,4 +50,16 @@ export function promptById(id: string) {
 
 export function guideBySlug(slug: string) {
   return guides.find((guide) => guide.slug === slug);
+}
+
+export function sourceById(id: string) {
+  return sources.find((source) => source.id === id);
+}
+
+export function toolById(id: string) {
+  return tools.find((tool) => tool.id === id);
+}
+
+export function workflowById(id: string) {
+  return teacherWorkflows.find((workflow) => workflow.id === id);
 }

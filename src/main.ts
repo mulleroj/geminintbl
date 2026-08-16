@@ -3,6 +3,7 @@ import {
   guideCategory,
   guideCategories,
   guides,
+  sourceById,
   notebooks,
   notebookCategories,
   notebookCategory,
@@ -15,6 +16,7 @@ import {
   sourceCategory,
   sources,
   tools,
+  toolById,
   toolCategories,
   toolCategory,
   type FavoriteType,
@@ -57,7 +59,7 @@ function button(label: string, action: string, className = '', extra = ''): stri
   return `<button class="${className}" type="button" data-action="${esc(action)}"${extra}>${label}</button>`;
 }
 
-function meta(title: string, description: string, type: 'WebSite' | 'Article' = 'WebSite'): void {
+function meta(title: string, description: string, type: 'WebSite' | 'Article' = 'WebSite', articleData?: { dateModified?: string; keywords?: string[] }): void {
   const resolvedTitle = title === 'Přehled' ? 'Notebook Hub CZ — prompty a zdroje pro Gemini Notebook' : `${title} — Notebook Hub CZ`;
   document.title = resolvedTitle;
   const canonical = `${window.location.origin}${window.location.pathname}`;
@@ -91,7 +93,7 @@ function meta(title: string, description: string, type: 'WebSite' | 'Article' = 
     ld.type = 'application/ld+json';
     document.head.append(ld);
   }
-  ld.textContent = JSON.stringify(type === 'Article' ? { '@context': 'https://schema.org', '@type': 'Article', headline: title, description, url: canonical } : { '@context': 'https://schema.org', '@type': 'WebSite', name: 'Notebook Hub CZ', url: window.location.origin, potentialAction: { '@type': 'SearchAction', target: `${window.location.origin}/prompty?q={search_term_string}`, 'query-input': 'required name=search_term_string' } });
+  ld.textContent = JSON.stringify(type === 'Article' ? { '@context': 'https://schema.org', '@type': 'Article', headline: title, description, url: canonical, dateModified: articleData?.dateModified, keywords: articleData?.keywords?.join(', ') } : { '@context': 'https://schema.org', '@type': 'WebSite', name: 'Notebook Hub CZ', url: window.location.origin, potentialAction: { '@type': 'SearchAction', target: `${window.location.origin}/prompty?q={search_term_string}`, 'query-input': 'required name=search_term_string' } });
 }
 
 function favoriteButton(type: FavoriteType, id: string): string {
@@ -185,7 +187,19 @@ function notebookCard(notebook: PublicNotebook): string {
 }
 
 function guideCard(guide: Guide): string {
-  return `<article class="card guide-card"><div class="card-top"><span class="guide-number">${esc(guide.readingMinutes)} min</span>${badge(guideCategory(guide.category).label, 'light')}<span class="spacer"></span>${favoriteButton('guide', guide.id)}</div><h3>${link(`/pruvodci/${guide.slug}`, esc(guide.title))}</h3><p>${esc(guide.excerpt)}</p><div class="card-meta"><span>Aktualizováno ${esc(guide.updatedAt)}</span><span>${esc(guide.tags.join(' · '))}</span></div><div class="card-actions">${link(`/pruvodci/${guide.slug}`, 'Číst průvodce →', 'text-link')}</div></article>`;
+  return `<article class="card guide-card"><div class="card-top"><span class="guide-number">${esc(guide.readingMinutes)} min</span>${badge(guideCategory(guide.category).label, 'light')}<span class="spacer"></span>${favoriteButton('guide', guide.id)}</div><h3>${link(`/pruvodci/${guide.slug}`, esc(guide.title))}</h3><p>${esc(guide.excerpt)}</p><div class="card-meta"><span>${esc(guideLevelLabels[guide.level])}</span><span>${esc(guide.audience.map((item) => guideAudienceLabels[item]).join(' · '))}</span></div><div class="card-meta"><span>Ověřeno ${esc(guide.lastVerified)}</span><span>${esc(guide.tags.slice(0, 3).join(' · '))}</span></div><div class="card-actions">${link(`/pruvodci/${guide.slug}`, 'Číst průvodce →', 'text-link')}</div></article>`;
+}
+
+const guideLevelLabels: Record<Guide['level'], string> = { beginner: 'Začátečník', intermediate: 'Pokročilý začátečník', advanced: 'Pokročilá práce' };
+const guideAudienceLabels: Record<Guide['audience'][number], string> = { teacher: 'učitelé', student: 'studenti', researcher: 'výzkum', professional: 'profesionálové', general: 'pro všechny' };
+
+function relatedGuideSection(guide: Guide): string {
+  const promptsRelated = guide.relatedPromptIds.map(promptById).filter((prompt): prompt is Prompt => Boolean(prompt));
+  const sourcesRelated = guide.relatedSourceIds.map(sourceById).filter((source): source is Source => Boolean(source));
+  const toolsRelated = guide.relatedToolIds.map(toolById).filter((tool): tool is Tool => Boolean(tool));
+  const workflowsRelated = guide.relatedWorkflowIds.map((id) => teacherWorkflows.find((workflow) => workflow.id === id)).filter((workflow): workflow is TeacherWorkflow => Boolean(workflow));
+  const list = (items: string, empty: string) => items || `<li class="muted">${empty}</li>`;
+  return `<section class="guide-related" aria-labelledby="guide-related-title"><div class="section-heading compact-heading"><div><p class="eyebrow">Navazující práce</p><h2 id="guide-related-title">Související obsah</h2></div><p class="muted">Výběr je ručně propojený podle úkolu průvodce.</p></div><div class="related-grid"><div><h3>Prompty</h3><ul>${list(promptsRelated.map((prompt) => `<li>${link(`/prompty/${prompt.category}/${prompt.slug}`, esc(prompt.title))}</li>`).join(''), 'Žádný přímý prompt.')}</ul></div><div><h3>Zdroje</h3><ul>${list(sourcesRelated.map((source) => `<li>${link(source.url, `${esc(source.title)} ${icon('external')}`)}</li>`).join(''), 'Žádný přímý zdroj.')}</ul></div><div><h3>Nástroje</h3><ul>${list(toolsRelated.map((tool) => `<li>${link(tool.url, `${esc(tool.title)} ${isExternal(tool.url) ? icon('external') : ''}`)}</li>`).join(''), 'Žádný přímý nástroj.')}</ul></div><div><h3>Workflow pro učitele</h3><ul>${list(workflowsRelated.map((workflow) => `<li>${link(`/pro-ucitele#workflow-${workflow.id}`, esc(workflow.title))}</li>`).join(''), 'Žádné přímé workflow.')}</ul></div></div>${guide.officialReferences.length ? `<div class="guide-references"><h3>Oficiální reference</h3><ul>${guide.officialReferences.map((reference) => `<li>${link(reference.url, `${esc(reference.label)} ${icon('external')}`)}</li>`).join('')}</ul></div>` : ''}</section>`;
 }
 
 const sourceTypeLabels: Record<Source['sourceType'], string> = {
@@ -335,7 +349,7 @@ function guideLibrary(): string {
   const params = new URLSearchParams(window.location.search);
   const query = params.get('q') ?? '';
   const active = params.get('kategorie') ?? '';
-  const filtered = guides.filter((guide) => (!active || guide.category === active) && matchesSearch([guide.title, guide.excerpt, guideCategory(guide.category).label, guide.tags.join(' ')], query));
+  const filtered = guides.filter((guide) => (!active || guide.category === active) && matchesSearch([guide.title, guide.excerpt, guideCategory(guide.category).label, guide.tags.join(' '), guide.level, guide.audience.map((item) => guideAudienceLabels[item]).join(' ')], query));
   meta('Průvodci', `${filtered.length} českých průvodců pro práci s Gemini Notebook.`);
   return shell(`${pageIntro('Knihovna průvodců', 'Praktické odpovědi pro skutečnou práci.', 'Krátké české návody bez velkých slibů — od prvního notebooku po ověřování a archivaci.', `<span class="count-stamp"><strong>${filtered.length}</strong><small>z ${guides.length} průvodců</small></span>`)}<section class="library-controls wrap">${searchBox('Hledat v průvodcích…', query, 'Hledat v průvodcích')}<div class="chip-row" aria-label="Kategorie průvodců">${link('/pruvodci', 'Všechny', `chip${!active ? ' is-active' : ''}`)}${guideCategories.map((category) => link(`/pruvodci?kategorie=${encodeURIComponent(category.id)}`, esc(category.label), `chip${active === category.id ? ' is-active' : ''}`)).join('')}</div></section><section class="section wrap list-section"><div class="card-grid guide-grid">${filtered.map(guideCard).join('')}</div></section>`, 'pruvodci');
 }
@@ -343,8 +357,8 @@ function guideLibrary(): string {
 function guideDetail(slug: string): string {
   const guide = guideBySlug(slug);
   if (!guide) return notFound();
-  meta(guide.title, guide.excerpt, 'Article');
-  return shell(`<article class="article-wrap wrap">${breadcrumb([['Průvodci', '/pruvodci'], [guideCategory(guide.category).label, `/pruvodci?kategorie=${encodeURIComponent(guide.category)}`], [guide.title, '#']])}<header class="article-header"><div class="detail-kicker">${badge(guideCategory(guide.category).label, 'light')} <span>${esc(guide.readingMinutes)} min čtení</span></div><h1>${esc(guide.title)}</h1><p class="lead">${esc(guide.excerpt)}</p><div class="article-meta"><span>Aktualizováno ${esc(guide.updatedAt)}</span><span>Autor: ${esc(guide.author ?? 'Notebook Hub CZ')}</span><span class="spacer"></span>${favoriteButton('guide', guide.id)}${button(`${icon('share')} Sdílet`, 'share', 'icon-button')}</div></header><div class="article-layout"><aside class="toc"><p class="eyebrow">Na stránce</p>${guide.content.map((section, index) => `<a href="#section-${index}">${esc(section.heading)}</a>`).join('')}</aside><div class="prose">${guide.content.map((section, index) => `<section id="section-${index}"><h2>${esc(section.heading)}</h2>${section.paragraphs.map((paragraph) => `<p>${esc(paragraph)}</p>`).join('')}${section.bullets ? `<ul>${section.bullets.map((bullet) => `<li>${esc(bullet)}</li>`).join('')}</ul>` : ''}</section>`).join('')}<div class="article-callout"><strong>${icon('spark')} Kontrolní otázka</strong><p>Co v tomto postupu vyžaduje vaše vlastní ověření nebo znalost kontextu?</p></div></div></div></article><section class="section section-tint"><div class="wrap"><div class="section-heading"><div><p class="eyebrow">Další čtení</p><h2>Pokračovat v knihovně</h2></div></div><div class="card-grid guide-grid">${guides.filter((item) => item.id !== guide.id).slice(0, 3).map(guideCard).join('')}</div></div></section>`, 'pruvodci');
+  meta(guide.title, guide.excerpt, 'Article', { dateModified: guide.lastVerified, keywords: guide.tags });
+  return shell(`<article class="article-wrap wrap">${breadcrumb([['Průvodci', '/pruvodci'], [guideCategory(guide.category).label, `/pruvodci?kategorie=${encodeURIComponent(guide.category)}`], [guide.title, '#']])}<header class="article-header"><div class="detail-kicker">${badge(guideCategory(guide.category).label, 'light')} ${badge(guideLevelLabels[guide.level], 'soft')} <span>${esc(guide.readingMinutes)} min čtení</span></div><h1>${esc(guide.title)}</h1><p class="lead">${esc(guide.excerpt)}</p><div class="article-meta"><span>Ověřeno ${esc(guide.lastVerified)}</span><span>Pro: ${esc(guide.audience.map((item) => guideAudienceLabels[item]).join(' · '))}</span><span>Autor: ${esc(guide.author ?? 'Notebook Hub CZ')}</span><span class="spacer"></span>${favoriteButton('guide', guide.id)}${button(`${icon('share')} Sdílet`, 'share', 'icon-button')}</div>${guide.availabilityNote ? `<aside class="guide-availability"><strong>${icon('spark')} Dostupnost a účet</strong><p>${esc(guide.availabilityNote)}</p></aside>` : ''}</header><div class="article-layout"><aside class="toc"><p class="eyebrow">Na stránce</p>${guide.content.map((section, index) => `<a href="#section-${index}">${esc(section.heading)}</a>`).join('')}</aside><div class="prose">${guide.content.map((section, index) => `<section id="section-${index}"><h2>${esc(section.heading)}</h2>${section.paragraphs.map((paragraph) => `<p>${esc(paragraph)}</p>`).join('')}${section.bullets ? `<ul>${section.bullets.map((bullet) => `<li>${esc(bullet)}</li>`).join('')}</ul>` : ''}</section>`).join('')}<div class="article-callout"><strong>${icon('spark')} Kontrolní otázka</strong><p>Co v tomto postupu vyžaduje vaše vlastní ověření nebo znalost kontextu?</p></div></div></div>${relatedGuideSection(guide)}</article><section class="section section-tint"><div class="wrap"><div class="section-heading"><div><p class="eyebrow">Další čtení</p><h2>Pokračovat v knihovně</h2></div></div><div class="card-grid guide-grid">${guides.filter((item) => item.id !== guide.id && item.category === guide.category).slice(0, 3).map(guideCard).join('')}</div></div></section>`, 'pruvodci');
 }
 
 function favorites(): string {

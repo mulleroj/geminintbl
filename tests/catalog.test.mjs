@@ -34,10 +34,10 @@ test('content audit reports the current catalog inventory deterministically', as
     'Sources: 175',
     'Tools: 28',
     'Notebooks: 15',
-    'Guides: 5',
+    'Guides: 32',
     'Prompt categories: 9',
     'Source categories: 10',
-    'Guide categories: 6',
+    'Guide categories: 5',
     'Tool categories: 8',
     'Notebook categories: 10',
     'Tools by pricing: free=11, freemium=5, paid=0, open source=12',
@@ -68,10 +68,10 @@ test('content audit reports the current catalog inventory deterministically', as
     'Prompt quality duplicate titles: none',
     'Prompt quality duplicate normalized titles: none',
     'needsReview: 0',
-    'Provenance original internal: 100',
+    'Provenance original internal: 127',
     'Provenance external with sourceUrl: 11',
     'Provenance external missing sourceUrl: 4',
-    'Provenance sourceUrl not applicable: 100',
+    'Provenance sourceUrl not applicable: 127',
     'Duplicate IDs: none',
     'Duplicate slugs: none',
     'Invalid URLs: none',
@@ -86,6 +86,19 @@ test('tools and public notebooks expose the V1 metadata contract', async () => {
   for (const field of ['category', 'sourceType', 'integrationLevel', 'workflowTip', 'verifiedAt']) assert.match(tools, new RegExp(field));
   for (const field of ['category', 'language', 'region', 'topicTags', 'sourceType', 'access', 'verifiedAt', 'needsReview']) assert.match(notebooks, new RegExp(field));
   assert.doesNotMatch(notebooks, /needsReview:\s*true/);
+});
+
+test('guides V1 audit locks scale, provenance and cross-catalog links', async () => {
+  const { stdout } = await run('node', ['scripts/guides-audit.mjs'], { encoding: 'utf8' });
+  assert.match(stdout, /^Guides: 32$/m);
+  assert.match(stdout, /^Guide categories: 5$/m);
+  assert.match(stdout, /^Featured guides: 6$/m);
+  assert.match(stdout, /^needsReview: 0$/m);
+  assert.match(stdout, /^Missing lastVerified: 0$/m);
+  assert.match(stdout, /^Official reference coverage: 32\/32$/m);
+  assert.match(stdout, /^Dangling references: none$/m);
+  assert.match(stdout, /^Duplicate normalized titles: none$/m);
+  assert.match(stdout, /^Duplicate job-to-be-done: none$/m);
 });
 
 test('prompt quality audit enforces the scale and metadata contract', async () => {

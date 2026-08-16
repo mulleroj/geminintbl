@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "node scripts/lint.mjs",
     "content:audit": "node scripts/content-audit.mjs",
+    "guides:check": "node scripts/guides-audit.mjs",
     "sources:quality": "node scripts/source-quality-v1.mjs",
     "sources:check": "node scripts/check-sources.mjs",
     "naming:audit": "node scripts/naming-audit.mjs",

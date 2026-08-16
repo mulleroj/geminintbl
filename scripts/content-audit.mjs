@@ -63,7 +63,7 @@ const groups = {
   sources: { directory: join(contentRoot, 'sources'), includeIndex: false, required: ['title', 'url', 'category', 'description'], category: 'source' },
   tools: { directory: join(contentRoot, 'tools'), includeIndex: true, required: ['title', 'type', 'category', 'description', 'tags', 'pricing', 'url', 'sourceType', 'integrationLevel', 'workflowTip', 'verifiedAt'], category: 'tool' },
   notebooks: { directory: join(contentRoot, 'notebooks'), includeIndex: true, required: ['title', 'category', 'description', 'url', 'language', 'region', 'topicTags', 'sourceType', 'access', 'verifiedAt', 'needsReview'], category: 'notebook' },
-  guides: { directory: join(contentRoot, 'guides'), includeIndex: true, required: ['slug', 'title', 'excerpt', 'category', 'readingMinutes', 'tags', 'content'], category: 'guide' },
+  guides: { directory: join(contentRoot, 'guides'), includeIndex: true, required: ['slug', 'title', 'excerpt', 'category', 'readingMinutes', 'tags', 'content', 'level', 'audience', 'relatedPromptIds', 'relatedSourceIds', 'relatedToolIds', 'relatedWorkflowIds', 'officialReferences', 'lastVerified'], category: 'guide' },
 };
 
 const categoryText = await readFile(join(contentRoot, 'categories.ts'), 'utf8');

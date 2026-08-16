@@ -1,5 +1,14 @@
 import type { Provenance } from './common';
 
+export type GuideLevel = 'beginner' | 'intermediate' | 'advanced';
+
+export type GuideAudience = 'teacher' | 'student' | 'researcher' | 'professional' | 'general';
+
+export interface GuideReference {
+  label: string;
+  url: string;
+}
+
 export interface GuideSection {
   heading: string;
   paragraphs: string[];
@@ -16,6 +25,15 @@ export interface Guide extends Provenance {
   updatedAt?: string;
   tags: string[];
   content: GuideSection[];
+  level: GuideLevel;
+  audience: GuideAudience[];
+  relatedPromptIds: string[];
+  relatedSourceIds: string[];
+  relatedToolIds: string[];
+  relatedWorkflowIds: string[];
+  officialReferences: GuideReference[];
+  lastVerified: string;
+  availabilityNote?: string;
   featured?: boolean;
 }
 

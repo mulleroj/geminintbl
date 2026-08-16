@@ -1,0 +1,33 @@
+# Gemini Notebook — feature audit pro Guides V1
+
+Ověřeno: 2026-08-16. Rozsah: oficiální nápověda Google pro Gemini Notebook, nikoli komunitní návody. Číselné limity a dostupnost jsou záměrně uváděné jen tam, kde je potvrzuje aktuální nápověda; plán, věk, účet, zařízení a administrátor Workspace mohou nabídku změnit.
+
+## Ověřený faktický základ
+
+| Oblast | Co lze bezpečně tvrdit ve V1 | Caveat pro text průvodce | Oficiální reference |
+| --- | --- | --- | --- |
+| Základ produktu | Notebook je samostatná kolekce zdrojů pro konkrétní projekt; notebooky se mezi sebou samy nesdílejí. Chat pracuje nad vybranými zdroji a zobrazuje citace. | Citace pomáhá dohledat oporu, ale není zárukou pravdivosti zdroje ani závěru. | [Learn about Gemini Notebook](https://support.google.com/gemininotebook/answer/16164461?hl=en), [Use chat](https://support.google.com/gemininotebook/answer/16179559?hl=en) |
+| Zdroje | Lze přidávat text, dokumenty, PDF, obrázky, audio, veřejné YouTube, webové URL, Google Docs/Slides/Sheets a další podporované typy. | Web importuje hlavně text; vložená média, paywally nebo dynamické části se nemusí načíst. YouTube potřebuje veřejný odkaz a přepis. | [Add or discover new sources](https://support.google.com/gemininotebook/answer/16215270?hl=en) |
+| Drive a oprávnění | Drive zdroj se může synchronizovat a pro práci je nutný přístup k souboru. | Smazaný nebo nepřístupný soubor přestane být použitelný; pracovní kopie není automatický archiv. | [Add or discover new sources](https://support.google.com/gemininotebook/answer/16215270?hl=en) |
+| Chat | Chat umožňuje výběr zdrojů, styl odpovědi, délku a uložení odpovědi jako poznámky. | Kreativní dotaz mimo zdroje může selhat nebo vyžaduje jiný pracovní postup. Agentické funkce nejsou základní předpoklad Guides V1. | [Use chat](https://support.google.com/gemininotebook/answer/16179559?hl=en) |
+| Studio | Studio nabízí poznámky, Audio Overviews, Video Overviews, Mind Maps, Reports, Data Tables, Flashcards/Quizzes, Slide Decks a Infographics podle dostupnosti účtu. | Výstupy vznikají na pozadí, mohou obsahovat faktické nebo technické chyby a export je kopie, která se nemusí synchronizovat zpět. | [Create a notebook](https://support.google.com/gemininotebook/answer/16206563?hl=en) |
+| Audio | Nápověda uvádí Deep Dive, Brief, Critique a Debate, volbu jazyka a délky a možnost vlastního promptu. | AI hlasy mohou chybovat; interaktivní režim je podle nápovědy pouze anglicky. | [Generate Audio Overview](https://support.google.com/gemininotebook/answer/16212820?hl=en-IN) |
+| Video | Nápověda uvádí Cinematic, Explainer a Short, volbu jazyka, stylu a steering promptu. | Explainer podporuje češtinu; Cinematic a Short mají užší jazykovou a věkovou dostupnost. Generování může trvat déle než 30 minut. | [Generate Video Overviews](https://support.google.com/gemininotebook/answer/16454555?hl=en) |
+| Mind Maps | Mapa vizuálně shrnuje zdroje; lze ji rozbalovat, použít uzel pro další otázku a stáhnout. | Mobilní aplikace podle nápovědy Mind Maps nepodporuje; vztah v mapě není automatický důkaz. | [Use Mind Maps](https://support.google.com/gemininotebook/answer/16212283?hl=en) |
+| Kartičky a kvízy | Studio umožňuje Flashcards/Quizzes, obtížnost, vlastní prompt, vysvětlení, výsledky a export kartiček do CSV. | Editační oprávnění a dostupnost se řídí účtem; výstup je studijní pomůcka, nikoli automaticky schválené hodnocení. | [Generate flashcards or quizzes](https://support.google.com/gemininotebook/answer/16958963?hl=en-GB) |
+| Infografika | Lze volit jazyk, detail, orientaci a vizuální styl a stáhnout PNG. | Nápověda upozorňuje na AI nepřesnosti; věk, účet a veřejné sdílení mohou funkci omezit. | [Generate an infographic](https://support.google.com/gemininotebook/answer/16758265?hl=en) |
+| Slide Deck | Lze volit Detailed Deck nebo Presenter Slides, jazyk, délku a prompt; export do PDF/PPTX. | Revize vytvoří nový deck; veřejné sdílení je omezené podle účtu a edice. | [Generate a slide deck](https://support.google.com/gemininotebook/answer/16757456?hl=en-IE) |
+| Jazyk | Nápověda uvádí více než 80 jazyků a češtinu mezi podporovanými jazyky. | Podpora jazyka není zárukou stejné nabídky ve všech výstupech; nastavení ovlivňuje chat a vybrané studijní výstupy. | [Change the output language](https://support.google.com/gemininotebook/answer/16261963?hl=en) |
+| Poznámky | Lze psát poznámky, ukládat odpovědi, převádět poznámky na zdroje a exportovat do Docs/Sheets. | Uložené odpovědi nemusí být editovatelné stejně jako ruční poznámky; exportované změny se nevrací automaticky. | [Create and add notes](https://support.google.com/gemininotebook/answer/16262519?hl=en-PH) |
+| Účet a věk | Dostupnost závisí na podporované zemi, věku, osobním nebo školním/pracovním účtu a někdy na administrátorovi. | U funkcí s věkovou hranicí nepoužívat univerzální tvrzení; průvodce vždy ukazuje, co ověřit v konkrétním účtu. | [Learn about Gemini Notebook](https://support.google.com/gemininotebook/answer/16164461?co=GENIE.Platform%3DDesktop&hl=en), [FAQ](https://support.google.com/gemininotebook/answer/16269187?hl=en) |
+| Work/School | Feature set, ochrany a limity se řídí edicí Workspace/Education a administrací. | Školní workflow používá anonymizaci a schválený účet; osobní notebook není automaticky schválené úložiště školních dat. | [Use with a work or school account](https://support.google.com/gemininotebook/answer/16337734?hl=en) |
+| Veřejné sdílení | Veřejný odkaz může zpřístupnit zdroje a artefakty; divák může potřebovat Google účet. | Skrytý Chat View neznamená skryté podklady; veřejné sdílení není dostupné stejně pro všechny účty a edice. | [Public notebooks](https://support.google.com/gemininotebook/answer/16322204?hl=en) |
+| Soukromí | Google popisuje odlišné zacházení pro osobní a Workspace/Education účty a způsob použití feedbacku. | Průvodce nenahrazuje interní politiku, DPA ani právní posouzení; do notebooku patří nejmenší nutný a schválený rozsah dat. | [Privacy and Terms](https://support.google.com/gemininotebook/answer/17004255?hl=en) |
+
+## Jak audit ovlivnil Guides V1
+
+- Každý průvodce má `lastVerified`, minimálně jednu oficiální referenci a případný `availabilityNote` pro účet, věk nebo jazyk.
+- Produktové názvy jsou v obsahu aktualizované na Gemini Notebook; historický název je použit jen v kontextu přechodu služby.
+- Studio návody oddělují přípravu zdroje, zadání výstupu, kontrolu faktů, export a sdílení.
+- Učitelské návody oddělují Studio, chat, workflow a roli učitele; neobsahují diagnostické předpisy ani pevné učební styly.
+- Číselné limity nejsou kopírovány do běžných návodů, pokud nejsou pro postup nutné. Když se použijí, průvodce uvádí, že se mohou měnit podle plánu.

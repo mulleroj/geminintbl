@@ -318,3 +318,33 @@ button { cursor: pointer; }
   .generator-output select { max-width: none; width: 100%; }
   .generator-output textarea { min-height: 500px; }
 }
+
+.guide-availability { max-width: 700px; margin-top: 22px; padding: 16px 18px; border: 1px solid var(--line); background: #f5f3eb; }
+.guide-availability strong { color: var(--accent-deep); font-size: .76rem; }
+.guide-availability p { margin: 7px 0 0; color: var(--ink-soft); font-size: .82rem; line-height: 1.6; }
+.guide-related { margin: 64px 0 0 140px; max-width: 900px; padding-top: 42px; border-top: 1px solid var(--line-strong); }
+.related-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+.related-grid > div { padding: 18px; background: var(--paper); border: 1px solid var(--line); }
+.related-grid h3, .guide-references h3 { margin: 0 0 12px; font-size: .9rem; }
+.related-grid ul, .guide-references ul { display: grid; gap: 9px; padding: 0; margin: 0; list-style: none; }
+.related-grid li, .guide-references li { color: var(--ink-soft); font-size: .78rem; line-height: 1.4; }
+.guide-references { margin-top: 28px; padding: 18px; background: #fbf8ef; }
+.guide-references a, .related-grid a { color: var(--accent-deep); }
+
+@media (max-width: 980px) {
+  .guide-related { margin-left: 70px; }
+  .related-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .guide-related { margin-left: 0; }
+  .related-grid { grid-template-columns: 1fr; }
+  .article-header, .article-header h1, .article-header .lead, .article-layout, .guide-related { min-width: 0; max-width: 100%; }
+  .article-wrap { overflow-x: hidden; }
+  .article-header h1 { width: 100%; font-size: clamp(1.6rem, 8vw, 2.3rem); overflow-wrap: anywhere; word-break: break-all; white-space: normal; }
+  .article-header .lead, .prose p, .prose li { width: 100%; font-size: .9rem; overflow-wrap: anywhere; word-break: break-word; }
+  .breadcrumbs { overflow-wrap: anywhere; word-break: break-word; }
+  .breadcrumbs > * { min-width: 0; }
+  .breadcrumbs [aria-current="page"] { flex: 1 1 100%; }
+  .article-meta > * { min-width: 0; overflow-wrap: anywhere; }
+}
