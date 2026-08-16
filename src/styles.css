@@ -218,7 +218,7 @@ button { cursor: pointer; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }
 
 /* Teacher workflows and internal generators */
-.teacher-home-section { border-block: 1px solid var(--line); }
+.teacher-home-section { padding-block: 52px; border-block: 1px solid var(--line); }
 .teacher-home-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 .teacher-home-card { position: relative; min-height: 170px; display: flex; flex-direction: column; gap: 10px; padding: 19px; border: 1px solid var(--line-strong); background: var(--surface); }
 .teacher-home-card:hover { border-color: var(--accent-deep); transform: translateY(-2px); }
@@ -299,6 +299,7 @@ button { cursor: pointer; }
   .teacher-home-grid { grid-template-columns: repeat(2, 1fr); }
   .teacher-workflow-grid { grid-template-columns: 1fr; }
   .generator-layout { grid-template-columns: 1fr; }
+  .teacher-home-section { padding-block: 40px; }
   .generator-output { position: static; }
 }
 
