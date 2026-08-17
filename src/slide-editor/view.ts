@@ -1,5 +1,5 @@
 import { clearProject, readProject, saveProject } from './storage';
-import { clamp, isBlockEdited, sanitizeFileName, userFacingProcessError, validateImageFile, validatePdfFile } from './model';
+import { clamp, isBlockEdited, sanitizeFileName, userFacingProcessError, validateImageFile, validateSourceFile } from './model';
 import type { SlideEditorProject, SlideImageBlock, SlideModel, SlideTextBlock } from './types';
 
 const esc = (value: unknown): string => String(value ?? '')
@@ -49,23 +49,23 @@ function selectedImage(): SlideImageBlock | null {
 }
 
 function pageIntro(): string {
-  return `<header class="slide-editor-intro"><div><p class="eyebrow">Praktický nástroj Notebook Hub CZ</p><h1>Editor prezentací</h1><p class="lead">Nahrajte PDF prezentaci z NotebookLM, upravte textové bloky nebo vyměňte obrázky a stáhněte výsledek jako editovatelný PowerPoint.</p></div><span class="editor-local-badge"><strong>Lokálně</strong><small>PDF zůstává ve vašem zařízení</small></span></header>`;
+  return `<header class="slide-editor-intro"><div><p class="eyebrow">Praktický nástroj Notebook Hub CZ</p><h1>Editor prezentací</h1><p class="lead">Nahrajte PDF nebo PPTX prezentaci, upravte textové bloky, obrázky a vodoznaky a stáhněte výsledek jako PowerPoint.</p></div><span class="editor-local-badge"><strong>Lokálně</strong><small>Soubor zůstává ve vašem zařízení</small></span></header>`;
 }
 
 function steps(): string {
-  return `<div class="slide-editor-steps" aria-label="Postup"><div><span>01</span><strong>Nahrajte PDF</strong><small>Ideálně export Slide Decku z NotebookLM.</small></div><div><span>02</span><strong>Upravte text nebo obrázek</strong><small>OCR text upravte přímo; obrázek odemkněte označením jeho oblasti.</small></div><div><span>03</span><strong>Exportujte PPTX</strong><small>Původní stránka zůstane zachovaná.</small></div></div>`;
+  return `<div class="slide-editor-steps" aria-label="Postup"><div><span>01</span><strong>Nahrajte PDF nebo PPTX</strong><small>U PPTX se zachovají skutečné textové a obrazové objekty.</small></div><div><span>02</span><strong>Upravte text nebo obrázek</strong><small>Text, obrázky a vodoznaky upravte přímo; u sloučeného PDF označte oblast.</small></div><div><span>03</span><strong>Exportujte PPTX</strong><small>Původní rozložení zůstane zachované.</small></div></div>`;
 }
 
 function emptyContent(): string {
-  return `<section class="slide-editor-empty"><div class="slide-editor-notice"><strong>${'✦'} Zpracování přímo v prohlížeči</strong><span>PDF ani jeho stránky neposíláme na server Notebook Hubu. OCR model se při prvním použití načte do prohlížeče.</span></div>${steps()}<label class="slide-editor-dropzone" data-editor-dropzone><input aria-label="Vyberte PDF prezentaci" data-editor-upload type="file" accept="application/pdf,.pdf" /><span class="drop-icon">↑</span><strong>Nahrajte PDF prezentaci</strong><small>Přetáhněte soubor sem nebo jej vyberte. Limit: 40 MB a 50 stran.</small></label><p class="slide-editor-hint"><strong>Pro nejlepší výsledek:</strong> používejte slidy s jasně oddělenými textovými bloky. Obrázek z PDF odemknete ručním označením jeho oblasti; před exportem si zkontrolujte masku a výsledek.</p></section>`;
+  return `<section class="slide-editor-empty"><div class="slide-editor-notice"><strong>${'✦'} Zpracování přímo v prohlížeči</strong><span>PDF ani PPTX neposíláme na server Notebook Hubu. OCR a rozbalení prezentace probíhá přímo ve vašem prohlížeči.</span></div>${steps()}<label class="slide-editor-dropzone" data-editor-dropzone><input aria-label="Vyberte PDF nebo PowerPoint prezentaci" data-editor-upload type="file" accept="application/pdf,.pdf,application/vnd.openxmlformats-officedocument.presentationml.presentation,.pptx" /><span class="drop-icon">↑</span><strong>Nahrajte PDF nebo PPTX prezentaci</strong><small>Přetáhněte soubor sem nebo jej vyberte. Limit: PDF 40 MB, PPTX 80 MB a 50 slidů.</small></label><p class="slide-editor-hint"><strong>Pro nejlepší výsledek:</strong> u PPTX se skutečnými objekty se zachovají jejich texty a obrázky. U sloučeného PDF nebo PPTX slidu označte oblast ikony ručně.</p></section>`;
 }
 
 function processingContent(): string {
-  return `<section class="slide-editor-processing" aria-live="polite"><div class="processing-mark">${'✦'}</div><p class="eyebrow">${state.progress < 50 ? 'PDF' : 'OCR'} / zpracování v prohlížeči</p><h2>${esc(state.progressMessage || 'Připravuji slidy…')}</h2><progress aria-label="Postup zpracování PDF" max="100" value="${Math.min(100, state.progress)}">${state.progress}%</progress><p>${state.progress}% dokončeno. U větší prezentace může rozpoznání textu chvíli trvat.</p></section>`;
+  return `<section class="slide-editor-processing" aria-live="polite"><div class="processing-mark">${'✦'}</div><p class="eyebrow">Soubor / zpracování v prohlížeči</p><h2>${esc(state.progressMessage || 'Připravuji slidy…')}</h2><progress aria-label="Postup zpracování prezentace" max="100" value="${Math.min(100, state.progress)}">${state.progress}%</progress><p>${state.progress}% dokončeno. U větší prezentace může rozpoznání textu chvíli trvat.</p></section>`;
 }
 
 function errorContent(): string {
-  return `<section class="slide-editor-error" role="alert"><div class="error-mark">!</div><div><p class="eyebrow">PDF se nepodařilo zpracovat</p><h2>${esc(state.error)}</h2><p>Zkontrolujte, že jde o platné PDF s nejvýše 50 stranami a zkuste to znovu. Původní soubor nebyl nahrán na server.</p><button class="button button-primary" type="button" data-editor-reset>Vybrat jiný soubor</button></div></section>`;
+  return `<section class="slide-editor-error" role="alert"><div class="error-mark">!</div><div><p class="eyebrow">Soubor se nepodařilo zpracovat</p><h2>${esc(state.error)}</h2><p>Zkontrolujte, že jde o platný PDF nebo PPTX soubor s nejvýše 50 slidy a zkuste to znovu. Původní soubor nebyl nahrán na server.</p><button class="button button-primary" type="button" data-editor-reset>Vybrat jiný soubor</button></div></section>`;
 }
 
 function thumbnail(slide: SlideModel, index: number): string {
@@ -92,12 +92,12 @@ function imageMarkup(image: SlideImageBlock, slide: SlideModel): string {
   const imageContent = image.imageUrl
     ? `<img src="${esc(image.imageUrl)}" alt="${esc(image.altText || 'Nahrazený obrázek')}" />`
     : '<span class="slide-editor-image-placeholder">Vyberte obrázek</span>';
-  return `<div class="slide-editor-image-block${selected ? ' is-selected' : ''}${image.imageUrl ? ' has-image' : ''}" data-image-id="${esc(image.id)}" style="${imageStyle(image, slide)}" tabindex="0" role="button" aria-label="${esc(image.altText || 'Obrázková oblast')}">${imageContent}<button class="slide-editor-image-resize" type="button" data-resize-image aria-label="Změnit velikost obrázku">↘</button></div>`;
+  return `<div class="slide-editor-image-block${selected ? ' is-selected' : ''}${image.edited ? ' is-edited' : ''}${image.imageUrl ? ' has-image' : ''}" data-image-id="${esc(image.id)}" style="${imageStyle(image, slide)}" tabindex="0" role="button" aria-label="${esc(image.altText || 'Obrázková oblast')}">${imageContent}<button class="slide-editor-image-resize" type="button" data-resize-image aria-label="Změnit velikost obrázku">↘</button></div>`;
 }
 
 function inspector(): string {
   const image = selectedImage();
-  if (image) return `<aside class="slide-editor-inspector"><p class="eyebrow">Vybraný obrázek</p><h2>Vlastnosti</h2><p class="muted">Původní PDF je sloučené do jedné stránky. Tato oblast překryje původní ikonu a vloží nový obrázek.</p><label class="editor-field editor-field-full"><span>${image.imageUrl ? 'Vyměnit obrázek' : 'Vybrat obrázek'}</span><input type="file" accept="image/png,image/jpeg,image/svg+xml,.png,.jpg,.jpeg,.svg" data-image-upload /></label>${image.imageUrl ? `<img class="slide-editor-image-preview" src="${esc(image.imageUrl)}" alt="${esc(image.altText || 'Náhled obrázku')}" />` : ''}<label class="editor-field"><span>Barva překrytí původní ikony</span><input type="color" value="${esc(image.maskColor)}" data-image-mask-color /></label><label class="editor-field editor-field-full"><span>Popis obrázku</span><input type="text" value="${esc(image.altText)}" data-image-alt /></label><button class="button button-quiet image-remove-button" type="button" data-image-remove>Odstranit náhradu</button><div class="inspector-tip"><strong>Tip</strong><span>Oblast můžete přetáhnout a změnit její velikost. Pro ikony použijte ideálně PNG nebo SVG s průhledným pozadím.</span></div></aside>`;
+  if (image) return `<aside class="slide-editor-inspector"><p class="eyebrow">Vybraný obrázek</p><h2>Vlastnosti</h2><p class="muted">${image.edited ? 'Tato oblast překryje původní grafiku a vloží nový obrázek.' : 'Toto je původní obrazový objekt z PPTX. Po nahrání náhrady se při exportu zachová jeho pozice a rozměry.'}</p><label class="editor-field editor-field-full"><span>${image.imageUrl ? 'Vyměnit obrázek' : 'Vybrat obrázek'}</span><input type="file" accept="image/png,image/jpeg,image/svg+xml,.png,.jpg,.jpeg,.svg" data-image-upload /></label>${image.imageUrl ? `<img class="slide-editor-image-preview" src="${esc(image.imageUrl)}" alt="${esc(image.altText || 'Náhled obrázku')}" />` : ''}<label class="editor-field"><span>Barva překrytí původní ikony</span><input type="color" value="${esc(image.maskColor)}" data-image-mask-color /></label><label class="editor-field editor-field-full"><span>Popis obrázku</span><input type="text" value="${esc(image.altText)}" data-image-alt /></label><button class="button button-quiet image-remove-button" type="button" data-image-remove>Odstranit náhradu</button><div class="inspector-tip"><strong>Tip</strong><span>Oblast můžete přetáhnout a změnit její velikost. Pro ikony použijte ideálně PNG nebo SVG s průhledným pozadím.</span></div></aside>`;
   const block = selectedBlock();
   if (!block) return `<aside class="slide-editor-inspector"><p class="eyebrow">Vlastnosti</p><h2>${state.imageMode ? 'Označte obrázek' : 'Vyberte text nebo obrázek'}</h2><p class="muted">${state.imageMode ? 'Tažením myši nebo prstem označte oblast ikony. Potom do ní vložíte vlastní PNG, JPG nebo SVG.' : 'Klikněte na text na plátně. Pro výměnu ikony klikněte na „Odemknout obrázek“ a označte její oblast.'}</p><div class="inspector-tip"><strong>OCR confidence</strong><span>Textové bloky jsou pouze návrh. Čísla, diakritiku a názvy před exportem ověřte.</span></div></aside>`;
   return `<aside class="slide-editor-inspector"><p class="eyebrow">Vybraný textový blok</p><h2>Vlastnosti</h2><label class="editor-field editor-field-full"><span>Text</span><textarea rows="6" data-inspector-text>${esc(block.text)}</textarea></label><div class="editor-field-grid"><label class="editor-field"><span>Velikost</span><input type="number" min="8" max="120" step="1" value="${Math.round(block.fontSize)}" data-inspector-font-size /></label><label class="editor-field"><span>Barva</span><input type="color" value="${esc(block.color)}" data-inspector-color /></label></div><div class="editor-checks"><label><input type="checkbox" data-inspector-bold${block.bold ? ' checked' : ''} /> Tučné</label><label><input type="checkbox" data-inspector-italic${block.italic ? ' checked' : ''} /> Kurzíva</label></div><label class="editor-field"><span>Zarovnání</span><select data-inspector-align><option value="left"${block.align === 'left' ? ' selected' : ''}>Vlevo</option><option value="center"${block.align === 'center' ? ' selected' : ''}>Na střed</option><option value="right"${block.align === 'right' ? ' selected' : ''}>Vpravo</option></select></label><div class="inspector-confidence"><span>OCR confidence</span><strong>${block.confidence}%</strong><small>Rozpoznání je orientační; změny se ukládají pouze v tomto prohlížeči.</small></div></aside>`;
@@ -110,7 +110,7 @@ function readyContent(): string {
   const feedback = state.error
     ? `<strong>${esc(state.error)}</strong> Aktuální projekt zůstává dostupný v této relaci.`
     : (state.imageMode ? 'Tažením označte oblast obrázku nebo ikony.' : (state.selectedImageId ? 'Vybraný obrázek můžete vyměnit, přetáhnout nebo změnit jeho velikost.' : (state.selectedBlockId ? 'Vybraný blok můžete upravit přímo na slidu nebo v panelu vlastností.' : 'Klikněte na rozpoznaný textový blok, nebo odemkněte oblast obrázku.')));
-  return `<section class="slide-editor-ready"><div class="slide-editor-toolbar"><div><p class="eyebrow">Rozpracovaný projekt</p><strong>${esc(project.fileName)}</strong><span>${project.slides.length} slidů · upravujete slide ${slide.pageNumber}</span></div><div class="slide-editor-toolbar-actions"><button class="button button-quiet" type="button" data-editor-reset>Nové PDF</button><button class="button button-quiet${state.imageMode ? ' is-active' : ''}" type="button" data-image-mode>${state.imageMode ? 'Zrušit označování' : 'Odemknout obrázek'}</button><button class="button button-primary" type="button" data-editor-export>Exportovat do PowerPointu ↗</button></div></div><div class="slide-editor-layout"><aside class="slide-editor-slides"><div class="slide-editor-panel-heading"><p class="eyebrow">Slidy</p><strong>${project.slides.length}</strong></div><div class="slide-thumbnails">${project.slides.map(thumbnail).join('')}</div></aside><main class="slide-editor-main"><div class="slide-editor-stage-wrap"><div class="slide-editor-stage${state.imageMode ? ' is-image-mode' : ''}" data-editor-stage style="aspect-ratio:${slide.width} / ${slide.height};"><img class="slide-editor-background" src="${esc(slide.imageUrl)}" alt="Slide ${slide.pageNumber} — původní grafika" />${slide.imageBlocks.map((image) => imageMarkup(image, slide)).join('')}${slide.blocks.map((block) => blockMarkup(block, slide)).join('')}</div></div><p class="slide-editor-feedback" data-editor-feedback role="status" aria-live="polite">${feedback}</p></main>${inspector()}</div><div class="slide-editor-footnote"><strong>Jak funguje úprava obrázku:</strong> PDF je původně jeden sloučený obraz. Tlačítkem „Odemknout obrázek“ označíte oblast ikony, nahrajete náhradu a ta se do exportu vloží jako samostatný upravitelný objekt. Původní slide zůstává zachovaný pod překryvem.</div></section>`;
+  return `<section class="slide-editor-ready"><div class="slide-editor-toolbar"><div><p class="eyebrow">Rozpracovaný projekt</p><strong>${esc(project.fileName)}</strong><span>${project.slides.length} slidů · upravujete slide ${slide.pageNumber}</span></div><div class="slide-editor-toolbar-actions"><button class="button button-quiet" type="button" data-editor-reset>Nový soubor</button><button class="button button-quiet${state.imageMode ? ' is-active' : ''}" type="button" data-image-mode>${state.imageMode ? 'Zrušit označování' : 'Odemknout obrázek'}</button><button class="button button-primary" type="button" data-editor-export>Exportovat do PowerPointu ↗</button></div></div><div class="slide-editor-layout"><aside class="slide-editor-slides"><div class="slide-editor-panel-heading"><p class="eyebrow">Slidy</p><strong>${project.slides.length}</strong></div><div class="slide-thumbnails">${project.slides.map(thumbnail).join('')}</div></aside><main class="slide-editor-main"><div class="slide-editor-stage-wrap"><div class="slide-editor-stage${state.imageMode ? ' is-image-mode' : ''}" data-editor-stage style="aspect-ratio:${slide.width} / ${slide.height};"><img class="slide-editor-background" src="${esc(slide.imageUrl)}" alt="Slide ${slide.pageNumber} — původní grafika" />${slide.imageBlocks.map((image) => imageMarkup(image, slide)).join('')}${slide.blocks.map((block) => blockMarkup(block, slide)).join('')}</div></div><p class="slide-editor-feedback" data-editor-feedback role="status" aria-live="polite">${feedback}</p></main>${inspector()}</div><div class="slide-editor-footnote"><strong>Jak funguje úprava obrázku:</strong> U PDF nebo sloučeného PPTX slidu označíte oblast ikony, nahrajete náhradu a ta se do exportu vloží jako samostatný upravitelný objekt. U PPTX s nativními objekty se zachová jejich pozice; upravené obrázky překryjí původní grafiku a exportují se jako samostatné objekty.</div></section>`;
 }
 
 function page(): string {
@@ -164,12 +164,13 @@ function updateEditorImage(root: HTMLElement, image: SlideImageBlock): void {
   if (!element) return;
   element.style.cssText = imageStyle(image, selectedSlide()!);
   element.classList.toggle('has-image', Boolean(image.imageUrl));
+  element.classList.toggle('is-edited', image.edited);
   const preview = element.querySelector<HTMLImageElement>('img');
   if (preview) preview.src = image.imageUrl;
 }
 
 function updateImageBlock(image: SlideImageBlock, changes: Partial<SlideImageBlock>): void {
-  Object.assign(image, changes);
+  Object.assign(image, changes, { edited: true });
   scheduleSave();
 }
 
@@ -301,7 +302,7 @@ function bindStageEvents(root: HTMLElement): void {
       action = null;
       suppressNextClick = true;
       if (box.width < 24 || box.height < 16) return;
-      const image: SlideImageBlock = { id: `image-${makeId()}`, ...box, imageUrl: '', maskColor: '#ffffff', altText: 'Náhrada obrázku' };
+      const image: SlideImageBlock = { id: `image-${makeId()}`, ...box, imageUrl: '', edited: true, maskColor: '#ffffff', altText: 'Náhrada obrázku' };
       slide.imageBlocks.push(image);
       state.imageMode = false;
       state.selectedImageId = image.id;
@@ -451,13 +452,14 @@ async function resetProject(root: HTMLElement): Promise<void> {
 async function processFile(root: HTMLElement, file: File): Promise<void> {
   const token = ++processToken;
   const previousProject = state.project ?? recoveryProject;
-  const validationError = validatePdfFile(file);
+  const isPptx = file.name.toLowerCase().endsWith('.pptx') || file.type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+  const validationError = validateSourceFile(file);
   if (validationError) { state.phase = 'error'; state.error = validationError; replacePage(root); return; }
-  state = { ...freshState(), phase: 'processing', progressMessage: 'Připravuji PDF…' };
+  state = { ...freshState(), phase: 'processing', progressMessage: isPptx ? 'Připravuji PowerPoint…' : 'Připravuji PDF…' };
   replacePage(root);
   try {
-    const { processPdf } = await import('./pdf');
-    const slides = await processPdf(file, (progress) => {
+    const processor = isPptx ? (await import('./pptx')).processPptx : (await import('./pdf')).processPdf;
+    const slides = await processor(file, (progress) => {
       if (token !== processToken) return;
       const stageOffset = progress.stage === 'ocr' ? 50 : 0;
       state.progress = Math.min(99, Math.round(stageOffset + ((progress.current - 1) / Math.max(1, progress.total)) * 50));
@@ -471,7 +473,7 @@ async function processFile(root: HTMLElement, file: File): Promise<void> {
       if (copy) copy.textContent = `${state.progress}% dokončeno. U větší prezentace může rozpoznání textu chvíli trvat.`;
     });
     if (token !== processToken) return;
-    const project: SlideEditorProject = { id: makeId(), fileName: sanitizeFileName(file.name) + '.pdf', createdAt: new Date().toISOString(), slides };
+    const project: SlideEditorProject = { id: makeId(), fileName: `${sanitizeFileName(file.name)}.${isPptx ? 'pptx' : 'pdf'}`, createdAt: new Date().toISOString(), sourceType: isPptx ? 'pptx' : 'pdf', slides };
     state = { ...state, phase: 'ready', project, selectedSlide: 0, selectedBlockId: slides[0]?.blocks[0]?.id ?? null, selectedImageId: null, imageMode: false, progress: 100, progressMessage: 'Hotovo' };
     const persisted = await saveProject(project);
     recoveryProject = null;

@@ -22,6 +22,12 @@
   text-rendering: optimizeLegibility;
 }
 
+/* Native PPTX images stay visually represented by the slide background until the teacher edits them. */
+.slide-editor-image-block:not(.is-edited) { background: transparent; box-shadow: none; }
+.slide-editor-image-block:not(.is-edited) img { opacity: 0; }
+.slide-editor-image-block:not(.is-edited).is-selected { background: var(--image-mask-color, #fff); }
+.slide-editor-image-block:not(.is-edited).is-selected img { opacity: 1; }
+
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body { margin: 0; min-width: 320px; background: var(--paper); }

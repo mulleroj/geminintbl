@@ -62,9 +62,27 @@ test('slide editor supports replacing a selected image area with a contained PPT
   assert.match(view, /data-resize-image/);
   assert.match(view, /slide\.imageBlocks\.push/);
   assert.match(exporter, /function addEditableImage/);
-  assert.match(exporter, /source\.imageBlocks\.filter\(\(image\) => image\.imageUrl\)/);
+  assert.match(exporter, /project\.sourceType === 'pptx'/);
+  assert.match(exporter, /image\.imageUrl && \(exportNativeObjects \|\| image\.edited\)/);
+  assert.match(exporter, /exportNativeObjects \|\| isBlockEdited\(block\)/);
   assert.match(exporter, /sizing: \{ type: 'contain'/);
   assert.match(exporter, /image\.maskColor/);
   assert.match(types, /interface SlideImageBlock/);
   assert.match(model, /validateImageFile/);
+});
+
+test('slide editor imports native PPTX text and image objects before export', async () => {
+  const source = await readFile('src/slide-editor/pptx.ts', 'utf8');
+  assert.match(source, /JSZip\.loadAsync/);
+  assert.match(source, /ppt\/presentation\.xml/);
+  assert.match(source, /textFromShape/);
+  assert.match(source, /imageDataUrl/);
+  assert.match(source, /backgroundImageUrl/);
+  assert.match(source, /export async function processPptx/);
+  assert.match(source, /item\.texts\.map/);
+  assert.match(source, /ocrPreview/);
+  const types = await readFile('src/slide-editor/types.ts', 'utf8');
+  const model = await readFile('src/slide-editor/model.ts', 'utf8');
+  assert.match(types, /sourceType: 'pdf' \| 'pptx'/);
+  assert.match(model, /sourceType: parsed\.sourceType === 'pptx' \? 'pptx' : 'pdf'/);
 });

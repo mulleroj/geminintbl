@@ -24,6 +24,7 @@ export interface SlideTextBlock extends SlideBox {
 export interface SlideImageBlock extends SlideBox {
   id: string;
   imageUrl: string;
+  edited: boolean;
   maskColor: string;
   altText: string;
 }
@@ -42,6 +43,7 @@ export interface SlideEditorProject {
   id: string;
   fileName: string;
   createdAt: string;
+  sourceType: 'pdf' | 'pptx';
   slides: SlideModel[];
 }
 

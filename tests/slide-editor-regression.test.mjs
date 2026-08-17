@@ -30,7 +30,7 @@ test('slide editor hardening keeps user-facing progress and privacy contracts ex
     readFile('tests/fixtures/create-slide-editor-regression.mjs', 'utf8'),
   ]);
   assert.match(view, /processToken/);
-  assert.match(view, /aria-label="Postup zpracování PDF"/);
+  assert.match(view, /aria-label="Postup zpracování prezentace"/);
   assert.match(view, /userFacingProcessError/);
   assert.doesNotMatch(pdf, /userJobId/);
   assert.match(pdf, /median/);

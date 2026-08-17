@@ -4,6 +4,7 @@ export const MAX_PDF_BYTES = 40 * 1024 * 1024;
 export const MAX_PDF_PAGES = 50;
 export const MAX_RENDER_EDGE = 1800;
 export const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+export const MAX_PPTX_BYTES = 80 * 1024 * 1024;
 
 export function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
@@ -48,9 +49,23 @@ export function validateImageFile(file: Pick<File, 'name' | 'size' | 'type'>): s
   return null;
 }
 
+export function validatePptxFile(file: Pick<File, 'name' | 'size' | 'type'>): string | null {
+  const looksLikePptx = file.type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation' || file.name.toLowerCase().endsWith('.pptx');
+  if (!looksLikePptx) return 'Vyberte soubor ve formátu PPTX.';
+  if (file.size === 0) return 'Soubor PowerPointu je prázdný.';
+  if (file.size > MAX_PPTX_BYTES) return `Soubor PowerPointu je příliš velký. Limit je ${Math.round(MAX_PPTX_BYTES / 1024 / 1024)} MB.`;
+  return null;
+}
+
+export function validateSourceFile(file: Pick<File, 'name' | 'size' | 'type'>): string | null {
+  const isPptx = file.name.toLowerCase().endsWith('.pptx') || file.type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+  return isPptx ? validatePptxFile(file) : validatePdfFile(file);
+}
+
 export function userFacingProcessError(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error ?? '');
-  if (/příliš mnoho stran|limit je 50/i.test(message)) return message;
+  if (/příliš mnoho stran|příliš mnoho slidů|limit je 50/i.test(message)) return message;
+  if (/powerpoint|pptx|zip|xml/i.test(message)) return 'PowerPoint se nepodařilo načíst. Zkontrolujte, že jde o platný soubor PPTX.';
   if (/heslem|password|encrypted/i.test(message)) return 'Toto PDF je chráněné heslem a nelze je v editoru otevřít.';
   if (/invalid\s*pdf|invalidpdf|unexpected eof|bad xref|pdf header|formaterror|neplatn.{0,4}pdf|poškozen/i.test(message)) return 'PDF je poškozené nebo v nepodporovaném formátu.';
   if (/fetch|network|worker|language|tesseract|wasm|cdn|load/i.test(message)) return 'OCR se nepodařilo načíst. Zkontrolujte připojení a zkuste to znovu.';
@@ -96,9 +111,15 @@ export function parseProject(value: string): SlideEditorProject | null {
     if (!parsed.slides.length || parsed.slides.some((slide) => !slide || typeof slide.imageUrl !== 'string' || !Array.isArray(slide.blocks))) return null;
     return {
       ...parsed,
+      sourceType: parsed.sourceType === 'pptx' ? 'pptx' : 'pdf',
       slides: parsed.slides.map((slide) => ({
         ...slide,
-        imageBlocks: Array.isArray(slide.imageBlocks) ? slide.imageBlocks : [],
+        imageBlocks: Array.isArray(slide.imageBlocks) ? slide.imageBlocks.map((image) => ({
+          ...image,
+          edited: typeof image.edited === 'boolean' ? image.edited : Boolean(image.imageUrl),
+          maskColor: typeof image.maskColor === 'string' ? image.maskColor : '#ffffff',
+          altText: typeof image.altText === 'string' ? image.altText : 'Obrázek',
+        })) : [],
         blocks: slide.blocks.map((block) => {
           const originalText = typeof block.originalText === 'string' ? block.originalText : block.text;
           return { ...block, originalText, edited: block.edited === true || block.text !== originalText };

@@ -98,13 +98,14 @@ export async function createPptx(project: SlideEditorProject): Promise<Blob> {
   pptx.layout = 'NOTEBOOK_CUSTOM';
   pptx.author = 'Notebook Hub CZ';
   pptx.company = 'Notebook Hub CZ';
-  pptx.subject = 'Upravitelná prezentace z PDF';
+  pptx.subject = 'Upravitelná prezentace z Notebook Hub CZ';
   pptx.title = sanitizeFileName(project.fileName);
+  const exportNativeObjects = project.sourceType === 'pptx';
   for (const source of project.slides) {
     const slide = pptx.addSlide();
     slide.addImage({ data: source.imageUrl, x: 0, y: 0, w: widthIn, h: heightIn });
-    source.imageBlocks.filter((image) => image.imageUrl).forEach((image) => addEditableImage(pptx, slide, source, image, widthIn, heightIn));
-    source.blocks.filter(isBlockEdited).forEach((block) => addEditableBlock(pptx, slide, source, block, widthIn, heightIn));
+    source.imageBlocks.filter((image) => image.imageUrl && (exportNativeObjects || image.edited)).forEach((image) => addEditableImage(pptx, slide, source, image, widthIn, heightIn));
+    source.blocks.filter((block) => exportNativeObjects || isBlockEdited(block)).forEach((block) => addEditableBlock(pptx, slide, source, block, widthIn, heightIn));
   }
   const result = await pptx.write({ outputType: 'blob', compression: true });
   let blob: Blob;

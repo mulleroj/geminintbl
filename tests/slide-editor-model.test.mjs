@@ -17,6 +17,10 @@ test('slide editor model validates input and maps OCR boxes to PPTX coordinates'
   assert.equal(model.validateImageFile({ name: 'icon.png', type: 'image/png', size: 100 }), null);
   assert.match(model.validateImageFile({ name: 'icon.gif', type: 'image/gif', size: 100 }), /PNG/);
   assert.match(model.validateImageFile({ name: 'icon.png', type: 'image/png', size: model.MAX_IMAGE_BYTES + 1 }), /10 MB/);
+  assert.equal(model.validatePptxFile({ name: 'deck.pptx', type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation', size: 100 }), null);
+  assert.equal(model.validateSourceFile({ name: 'deck.pptx', type: 'application/octet-stream', size: 100 }), null);
+  assert.match(model.validatePptxFile({ name: 'deck.pdf', type: 'application/pdf', size: 100 }), /PPTX/);
+  assert.match(model.validatePptxFile({ name: 'deck.pptx', type: 'application/octet-stream', size: model.MAX_PPTX_BYTES + 1 }), /80 MB/);
   assert.deepEqual(model.boxToPptx({ x: 100, y: 50, width: 200, height: 100 }, 1000, 500, 10, 5), { x: 1, y: 0.5, width: 2, height: 1 });
 });
 
@@ -37,7 +41,7 @@ test('slide editor model turns OCR lines into editable, bounded blocks', async (
 
 test('slide editor model serializes and rejects malformed projects safely', async () => {
   const model = await loadModel();
-  const project = { id: 'p1', fileName: 'deck.pdf', createdAt: '2026-08-16T00:00:00.000Z', slides: [{ id: 'slide-1', pageNumber: 1, width: 100, height: 50, imageUrl: 'data:image/jpeg;base64,test', blocks: [], imageBlocks: [] }] };
+  const project = { id: 'p1', fileName: 'deck.pdf', createdAt: '2026-08-16T00:00:00.000Z', sourceType: 'pdf', slides: [{ id: 'slide-1', pageNumber: 1, width: 100, height: 50, imageUrl: 'data:image/jpeg;base64,test', blocks: [], imageBlocks: [] }] };
   assert.deepEqual(model.parseProject(model.serializeProject(project)), project);
   assert.equal(model.parseProject('{"slides":[]}'), null);
   assert.equal(model.sanitizeFileName('Česká prezentace (verze 2).pdf'), 'Česká-prezentace-verze-2');
@@ -47,6 +51,7 @@ test('slide editor migrates legacy blocks and exports only edited text overlays'
   const model = await loadModel();
   const legacy = { id: 'p1', fileName: 'deck.pdf', createdAt: '2026-08-16T00:00:00.000Z', slides: [{ id: 'slide-1', pageNumber: 1, width: 100, height: 50, imageUrl: 'data:image/jpeg;base64,test', blocks: [{ id: 'text-1', x: 5, y: 5, width: 30, height: 10, text: 'Původní text', confidence: 95, maskColor: '#fff', fontSize: 10, color: '#000', bold: false, italic: false, align: 'left' }] }] };
   const parsed = model.parseProject(JSON.stringify(legacy));
+  assert.equal(parsed.sourceType, 'pdf');
   assert.equal(parsed.slides[0].blocks[0].originalText, 'Původní text');
   assert.equal(parsed.slides[0].blocks[0].edited, false);
   assert.equal(model.isBlockEdited(parsed.slides[0].blocks[0]), false);
@@ -60,4 +65,6 @@ test('slide editor maps technical processing failures to safe Czech UX messages'
   assert.equal(model.userFacingProcessError(new Error('Failed to fetch language data')), 'OCR se nepodařilo načíst. Zkontrolujte připojení a zkuste to znovu.');
   assert.equal(model.userFacingProcessError(new Error('PDF má příliš mnoho stran. Limit je 50.')), 'PDF má příliš mnoho stran. Limit je 50.');
   assert.equal(model.userFacingProcessError(new Error('internal stack trace')), 'PDF se nepodařilo zpracovat. Zkontrolujte soubor a zkuste to znovu.');
+  assert.equal(model.userFacingProcessError(new Error('PowerPoint postrádá ppt/presentation.xml.')), 'PowerPoint se nepodařilo načíst. Zkontrolujte, že jde o platný soubor PPTX.');
+  assert.equal(model.userFacingProcessError(new Error('PowerPoint má příliš mnoho slidů. Limit je 50.')), 'PowerPoint má příliš mnoho slidů. Limit je 50.');
 });
