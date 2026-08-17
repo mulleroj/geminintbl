@@ -186,7 +186,7 @@ test('slide editor keeps the local-first and editable-PPTX contracts visible in 
     readFile('src/slide-editor/export.ts', 'utf8'),
     readFile('src/slide-editor/storage.ts', 'utf8'),
   ]);
-  for (const pattern of [/Nahrajte PDF prezentaci/, /Exportovat do PowerPointu/, /data-block-text/, /data-resize-block/, /processPdf/]) assert.match(view, pattern);
+  for (const pattern of [/Nahrajte PDF prezentaci/, /Exportovat do PowerPointu/, /data-block-text/, /data-resize-block/, /data-image-mode/, /data-image-upload/, /processPdf/]) assert.match(view, pattern);
   for (const pattern of [/MAX_PDF_BYTES/, /MAX_PDF_PAGES/, /validatePdfFile/, /linesToBlocks/, /boxToPptx/, /serializeProject/]) assert.match(model, pattern);
   assert.match(pdf, /GlobalWorkerOptions\.workerSrc/);
   assert.match(pdf, /createWorker\('ces\+eng'/);
@@ -196,5 +196,7 @@ test('slide editor keeps the local-first and editable-PPTX contracts visible in 
   assert.match(exporter, /noSelect="1" noMove="1" noResize="1"/);
   assert.doesNotMatch(exporter, /slide\.background = \{ data: source\.imageUrl/);
   assert.match(exporter, /addText\(block\.text/);
+  assert.match(exporter, /addEditableImage/);
+  assert.match(exporter, /source\.imageBlocks/);
   assert.match(storage, /indexedDB\.open/);
 });

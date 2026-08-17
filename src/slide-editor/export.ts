@@ -1,12 +1,35 @@
 import PptxGenJS from 'pptxgenjs';
 import JSZip from 'jszip';
 import { boxToPptx, isBlockEdited, sanitizeFileName } from './model';
-import type { SlideEditorProject, SlideModel, SlideTextBlock } from './types';
+import type { SlideEditorProject, SlideImageBlock, SlideModel, SlideTextBlock } from './types';
 
 const PPTX_MIME = 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
 
 function hexColor(value: string): string {
   return value.replace('#', '').slice(0, 6).padEnd(6, 'F').toUpperCase();
+}
+
+function addEditableImage(pptx: PptxGenJS, slide: PptxGenJS.Slide, source: SlideModel, image: SlideImageBlock, widthIn: number, heightIn: number): void {
+  if (!image.imageUrl) return;
+  const position = boxToPptx(image, source.width, source.height, widthIn, heightIn);
+  const mask = hexColor(image.maskColor);
+  slide.addShape(pptx.ShapeType.rect, {
+    x: position.x,
+    y: position.y,
+    w: position.width,
+    h: position.height,
+    fill: { color: mask },
+    line: { color: mask, transparency: 100 },
+  });
+  slide.addImage({
+    data: image.imageUrl,
+    x: position.x,
+    y: position.y,
+    w: position.width,
+    h: position.height,
+    altText: image.altText,
+    sizing: { type: 'contain', w: position.width, h: position.height },
+  });
 }
 
 function addEditableBlock(pptx: PptxGenJS, slide: PptxGenJS.Slide, source: SlideModel, block: SlideTextBlock, widthIn: number, heightIn: number): void {
@@ -80,6 +103,7 @@ export async function createPptx(project: SlideEditorProject): Promise<Blob> {
   for (const source of project.slides) {
     const slide = pptx.addSlide();
     slide.addImage({ data: source.imageUrl, x: 0, y: 0, w: widthIn, h: heightIn });
+    source.imageBlocks.filter((image) => image.imageUrl).forEach((image) => addEditableImage(pptx, slide, source, image, widthIn, heightIn));
     source.blocks.filter(isBlockEdited).forEach((block) => addEditableBlock(pptx, slide, source, block, widthIn, heightIn));
   }
   const result = await pptx.write({ outputType: 'blob', compression: true });

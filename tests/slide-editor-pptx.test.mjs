@@ -49,3 +49,22 @@ test('slide editor keeps the original page visible until a text block is edited'
   assert.match(styles, /\.slide-editor-text-block:not\(\.is-edited\) \{ background: transparent/);
   assert.match(styles, /\.slide-editor-text-block:not\(\.is-edited\)\.is-selected/);
 });
+
+test('slide editor supports replacing a selected image area with a contained PPTX image', async () => {
+  const [view, exporter, types, model] = await Promise.all([
+    readFile('src/slide-editor/view.ts', 'utf8'),
+    readFile('src/slide-editor/export.ts', 'utf8'),
+    readFile('src/slide-editor/types.ts', 'utf8'),
+    readFile('src/slide-editor/model.ts', 'utf8'),
+  ]);
+  assert.match(view, /data-image-mode/);
+  assert.match(view, /data-image-upload/);
+  assert.match(view, /data-resize-image/);
+  assert.match(view, /slide\.imageBlocks\.push/);
+  assert.match(exporter, /function addEditableImage/);
+  assert.match(exporter, /source\.imageBlocks\.filter\(\(image\) => image\.imageUrl\)/);
+  assert.match(exporter, /sizing: \{ type: 'contain'/);
+  assert.match(exporter, /image\.maskColor/);
+  assert.match(types, /interface SlideImageBlock/);
+  assert.match(model, /validateImageFile/);
+});

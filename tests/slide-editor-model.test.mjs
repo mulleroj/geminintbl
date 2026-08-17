@@ -14,6 +14,9 @@ test('slide editor model validates input and maps OCR boxes to PPTX coordinates'
   assert.equal(model.validatePdfFile({ name: 'deck.pdf', type: 'application/pdf', size: 100 }), null);
   assert.match(model.validatePdfFile({ name: 'deck.txt', type: 'text/plain', size: 100 }), /PDF/);
   assert.match(model.validatePdfFile({ name: 'deck.pdf', type: 'application/pdf', size: model.MAX_PDF_BYTES + 1 }), /40 MB/);
+  assert.equal(model.validateImageFile({ name: 'icon.png', type: 'image/png', size: 100 }), null);
+  assert.match(model.validateImageFile({ name: 'icon.gif', type: 'image/gif', size: 100 }), /PNG/);
+  assert.match(model.validateImageFile({ name: 'icon.png', type: 'image/png', size: model.MAX_IMAGE_BYTES + 1 }), /10 MB/);
   assert.deepEqual(model.boxToPptx({ x: 100, y: 50, width: 200, height: 100 }, 1000, 500, 10, 5), { x: 1, y: 0.5, width: 2, height: 1 });
 });
 
@@ -34,7 +37,7 @@ test('slide editor model turns OCR lines into editable, bounded blocks', async (
 
 test('slide editor model serializes and rejects malformed projects safely', async () => {
   const model = await loadModel();
-  const project = { id: 'p1', fileName: 'deck.pdf', createdAt: '2026-08-16T00:00:00.000Z', slides: [{ id: 'slide-1', pageNumber: 1, width: 100, height: 50, imageUrl: 'data:image/jpeg;base64,test', blocks: [] }] };
+  const project = { id: 'p1', fileName: 'deck.pdf', createdAt: '2026-08-16T00:00:00.000Z', slides: [{ id: 'slide-1', pageNumber: 1, width: 100, height: 50, imageUrl: 'data:image/jpeg;base64,test', blocks: [], imageBlocks: [] }] };
   assert.deepEqual(model.parseProject(model.serializeProject(project)), project);
   assert.equal(model.parseProject('{"slides":[]}'), null);
   assert.equal(model.sanitizeFileName('Česká prezentace (verze 2).pdf'), 'Česká-prezentace-verze-2');

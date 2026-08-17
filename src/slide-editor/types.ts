@@ -21,6 +21,13 @@ export interface SlideTextBlock extends SlideBox {
   align: TextAlign;
 }
 
+export interface SlideImageBlock extends SlideBox {
+  id: string;
+  imageUrl: string;
+  maskColor: string;
+  altText: string;
+}
+
 export interface SlideModel {
   id: string;
   pageNumber: number;
@@ -28,6 +35,7 @@ export interface SlideModel {
   height: number;
   imageUrl: string;
   blocks: SlideTextBlock[];
+  imageBlocks: SlideImageBlock[];
 }
 
 export interface SlideEditorProject {

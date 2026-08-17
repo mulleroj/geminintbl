@@ -3,6 +3,7 @@ import type { OcrLine, SlideBox, SlideEditorProject, SlideTextBlock, TextAlign }
 export const MAX_PDF_BYTES = 40 * 1024 * 1024;
 export const MAX_PDF_PAGES = 50;
 export const MAX_RENDER_EDGE = 1800;
+export const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
 export function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
@@ -35,6 +36,15 @@ export function validatePdfFile(file: Pick<File, 'name' | 'size' | 'type'>): str
   if (!looksLikePdf) return 'Vyberte soubor ve formátu PDF.';
   if (file.size === 0) return 'Soubor PDF je prázdný.';
   if (file.size > MAX_PDF_BYTES) return `Soubor je příliš velký. Limit je ${Math.round(MAX_PDF_BYTES / 1024 / 1024)} MB.`;
+  return null;
+}
+
+export function validateImageFile(file: Pick<File, 'name' | 'size' | 'type'>): string | null {
+  const allowedTypes = new Set(['image/png', 'image/jpeg', 'image/svg+xml']);
+  const allowedExtension = /\.(png|jpe?g|svg)$/i.test(file.name);
+  if (!allowedTypes.has(file.type) && !allowedExtension) return 'Vyberte obrázek ve formátu PNG, JPG nebo SVG.';
+  if (file.size === 0) return 'Obrázek je prázdný.';
+  if (file.size > MAX_IMAGE_BYTES) return `Obrázek je příliš velký. Limit je ${Math.round(MAX_IMAGE_BYTES / 1024 / 1024)} MB.`;
   return null;
 }
 
@@ -88,6 +98,7 @@ export function parseProject(value: string): SlideEditorProject | null {
       ...parsed,
       slides: parsed.slides.map((slide) => ({
         ...slide,
+        imageBlocks: Array.isArray(slide.imageBlocks) ? slide.imageBlocks : [],
         blocks: slide.blocks.map((block) => {
           const originalText = typeof block.originalText === 'string' ? block.originalText : block.text;
           return { ...block, originalText, edited: block.edited === true || block.text !== originalText };

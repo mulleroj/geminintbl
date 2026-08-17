@@ -108,7 +108,7 @@ export async function processPdf(file: File, onProgress: (progress: ProcessProgr
       const result = await worker.recognize(item.canvas, undefined, { blocks: true });
       const lines = extractLines(result.data);
       const blocks = linesToBlocks(lines, item.width, item.height, (box) => colorForBox(item.canvas, box));
-      slides.push({ id: `slide-${item.pageNumber}`, pageNumber: item.pageNumber, width: item.width, height: item.height, imageUrl: item.imageUrl, blocks });
+      slides.push({ id: `slide-${item.pageNumber}`, pageNumber: item.pageNumber, width: item.width, height: item.height, imageUrl: item.imageUrl, blocks, imageBlocks: [] });
       item.canvas.width = 1;
       item.canvas.height = 1;
     }
