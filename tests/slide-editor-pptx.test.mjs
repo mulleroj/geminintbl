@@ -6,12 +6,12 @@ import { readFile } from 'node:fs/promises';
 
 const onePixel = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScxW7QAAAABJRU5ErkJggg==';
 
-test('PptxGenJS export contract keeps the raster as a non-selectable slide background', async () => {
+test('PptxGenJS export contract keeps the raster as a locked full-slide picture', async () => {
   const pptx = new PptxGenJS();
   pptx.layout = 'LAYOUT_WIDE';
   for (const [index, text] of ['Český titulek 1', 'Editable English title 2'].entries()) {
     const slide = pptx.addSlide();
-    slide.background = { data: onePixel };
+    slide.addImage({ data: onePixel, x: 0, y: 0, w: 13.333, h: 7.5 });
     slide.addShape(pptx.ShapeType.rect, { x: 1, y: 1, w: 5, h: 0.6, fill: { color: 'FFFFFF' }, line: { color: 'FFFFFF', transparency: 100 } });
     slide.addText(text, { x: 1, y: 1, w: 5, h: 0.6, fontFace: 'Arial', fontSize: 24, bold: index === 0, italic: index === 1, color: '17211C', align: 'center' });
   }
@@ -23,17 +23,19 @@ test('PptxGenJS export contract keeps the raster as a non-selectable slide backg
   for (const slideName of slideFiles) {
     const xml = await zip.file(slideName).async('string');
     const tree = xml.slice(xml.indexOf('<p:spTree>'), xml.indexOf('</p:spTree>'));
-    assert.match(xml, /<p:bg><p:bgPr><a:blipFill/);
-    assert.doesNotMatch(tree, /<p:pic>/);
+    assert.doesNotMatch(xml, /<p:bg>/);
+    assert.match(tree, /<p:pic>/);
     assert.match(tree, /<p:sp>[\s\S]*<p:sp>[\s\S]*<p:txBody>/);
-    assert.doesNotMatch(tree, /noSelect="1"|noMove="1"|noResize="1"/);
+    assert.match(tree, /<a:picLocks noChangeAspect="1"\/>/);
     assert.match(xml, /<a:t>(Český titulek 1|Editable English title 2)<\/a:t>/);
   }
   assert.match(await zip.file('ppt/slides/_rels/slide1.xml.rels').async('string'), /Target="\.\.\/media\//);
 });
 
-test('slide editor export uses the background contract instead of a selectable full-slide picture', async () => {
+test('slide editor export uses a locked full-slide picture for PowerPoint compatibility', async () => {
   const source = await readFile('src/slide-editor/export.ts', 'utf8');
-  assert.match(source, /slide\.background = \{ data: source\.imageUrl \}/);
-  assert.doesNotMatch(source, /slide\.addImage\(/);
+  assert.match(source, /slide\.addImage\(\{ data: source\.imageUrl, x: 0, y: 0, w: widthIn, h: heightIn \}\)/);
+  assert.match(source, /lockFullSlidePictures/);
+  assert.match(source, /noSelect="1" noMove="1" noResize="1"/);
+  assert.doesNotMatch(source, /slide\.background = \{ data: source\.imageUrl \}/);
 });
