@@ -41,7 +41,7 @@ test('slide editor model turns OCR lines into editable, bounded blocks', async (
 
 test('slide editor model serializes and rejects malformed projects safely', async () => {
   const model = await loadModel();
-  const project = { id: 'p1', fileName: 'deck.pdf', createdAt: '2026-08-16T00:00:00.000Z', sourceType: 'pdf', slides: [{ id: 'slide-1', pageNumber: 1, width: 100, height: 50, imageUrl: 'data:image/jpeg;base64,test', blocks: [], imageBlocks: [] }] };
+  const project = { id: 'p1', fileName: 'deck.pdf', createdAt: '2026-08-16T00:00:00.000Z', sourceType: 'pdf', slides: [{ id: 'slide-1', pageNumber: 1, width: 100, height: 50, imageUrl: 'data:image/jpeg;base64,test', contentMode: 'pdf', blocks: [], imageBlocks: [] }] };
   assert.deepEqual(model.parseProject(model.serializeProject(project)), project);
   assert.equal(model.parseProject('{"slides":[]}'), null);
   assert.equal(model.sanitizeFileName('Česká prezentace (verze 2).pdf'), 'Česká-prezentace-verze-2');

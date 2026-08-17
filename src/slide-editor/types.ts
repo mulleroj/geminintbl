@@ -35,6 +35,7 @@ export interface SlideModel {
   width: number;
   height: number;
   imageUrl: string;
+  contentMode: 'pdf' | 'pptx-native' | 'pptx-flattened';
   blocks: SlideTextBlock[];
   imageBlocks: SlideImageBlock[];
 }

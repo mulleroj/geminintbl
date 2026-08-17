@@ -256,7 +256,7 @@ export async function processPptx(file: File, onProgress: (progress: ProcessProg
       const blocks = item.texts.length
         ? item.texts.map((block) => ({ ...block, x: block.x * scaleX, y: block.y * scaleY, width: block.width * scaleX, height: block.height * scaleY, fontSize: block.fontSize * scaleX }))
         : (worker ? await ocrPreview(rendered.canvas, rendered.canvas.width, rendered.canvas.height, worker) : []);
-      slides.push({ id: `slide-${index + 1}`, pageNumber: index + 1, width: rendered.canvas.width, height: rendered.canvas.height, imageUrl: rendered.imageUrl, blocks, imageBlocks: item.images.map((image) => ({ ...image, x: image.x * rendered.canvas.width / item.width, y: image.y * rendered.canvas.height / item.height, width: image.width * rendered.canvas.width / item.width, height: image.height * rendered.canvas.height / item.height })) });
+      slides.push({ id: `slide-${index + 1}`, pageNumber: index + 1, width: rendered.canvas.width, height: rendered.canvas.height, imageUrl: rendered.imageUrl, contentMode: item.backgroundImageUrl ? 'pptx-flattened' : 'pptx-native', blocks, imageBlocks: item.images.map((image) => ({ ...image, x: image.x * rendered.canvas.width / item.width, y: image.y * rendered.canvas.height / item.height, width: image.width * rendered.canvas.width / item.width, height: image.height * rendered.canvas.height / item.height })) });
       rendered.canvas.width = 1;
       rendered.canvas.height = 1;
     }

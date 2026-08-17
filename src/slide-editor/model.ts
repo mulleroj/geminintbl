@@ -114,6 +114,7 @@ export function parseProject(value: string): SlideEditorProject | null {
       sourceType: parsed.sourceType === 'pptx' ? 'pptx' : 'pdf',
       slides: parsed.slides.map((slide) => ({
         ...slide,
+        contentMode: slide.contentMode === 'pptx-native' || slide.contentMode === 'pptx-flattened' ? slide.contentMode : 'pdf',
         imageBlocks: Array.isArray(slide.imageBlocks) ? slide.imageBlocks.map((image) => ({
           ...image,
           edited: typeof image.edited === 'boolean' ? image.edited : Boolean(image.imageUrl),

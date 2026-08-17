@@ -62,7 +62,7 @@ test('slide editor supports replacing a selected image area with a contained PPT
   assert.match(view, /data-resize-image/);
   assert.match(view, /slide\.imageBlocks\.push/);
   assert.match(exporter, /function addEditableImage/);
-  assert.match(exporter, /project\.sourceType === 'pptx'/);
+  assert.match(exporter, /source\.contentMode === 'pptx-native'/);
   assert.match(exporter, /image\.imageUrl && \(exportNativeObjects \|\| image\.edited\)/);
   assert.match(exporter, /exportNativeObjects \|\| isBlockEdited\(block\)/);
   assert.match(exporter, /sizing: \{ type: 'contain'/);

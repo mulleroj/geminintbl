@@ -100,10 +100,10 @@ export async function createPptx(project: SlideEditorProject): Promise<Blob> {
   pptx.company = 'Notebook Hub CZ';
   pptx.subject = 'Upravitelná prezentace z Notebook Hub CZ';
   pptx.title = sanitizeFileName(project.fileName);
-  const exportNativeObjects = project.sourceType === 'pptx';
   for (const source of project.slides) {
     const slide = pptx.addSlide();
     slide.addImage({ data: source.imageUrl, x: 0, y: 0, w: widthIn, h: heightIn });
+    const exportNativeObjects = source.contentMode === 'pptx-native';
     source.imageBlocks.filter((image) => image.imageUrl && (exportNativeObjects || image.edited)).forEach((image) => addEditableImage(pptx, slide, source, image, widthIn, heightIn));
     source.blocks.filter((block) => exportNativeObjects || isBlockEdited(block)).forEach((block) => addEditableBlock(pptx, slide, source, block, widthIn, heightIn));
   }
