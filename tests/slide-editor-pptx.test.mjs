@@ -39,3 +39,13 @@ test('slide editor export uses a locked full-slide picture for PowerPoint compat
   assert.match(source, /noSelect="1" noMove="1" noResize="1"/);
   assert.doesNotMatch(source, /slide\.background = \{ data: source\.imageUrl \}/);
 });
+
+test('slide editor keeps the original page visible until a text block is edited', async () => {
+  const [view, styles] = await Promise.all([
+    readFile('src/slide-editor/view.ts', 'utf8'),
+    readFile('src/styles.css', 'utf8'),
+  ]);
+  assert.match(view, /isBlockEdited\(block\)/);
+  assert.match(styles, /\.slide-editor-text-block:not\(\.is-edited\) \{ background: transparent/);
+  assert.match(styles, /\.slide-editor-text-block:not\(\.is-edited\)\.is-selected/);
+});

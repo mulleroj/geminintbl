@@ -25,6 +25,8 @@ test('slide editor model turns OCR lines into editable, bounded blocks', async (
   ], 1000, 500, () => '#f5f5f0');
   assert.equal(blocks.length, 1);
   assert.equal(blocks[0].text, 'Titulek');
+  assert.equal(blocks[0].originalText, 'Titulek');
+  assert.equal(blocks[0].edited, false);
   assert.equal(blocks[0].maskColor, '#f5f5f0');
   assert.equal(blocks[0].id, 'text-1');
   assert.equal(blocks[0].x, 10);
@@ -36,6 +38,17 @@ test('slide editor model serializes and rejects malformed projects safely', asyn
   assert.deepEqual(model.parseProject(model.serializeProject(project)), project);
   assert.equal(model.parseProject('{"slides":[]}'), null);
   assert.equal(model.sanitizeFileName('Česká prezentace (verze 2).pdf'), 'Česká-prezentace-verze-2');
+});
+
+test('slide editor migrates legacy blocks and exports only edited text overlays', async () => {
+  const model = await loadModel();
+  const legacy = { id: 'p1', fileName: 'deck.pdf', createdAt: '2026-08-16T00:00:00.000Z', slides: [{ id: 'slide-1', pageNumber: 1, width: 100, height: 50, imageUrl: 'data:image/jpeg;base64,test', blocks: [{ id: 'text-1', x: 5, y: 5, width: 30, height: 10, text: 'Původní text', confidence: 95, maskColor: '#fff', fontSize: 10, color: '#000', bold: false, italic: false, align: 'left' }] }] };
+  const parsed = model.parseProject(JSON.stringify(legacy));
+  assert.equal(parsed.slides[0].blocks[0].originalText, 'Původní text');
+  assert.equal(parsed.slides[0].blocks[0].edited, false);
+  assert.equal(model.isBlockEdited(parsed.slides[0].blocks[0]), false);
+  parsed.slides[0].blocks[0].text = 'Upravený text';
+  assert.equal(model.isBlockEdited(parsed.slides[0].blocks[0]), true);
 });
 
 test('slide editor maps technical processing failures to safe Czech UX messages', async () => {

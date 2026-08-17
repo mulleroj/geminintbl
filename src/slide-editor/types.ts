@@ -10,6 +10,8 @@ export interface SlideBox {
 export interface SlideTextBlock extends SlideBox {
   id: string;
   text: string;
+  originalText: string;
+  edited: boolean;
   confidence: number;
   maskColor: string;
   fontSize: number;

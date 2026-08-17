@@ -1,6 +1,6 @@
 import PptxGenJS from 'pptxgenjs';
 import JSZip from 'jszip';
-import { boxToPptx, sanitizeFileName } from './model';
+import { boxToPptx, isBlockEdited, sanitizeFileName } from './model';
 import type { SlideEditorProject, SlideModel, SlideTextBlock } from './types';
 
 const PPTX_MIME = 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
@@ -80,7 +80,7 @@ export async function createPptx(project: SlideEditorProject): Promise<Blob> {
   for (const source of project.slides) {
     const slide = pptx.addSlide();
     slide.addImage({ data: source.imageUrl, x: 0, y: 0, w: widthIn, h: heightIn });
-    source.blocks.forEach((block) => addEditableBlock(pptx, slide, source, block, widthIn, heightIn));
+    source.blocks.filter(isBlockEdited).forEach((block) => addEditableBlock(pptx, slide, source, block, widthIn, heightIn));
   }
   const result = await pptx.write({ outputType: 'blob', compression: true });
   let blob: Blob;

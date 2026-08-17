@@ -59,6 +59,8 @@ export function linesToBlocks(lines: OcrLine[], slideWidth: number, slideHeight:
     id: `text-${index + 1}`,
     ...line.bbox,
     text: line.text,
+    originalText: line.text,
+    edited: false,
     confidence: Math.round(line.confidence),
     maskColor: maskColorFor(line.bbox),
     fontSize: clamp(line.bbox.height * 0.88, 12, 84),
@@ -67,6 +69,10 @@ export function linesToBlocks(lines: OcrLine[], slideWidth: number, slideHeight:
     italic: false,
     align: 'left' as TextAlign,
   }));
+}
+
+export function isBlockEdited(block: Pick<SlideTextBlock, 'text' | 'originalText' | 'edited'>): boolean {
+  return block.edited || block.text !== block.originalText;
 }
 
 export function serializeProject(project: SlideEditorProject): string {
@@ -78,7 +84,16 @@ export function parseProject(value: string): SlideEditorProject | null {
     const parsed = JSON.parse(value) as Partial<SlideEditorProject>;
     if (!parsed || typeof parsed !== 'object' || typeof parsed.id !== 'string' || !Array.isArray(parsed.slides)) return null;
     if (!parsed.slides.length || parsed.slides.some((slide) => !slide || typeof slide.imageUrl !== 'string' || !Array.isArray(slide.blocks))) return null;
-    return parsed as SlideEditorProject;
+    return {
+      ...parsed,
+      slides: parsed.slides.map((slide) => ({
+        ...slide,
+        blocks: slide.blocks.map((block) => {
+          const originalText = typeof block.originalText === 'string' ? block.originalText : block.text;
+          return { ...block, originalText, edited: block.edited === true || block.text !== originalText };
+        }),
+      })),
+    } as SlideEditorProject;
   } catch {
     return null;
   }

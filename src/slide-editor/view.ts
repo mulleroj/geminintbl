@@ -1,5 +1,5 @@
 import { clearProject, readProject, saveProject } from './storage';
-import { clamp, sanitizeFileName, userFacingProcessError, validatePdfFile } from './model';
+import { clamp, isBlockEdited, sanitizeFileName, userFacingProcessError, validatePdfFile } from './model';
 import type { SlideEditorProject, SlideModel, SlideTextBlock } from './types';
 
 const esc = (value: unknown): string => String(value ?? '')
@@ -47,7 +47,7 @@ function pageIntro(): string {
 }
 
 function steps(): string {
-  return `<div class="slide-editor-steps" aria-label="Postup"><div><span>01</span><strong>Nahrajte PDF</strong><small>Ideálně export Slide Decku z NotebookLM.</small></div><div><span>02</span><strong>Upravte text</strong><small>OCR text můžete přepsat, posunout a změnit.</small></div><div><span>03</span><strong>Exportujte PPTX</strong><small>Grafika slidu zůstane jako pozadí.</small></div></div>`;
+  return `<div class="slide-editor-steps" aria-label="Postup"><div><span>01</span><strong>Nahrajte PDF</strong><small>Ideálně export Slide Decku z NotebookLM.</small></div><div><span>02</span><strong>Upravte text</strong><small>OCR návrhy se zobrazí až při výběru nebo úpravě.</small></div><div><span>03</span><strong>Exportujte PPTX</strong><small>Původní stránka zůstane zachovaná.</small></div></div>`;
 }
 
 function emptyContent(): string {
@@ -68,12 +68,13 @@ function thumbnail(slide: SlideModel, index: number): string {
 }
 
 function blockStyle(block: SlideTextBlock, slide: SlideModel): string {
-  return `left:${(block.x / slide.width) * 100}%;top:${(block.y / slide.height) * 100}%;width:${(block.width / slide.width) * 100}%;height:${(block.height / slide.height) * 100}%;--font-ratio:${block.fontSize / slide.width};--mask-color:${esc(block.maskColor)};`;
+  return `left:${(block.x / slide.width) * 100}%;top:${(block.y / slide.height) * 100}%;width:${(block.width / slide.width) * 100}%;height:${(block.height / slide.height) * 100}%;--font-ratio:${block.fontSize / slide.width};--mask-color:${esc(block.maskColor)};--block-color:${esc(block.color)};`;
 }
 
 function blockMarkup(block: SlideTextBlock, slide: SlideModel): string {
   const selected = block.id === state.selectedBlockId;
-  return `<div class="slide-editor-text-block${selected ? ' is-selected' : ''}" data-block-id="${esc(block.id)}" style="${blockStyle(block, slide)}"><textarea class="slide-editor-textarea" data-block-text spellcheck="true" aria-label="Textový blok" style="color:${esc(block.color)};font-weight:${block.bold ? 800 : 500};font-style:${block.italic ? 'italic' : 'normal'};text-align:${block.align};">${esc(block.text)}</textarea><button class="slide-editor-resize" type="button" data-resize-block aria-label="Změnit velikost textového bloku">↘</button></div>`;
+  const edited = isBlockEdited(block);
+  return `<div class="slide-editor-text-block${selected ? ' is-selected' : ''}${edited ? ' is-edited' : ''}" data-block-id="${esc(block.id)}" style="${blockStyle(block, slide)}"><textarea class="slide-editor-textarea" data-block-text spellcheck="true" aria-label="Textový blok" style="font-weight:${block.bold ? 800 : 500};font-style:${block.italic ? 'italic' : 'normal'};text-align:${block.align};">${esc(block.text)}</textarea><button class="slide-editor-resize" type="button" data-resize-block aria-label="Změnit velikost textového bloku">↘</button></div>`;
 }
 
 function inspector(): string {
@@ -89,7 +90,7 @@ function readyContent(): string {
   const feedback = state.error
     ? `<strong>${esc(state.error)}</strong> Aktuální projekt zůstává dostupný v této relaci.`
     : (state.selectedBlockId ? 'Vybraný blok můžete upravit přímo na slidu nebo v panelu vlastností.' : 'Klikněte na rozpoznaný textový blok a začněte upravovat.');
-  return `<section class="slide-editor-ready"><div class="slide-editor-toolbar"><div><p class="eyebrow">Rozpracovaný projekt</p><strong>${esc(project.fileName)}</strong><span>${project.slides.length} slidů · upravujete slide ${slide.pageNumber}</span></div><div class="slide-editor-toolbar-actions"><button class="button button-quiet" type="button" data-editor-reset>Nové PDF</button><button class="button button-primary" type="button" data-editor-export>Exportovat do PowerPointu ↗</button></div></div><div class="slide-editor-layout"><aside class="slide-editor-slides"><div class="slide-editor-panel-heading"><p class="eyebrow">Slidy</p><strong>${project.slides.length}</strong></div><div class="slide-thumbnails">${project.slides.map(thumbnail).join('')}</div></aside><main class="slide-editor-main"><div class="slide-editor-stage-wrap"><div class="slide-editor-stage" data-editor-stage style="aspect-ratio:${slide.width} / ${slide.height};"><img class="slide-editor-background" src="${esc(slide.imageUrl)}" alt="Slide ${slide.pageNumber} — původní grafika" />${slide.blocks.map((block) => blockMarkup(block, slide)).join('')}</div></div><p class="slide-editor-feedback" data-editor-feedback role="status" aria-live="polite">${feedback}</p></main>${inspector()}</div><div class="slide-editor-footnote"><strong>Jak funguje pozadí:</strong> původní slide zůstává jako obrázek. U rozpoznaných oblastí se vytvoří přibližná barevná maska a nad ní skutečný editovatelný text. U složitých nebo fotografických pozadí může být maska viditelná.</div></section>`;
+  return `<section class="slide-editor-ready"><div class="slide-editor-toolbar"><div><p class="eyebrow">Rozpracovaný projekt</p><strong>${esc(project.fileName)}</strong><span>${project.slides.length} slidů · upravujete slide ${slide.pageNumber}</span></div><div class="slide-editor-toolbar-actions"><button class="button button-quiet" type="button" data-editor-reset>Nové PDF</button><button class="button button-primary" type="button" data-editor-export>Exportovat do PowerPointu ↗</button></div></div><div class="slide-editor-layout"><aside class="slide-editor-slides"><div class="slide-editor-panel-heading"><p class="eyebrow">Slidy</p><strong>${project.slides.length}</strong></div><div class="slide-thumbnails">${project.slides.map(thumbnail).join('')}</div></aside><main class="slide-editor-main"><div class="slide-editor-stage-wrap"><div class="slide-editor-stage" data-editor-stage style="aspect-ratio:${slide.width} / ${slide.height};"><img class="slide-editor-background" src="${esc(slide.imageUrl)}" alt="Slide ${slide.pageNumber} — původní grafika" />${slide.blocks.map((block) => blockMarkup(block, slide)).join('')}</div></div><p class="slide-editor-feedback" data-editor-feedback role="status" aria-live="polite">${feedback}</p></main>${inspector()}</div><div class="slide-editor-footnote"><strong>Jak funguje úprava:</strong> původní slide zůstává beze změny jako obrázek. OCR návrhy se zobrazí při výběru; v exportu se překryv přidá pouze k textům, které upravíte.</div></section>`;
 }
 
 function page(): string {
@@ -112,7 +113,7 @@ function replacePage(root: HTMLElement): void {
 }
 
 function updateBlock(block: SlideTextBlock, changes: Partial<SlideTextBlock>): void {
-  Object.assign(block, changes);
+  Object.assign(block, changes, { edited: true });
   scheduleSave();
 }
 
@@ -132,7 +133,10 @@ function updateEditorBlock(root: HTMLElement, block: SlideTextBlock): void {
     textarea.style.fontStyle = block.italic ? 'italic' : 'normal';
     textarea.style.textAlign = block.align;
   }
-  if (element) element.style.cssText = blockStyle(block, selectedSlide()!);
+  if (element) {
+    element.style.cssText = blockStyle(block, selectedSlide()!);
+    element.classList.toggle('is-edited', isBlockEdited(block));
+  }
 }
 
 function selectBlock(root: HTMLElement, blockId: string | null): void {
